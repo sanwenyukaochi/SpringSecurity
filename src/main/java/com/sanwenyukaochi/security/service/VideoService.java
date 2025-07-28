@@ -232,8 +232,8 @@ public class VideoService {
                     for (CoreInfoDTO coreInfoDTO : clipGroupDTO.getCoreInfo()) {
                         Clip clip = new Clip();
                         clip.setId(snowflake.nextId());
-                        clip.setStartTime(coreInfoDTO.getStart());
-                        clip.setEndTime(coreInfoDTO.getEnd());
+                        clip.setStart(coreInfoDTO.getStart());
+                        clip.setEnd(coreInfoDTO.getEnd());
                         clip.setOrderInGroup(clipOrder++);
                         clip.setClipGroup(clipGroup);
                         clip.setTenantId(dbTask.getTenantId());

@@ -26,18 +26,18 @@ public class Clip extends BaseEntity {
 
     @Column(name = "start", nullable = false)
     @Comment("切片开始时间")
-    private String startTime;
+    private String start;
 
     @Column(name = "end", nullable = false)
     @Comment("切片结束时间")
-    private String endTime;
+    private String end;
 
     @Column(name = "order_in_group", nullable = false)
     @Comment("组内排序值")
     private Integer orderInGroup;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "clip_group_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "clip_group_id", nullable = false)
     @Comment("所属分组")
     private ClipGroup clipGroup;
 

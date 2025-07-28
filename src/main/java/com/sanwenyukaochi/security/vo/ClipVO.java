@@ -7,11 +7,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ClipGroupVO {
+public class ClipVO {
     @JsonSerialize(using = ToStringSerializer.class)
-    private Long clipGroupId;
-    private String summary;
+    private Long clipId;
     private String start;
     private String end;
-    private Integer clipCount;
 }
