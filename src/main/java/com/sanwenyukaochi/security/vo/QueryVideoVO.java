@@ -10,6 +10,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class QueryVideoVO {
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long id;
     private String videoName;
     @JsonSerialize(using = ToStringSerializer.class)
     private Long fileSize;

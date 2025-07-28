@@ -36,7 +36,6 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import cn.hutool.core.io.FileUtil;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -52,7 +51,6 @@ public class VideoService {
     private final TaskRepository taskRepository;
     private final ClipGroupRepository clipGroupRepository;
     private final ClipRepository clipRepository;
-    private final UserRepository userRepository;
     private final FileStorage fileStorage;
     private final Snowflake snowflake;
     private final WebClient webClient;
@@ -65,6 +63,7 @@ public class VideoService {
     public Page<VideoDTO> findAllVideo(VideoBO newVideoBO, Pageable pageable) {
         Page<Video> all = newVideoBO.getHasClips() == null ? videoRepository.findAll(pageable) : videoRepository.findAllByHasClips(newVideoBO.getHasClips(), pageable);
         return all.map(newVideo -> new VideoDTO(
+                newVideo.getId(),
                 newVideo.getFullFileNameWithName(),
                 newVideo.getFileSize(),
                 newVideo.getDuration(),
@@ -106,6 +105,7 @@ public class VideoService {
         newVideo.setTenantId(userDetails.getTenant().getId());
         videoRepository.save(newVideo);
         return new VideoDTO(
+                newVideo.getId(),
                 newVideo.getFullFileNameWithName(),
                 newVideo.getFileSize(),
                 newVideo.getDuration(),
@@ -132,6 +132,7 @@ public class VideoService {
         dbVideo.setFileExt(videoBO.getFileExt());
         videoRepository.save(dbVideo);
         return new VideoDTO(
+                dbVideo.getId(),
                 dbVideo.getFullFileNameWithName(),
                 dbVideo.getFileSize(),
                 dbVideo.getDuration(),

@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ClipRepository extends JpaRepository<Clip, Long> {
-    // 继承JpaRepository已经提供了saveAll方法用于批量保存
+    int countByClipGroupId(Long id);
 }

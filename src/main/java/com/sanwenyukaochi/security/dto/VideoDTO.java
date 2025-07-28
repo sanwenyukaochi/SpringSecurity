@@ -10,6 +10,7 @@ import org.hibernate.annotations.Comment;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VideoDTO {
+    private Long videoId;
     private String videoName;
     private Long fileSize;
     private Double duration;

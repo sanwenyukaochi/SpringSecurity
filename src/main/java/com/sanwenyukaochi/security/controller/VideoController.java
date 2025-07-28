@@ -69,6 +69,7 @@ public class VideoController {
         );
         Page<VideoDTO> videoPage = videoService.findAllVideo(newVideoBO, pageable);
         return Result.success(PageVO.from(videoPage.map(video -> new QueryVideoVO(
+                video.getVideoId(),
                 video.getVideoName(),
                 video.getFileSize(),
                 video.getDuration(),
