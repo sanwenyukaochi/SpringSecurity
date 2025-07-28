@@ -125,9 +125,9 @@ public class VideoController {
     @Operation(summary = "视频切片")
     public List<String> createVideoSlice(@Valid @Payload VideoSliceAO videoSliceAO, Authentication authentication) {
         return videoSliceAO.getIds().stream()
-                .map(id -> {
+                .map(videId -> {
                     VideoSliceBO videoSliceBO = new VideoSliceBO(
-                            id,
+                            videId,
                             videoSliceAO.getTaskType(),
                             videoSliceAO.getVideoType(),
                             videoSliceAO.getAdaptiveThreshold(),

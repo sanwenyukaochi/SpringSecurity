@@ -10,12 +10,16 @@ import com.sanwenyukaochi.security.bo.VideoBO;
 import com.sanwenyukaochi.security.dto.*;
 import com.sanwenyukaochi.security.entity.Clip;
 import com.sanwenyukaochi.security.entity.ClipGroup;
+import com.sanwenyukaochi.security.entity.Tag;
 import com.sanwenyukaochi.security.entity.Task;
 import com.sanwenyukaochi.security.entity.Video;
+import com.sanwenyukaochi.security.entity.relation.ClipTag;
 import com.sanwenyukaochi.security.enums.TaskStatus;
 import com.sanwenyukaochi.security.enums.TaskType;
 import com.sanwenyukaochi.security.exception.APIException;
 import com.sanwenyukaochi.security.repository.*;
+import com.sanwenyukaochi.security.repository.ClipTagRepository;
+import com.sanwenyukaochi.security.repository.TagRepository;
 import com.sanwenyukaochi.security.security.service.UserDetailsImpl;
 import com.sanwenyukaochi.security.storage.FileStorage;
 import com.sanwenyukaochi.security.utils.FfmpegUtils;
@@ -26,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +40,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import cn.hutool.core.io.FileUtil;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -51,6 +58,8 @@ public class VideoService {
     private final TaskRepository taskRepository;
     private final ClipGroupRepository clipGroupRepository;
     private final ClipRepository clipRepository;
+    private final TagRepository tagRepository;
+    private final ClipTagRepository clipTagRepository;
     private final FileStorage fileStorage;
     private final Snowflake snowflake;
     private final WebClient webClient;
@@ -196,6 +205,7 @@ public class VideoService {
     }
 
     @Transactional
+    @Async
     public void handleClipVideoCallbackAsync(VideoSliceCallbackBO videoSliceCallbackBO) {
         Task dbTask = taskRepository.findById(videoSliceCallbackBO.getTaskId()).orElseThrow(() -> new APIException(HttpStatus.HTTP_NOT_FOUND,"任务不存在"));
         Video dbVideo = videoRepository.findById(videoSliceCallbackBO.getVideoId()).orElseThrow(() -> new APIException(HttpStatus.HTTP_NOT_FOUND, "视频不存在"));
@@ -209,9 +219,20 @@ public class VideoService {
             dbVideo.setHasClips(true);
             dbVideo.setHasOutline(true);
             
-            // 创建列表用于批量保存ClipGroup和Clip
+            // 创建列表用于批量保存ClipGroup、Clip和ClipTag
             List<ClipGroup> clipGroupsToSave = new ArrayList<>();
             List<Clip> clipsToSave = new ArrayList<>();
+            List<ClipTag> clipTagsToSave = new ArrayList<>();
+            
+            // 预先加载所有标签到内存中，提高查询效率
+            List<Tag> allTags = tagRepository.findAll();
+            // 创建标签映射，用于快速查找
+            Map<String, Tag> tagMap = new HashMap<>();
+            for (Tag tag : allTags) {
+                // 使用name和type组合作为key
+                String key = tag.getName() + "_" + tag.getType();
+                tagMap.put(key, tag);
+            }
             
             // 处理每个切片组
             int groupOrder = 0;
@@ -251,6 +272,29 @@ public class VideoService {
                             clip.setSubtitles(subtitles);
                         }
                         
+                        // 处理标签信息
+                        if (coreInfoDTO.getTopic() != null && !coreInfoDTO.getTopic().isEmpty() && 
+                            coreInfoDTO.getType() != null && !coreInfoDTO.getType().isEmpty()) {
+                            // 从内存中查找或创建标签，使用topic作为标签名称，type作为标签类型
+                            String key = coreInfoDTO.getTopic() + "_" + coreInfoDTO.getType();
+                            Tag tag = tagMap.get(key);
+                            if (tag == null) {
+                                tag = new Tag();
+                                tag.setId(snowflake.nextId());
+                                tag.setName(coreInfoDTO.getTopic());
+                                tag.setType(coreInfoDTO.getType());
+                                tag.setTenantId(dbTask.getTenantId());
+                                tag = tagRepository.save(tag);
+                                tagMap.put(key, tag);
+                            }
+                            ClipTag clipTag = new ClipTag();
+                            clipTag.setId(snowflake.nextId());
+                            clipTag.setClip(clip);
+                            clipTag.setTag(tag);
+                            clipTag.setTenantId(dbTask.getTenantId());
+                            clipTagsToSave.add(clipTag);
+                        }
+                        
                         // 将切片添加到切片组和待保存列表
                         clipGroup.getClips().add(clip);
                         clipsToSave.add(clip);
@@ -265,15 +309,17 @@ public class VideoService {
             // 更新任务状态为完成
             dbTask.setStatus(TaskStatus.FINISHED);
             
-            // 批量保存所有ClipGroup和Clip
+            // 批量保存所有ClipGroup、Clip和ClipTag
             clipGroupRepository.saveAll(clipGroupsToSave);
             clipRepository.saveAll(clipsToSave);
+            clipTagRepository.saveAll(clipTagsToSave);
             
             // 保存视频和任务
             videoRepository.save(dbVideo);
             taskRepository.save(dbTask);
             
-            log.info("任务Id：{}, 视频Id：{}, 生成视频大纲成功，批量保存了{}个切片组和{}个切片", dbTask.getId(), dbVideo.getId(), clipGroupsToSave.size(), clipsToSave.size());
+            log.info("任务Id：{}, 视频Id：{}, 生成视频大纲成功，批量保存了{}个切片组、{}个切片和{}个标签关联", 
+                    dbTask.getId(), dbVideo.getId(), clipGroupsToSave.size(), clipsToSave.size(), clipTagsToSave.size());
         } else {
             log.error("任务Id：{}, 生成视频大纲失败, 失败原因: Python返回Null", dbTask.getId());
             dbTask.setStatus(TaskStatus.FAILED);
