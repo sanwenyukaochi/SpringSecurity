@@ -51,6 +51,7 @@ public class Clip extends BaseEntity {
 
 
     @Data
+    @AllArgsConstructor
     public static class SubtitleDTO {
         private String start;
         private String end;

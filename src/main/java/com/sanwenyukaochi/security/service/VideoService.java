@@ -43,8 +43,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import cn.hutool.core.io.FileUtil;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
@@ -205,125 +208,118 @@ public class VideoService {
     }
 
     @Transactional
-    @Async
     public void handleClipVideoCallbackAsync(VideoSliceCallbackBO videoSliceCallbackBO) {
-        Task dbTask = taskRepository.findById(videoSliceCallbackBO.getTaskId()).orElseThrow(() -> new APIException(HttpStatus.HTTP_NOT_FOUND,"任务不存在"));
-        Video dbVideo = videoRepository.findById(videoSliceCallbackBO.getVideoId()).orElseThrow(() -> new APIException(HttpStatus.HTTP_NOT_FOUND, "视频不存在"));
-        if (!videoSliceCallbackBO.getClipGroups().isEmpty()) {
-            // 清除视频之前的切片组和切片（如果有的话）
-            if (dbVideo.getHasClips()) {
-                dbVideo.getClipGroups().clear();
+        Task task = taskRepository.findById(videoSliceCallbackBO.getTaskId()).orElseThrow(() -> new APIException(HttpStatus.HTTP_NOT_FOUND,"任务不存在"));
+        try {
+            Video video = videoRepository.findById(videoSliceCallbackBO.getVideoId()).orElseThrow(() -> new APIException(HttpStatus.HTTP_NOT_FOUND, "视频不存在"));
+            if (videoSliceCallbackBO.getClipGroups().isEmpty()) {
+                log.error("任务Id：{}，生成视频大纲失败：Python返回Null", task.getId());
+                task.setStatus(TaskStatus.FAILED);
+                taskRepository.save(task);
+                return;
             }
-            
-            // 设置视频已有切片和大纲
-            dbVideo.setHasClips(true);
-            dbVideo.setHasOutline(true);
-            
-            // 创建列表用于批量保存ClipGroup、Clip和ClipTag
-            List<ClipGroup> clipGroupsToSave = new ArrayList<>();
-            List<Clip> clipsToSave = new ArrayList<>();
-            List<ClipTag> clipTagsToSave = new ArrayList<>();
-            
-            // 预先加载所有标签到内存中，提高查询效率
-            List<Tag> allTags = tagRepository.findAll();
-            // 创建标签映射，用于快速查找
-            Map<String, Tag> tagMap = new HashMap<>();
-            for (Tag tag : allTags) {
-                // 使用name和type组合作为key
-                String key = tag.getName() + "_" + tag.getType();
-                tagMap.put(key, tag);
-            }
-            
-            // 处理每个切片组
-            int groupOrder = 0;
-            for (ClipGroupDTO clipGroupDTO : videoSliceCallbackBO.getClipGroups()) {
-                // 创建新的切片组
-                ClipGroup clipGroup = new ClipGroup();
-                clipGroup.setId(snowflake.nextId());
-                clipGroup.setVideo(dbVideo);
-                clipGroup.setSummary(clipGroupDTO.getSummary());
-                clipGroup.setStart(clipGroupDTO.getStart());
-                clipGroup.setEnd(clipGroupDTO.getEnd());
-                clipGroup.setGroupOrder(groupOrder++);
-                clipGroup.setTenantId(dbTask.getTenantId());
-                
-                // 处理每个核心信息（创建切片）
-                if (clipGroupDTO.getCoreInfo() != null && !clipGroupDTO.getCoreInfo().isEmpty()) {
-                    int clipOrder = 0;
-                    for (CoreInfoDTO coreInfoDTO : clipGroupDTO.getCoreInfo()) {
-                        Clip clip = new Clip();
-                        clip.setId(snowflake.nextId());
-                        clip.setStart(coreInfoDTO.getStart());
-                        clip.setEnd(coreInfoDTO.getEnd());
-                        clip.setOrderInGroup(clipOrder++);
-                        clip.setClipGroup(clipGroup);
-                        clip.setTenantId(dbTask.getTenantId());
-                        // 处理字幕信息
-                        if (videoSliceCallbackBO.isAddSubtitle() && coreInfoDTO.getSentenceInfo() != null && !coreInfoDTO.getSentenceInfo().isEmpty()) {
-                            List<Clip.SubtitleDTO> subtitles = coreInfoDTO.getSentenceInfo().stream()
-                                    .map(subtitleDTO -> {
-                                        Clip.SubtitleDTO subtitle = new Clip.SubtitleDTO();
-                                        subtitle.setStart(subtitleDTO.getStart());
-                                        subtitle.setEnd(subtitleDTO.getEnd());
-                                        subtitle.setText(subtitleDTO.getText());
-                                        return subtitle;
-                                    })
-                                    .collect(Collectors.toList());
-                            clip.setSubtitles(subtitles);
-                        }
-                        
-                        // 处理标签信息
-                        if (coreInfoDTO.getTopic() != null && !coreInfoDTO.getTopic().isEmpty() && 
-                            coreInfoDTO.getType() != null && !coreInfoDTO.getType().isEmpty()) {
-                            // 从内存中查找或创建标签，使用topic作为标签名称，type作为标签类型
-                            String key = coreInfoDTO.getTopic() + "_" + coreInfoDTO.getType();
-                            Tag tag = tagMap.get(key);
-                            if (tag == null) {
-                                tag = new Tag();
-                                tag.setId(snowflake.nextId());
-                                tag.setName(coreInfoDTO.getTopic());
-                                tag.setType(coreInfoDTO.getType());
-                                tag.setTenantId(dbTask.getTenantId());
-                                tag = tagRepository.save(tag);
-                                tagMap.put(key, tag);
-                            }
-                            ClipTag clipTag = new ClipTag();
-                            clipTag.setId(snowflake.nextId());
-                            clipTag.setClip(clip);
-                            clipTag.setTag(tag);
-                            clipTag.setTenantId(dbTask.getTenantId());
-                            clipTagsToSave.add(clipTag);
-                        }
-                        
-                        // 将切片添加到切片组和待保存列表
-                        clipGroup.getClips().add(clip);
-                        clipsToSave.add(clip);
-                    }
+            video.setHasClips(true);
+            video.setHasOutline(true);
+            Map<String, Tag> tagMap = tagRepository.findAll().stream().collect(Collectors.toMap(tag -> tag.getName() + "_" + tag.getType(), Function.identity()));
+            ClipBuildResult result = buildClipStructure(video, task, videoSliceCallbackBO, tagMap);
+            task.setStatus(TaskStatus.FINISHED);
+            batchSave(result.clipGroups(), clipGroupRepository::saveAll);
+            batchSave(result.clips(), clipRepository::saveAll);
+            batchSave(result.clipTags(), clipTagRepository::saveAll);
+            videoRepository.save(video);
+            taskRepository.save(task);
+            log.info("任务Id：{}, 视频Id：{}, 成功保存 {} 个组，{} 个剪辑，{} 个标签",
+                    task.getId(), video.getId(),
+                    result.clipGroups().size(), result.clips().size(), result.clipTags().size());
+        } catch (Exception e) {
+            log.error("处理剪辑回调失败，任务Id：{}, 错误：{}", task.getId(), e.getMessage(), e);
+            task.setStatus(TaskStatus.FAILED);
+            taskRepository.save(task);
+            throw e;
+        }
+    }
+    private record ClipBuildResult(
+            List<ClipGroup> clipGroups,
+            List<Clip> clips,
+            List<ClipTag> clipTags
+    ) {}
+    private ClipBuildResult buildClipStructure(Video video, Task task, VideoSliceCallbackBO bo, Map<String, Tag> tagMap) {
+        List<ClipGroup> groups = new ArrayList<>();
+        List<Clip> clips = new ArrayList<>();
+        List<ClipTag> tags = new ArrayList<>();
+        int groupOrder = 0;
+        for (ClipGroupDTO groupDTO : bo.getClipGroups()) {
+            ClipGroup group = new ClipGroup();
+            group.setId(snowflake.nextId());
+            group.setVideo(video);
+            group.setSummary(groupDTO.getSummary());
+            group.setStart(groupDTO.getStart());
+            group.setEnd(groupDTO.getEnd());
+            group.setGroupOrder(groupOrder++);
+            group.setTenantId(task.getTenantId());
+            int clipOrder = 0;
+            for (CoreInfoDTO core : groupDTO.getCoreInfo()) {
+                Clip clip = buildClip(core, clipOrder++, group, task, bo);
+                clips.add(clip);
+                group.getClips().add(clip);
+                if (StringUtils.hasText(core.getTopic()) && StringUtils.hasText(core.getType())) {
+                    Tag tag = getOrCreateTagFromMap(tagMap, core.getTopic(), core.getType(), task.getTenantId());
+                    ClipTag clipTag = buildClipTag(clip, tag, task);
+                    tags.add(clipTag);
                 }
-                
-                // 将切片组添加到视频和待保存列表
-                dbVideo.getClipGroups().add(clipGroup);
-                clipGroupsToSave.add(clipGroup);
             }
-            
-            // 更新任务状态为完成
-            dbTask.setStatus(TaskStatus.FINISHED);
-            
-            // 批量保存所有ClipGroup、Clip和ClipTag
-            clipGroupRepository.saveAll(clipGroupsToSave);
-            clipRepository.saveAll(clipsToSave);
-            clipTagRepository.saveAll(clipTagsToSave);
-            
-            // 保存视频和任务
-            videoRepository.save(dbVideo);
-            taskRepository.save(dbTask);
-            
-            log.info("任务Id：{}, 视频Id：{}, 生成视频大纲成功，批量保存了{}个切片组、{}个切片和{}个标签关联", 
-                    dbTask.getId(), dbVideo.getId(), clipGroupsToSave.size(), clipsToSave.size(), clipTagsToSave.size());
-        } else {
-            log.error("任务Id：{}, 生成视频大纲失败, 失败原因: Python返回Null", dbTask.getId());
-            dbTask.setStatus(TaskStatus.FAILED);
-            taskRepository.save(dbTask);
+            video.getClipGroups().add(group);
+            groups.add(group);
+        }
+        return new ClipBuildResult(groups, clips, tags);
+    }
+    
+    private Clip buildClip(CoreInfoDTO dto, int order, ClipGroup group, Task task, VideoSliceCallbackBO bo) {
+        Clip clip = new Clip();
+        clip.setId(snowflake.nextId());
+        clip.setStart(dto.getStart());
+        clip.setEnd(dto.getEnd());
+        clip.setOrderInGroup(order);
+        clip.setClipGroup(group);
+        clip.setTenantId(task.getTenantId());
+        if (bo.isAddSubtitle() && dto.getSentenceInfo() != null) {
+            List<Clip.SubtitleDTO> subtitles = dto.getSentenceInfo().stream()
+                    .map(s -> new Clip.SubtitleDTO(s.getStart(), s.getEnd(), s.getText()))
+                    .collect(Collectors.toList());
+            clip.setSubtitles(subtitles);
+        }
+        return clip;
+    }
+
+    private ClipTag buildClipTag(Clip clip, Tag tag, Task task) {
+        ClipTag clipTag = new ClipTag();
+        clipTag.setId(snowflake.nextId());
+        clipTag.setClip(clip);
+        clipTag.setTag(tag);
+        clipTag.setTenantId(task.getTenantId());
+        return clipTag;
+    }
+    
+    private Tag getOrCreateTagFromMap(Map<String, Tag> tagMap, String name, String type, Long tenantId) {
+        String key = name + "_" + type;
+        Tag tag = tagMap.get(key);
+        if (tag == null) {
+            tag = new Tag();
+            tag.setId(snowflake.nextId());
+            tag.setName(name);
+            tag.setType(type);
+            tag.setTenantId(tenantId);
+            tag = tagRepository.save(tag);
+            tagMap.put(key, tag);
+        }
+        return tag;
+    }
+    private static final int BATCH_SIZE = 10;
+    private <T> void batchSave(List<T> entities, Consumer<List<T>> saveFunction) {
+        for (int i = 0; i < entities.size(); i += BATCH_SIZE) {
+            int end = Math.min(i + BATCH_SIZE, entities.size());
+            List<T> batch = entities.subList(i, end);
+            saveFunction.accept(batch);
         }
     }
 }
