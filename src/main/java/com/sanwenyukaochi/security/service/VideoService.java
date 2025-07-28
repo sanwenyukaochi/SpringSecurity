@@ -4,17 +4,18 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.http.HttpStatus;
 import com.sanwenyukaochi.security.annotation.DataScope;
 import com.sanwenyukaochi.security.bo.VideoSliceBO;
+import com.sanwenyukaochi.security.bo.VideoSliceCallbackBO;
 import com.sanwenyukaochi.security.constant.FileConstants;
 import com.sanwenyukaochi.security.bo.VideoBO;
-import com.sanwenyukaochi.security.dto.AgentVideoSliceDTO;
-import com.sanwenyukaochi.security.dto.VideoDTO;
+import com.sanwenyukaochi.security.dto.*;
+import com.sanwenyukaochi.security.entity.Clip;
+import com.sanwenyukaochi.security.entity.ClipGroup;
 import com.sanwenyukaochi.security.entity.Task;
 import com.sanwenyukaochi.security.entity.Video;
 import com.sanwenyukaochi.security.enums.TaskStatus;
 import com.sanwenyukaochi.security.enums.TaskType;
 import com.sanwenyukaochi.security.exception.APIException;
-import com.sanwenyukaochi.security.repository.TaskRepository;
-import com.sanwenyukaochi.security.repository.VideoRepository;
+import com.sanwenyukaochi.security.repository.*;
 import com.sanwenyukaochi.security.security.service.UserDetailsImpl;
 import com.sanwenyukaochi.security.storage.FileStorage;
 import com.sanwenyukaochi.security.utils.FfmpegUtils;
@@ -33,7 +34,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import cn.hutool.core.io.FileUtil;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
@@ -46,6 +50,9 @@ import reactor.util.retry.Retry;
 public class VideoService {
     private final VideoRepository videoRepository;
     private final TaskRepository taskRepository;
+    private final ClipGroupRepository clipGroupRepository;
+    private final ClipRepository clipRepository;
+    private final UserRepository userRepository;
     private final FileStorage fileStorage;
     private final Snowflake snowflake;
     private final WebClient webClient;
@@ -185,5 +192,91 @@ public class VideoService {
                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure())
                 )
                 .block();
+    }
+
+    @Transactional
+    public void handleClipVideoCallbackAsync(VideoSliceCallbackBO videoSliceCallbackBO) {
+        Task dbTask = taskRepository.findById(videoSliceCallbackBO.getTaskId()).orElseThrow(() -> new APIException(HttpStatus.HTTP_NOT_FOUND,"任务不存在"));
+        Video dbVideo = videoRepository.findById(videoSliceCallbackBO.getVideoId()).orElseThrow(() -> new APIException(HttpStatus.HTTP_NOT_FOUND, "视频不存在"));
+        if (!videoSliceCallbackBO.getClipGroups().isEmpty()) {
+            // 清除视频之前的切片组和切片（如果有的话）
+            if (dbVideo.getHasClips()) {
+                dbVideo.getClipGroups().clear();
+            }
+            
+            // 设置视频已有切片和大纲
+            dbVideo.setHasClips(true);
+            dbVideo.setHasOutline(true);
+            
+            // 创建列表用于批量保存ClipGroup和Clip
+            List<ClipGroup> clipGroupsToSave = new ArrayList<>();
+            List<Clip> clipsToSave = new ArrayList<>();
+            
+            // 处理每个切片组
+            int groupOrder = 0;
+            for (ClipGroupDTO clipGroupDTO : videoSliceCallbackBO.getClipGroups()) {
+                // 创建新的切片组
+                ClipGroup clipGroup = new ClipGroup();
+                clipGroup.setId(snowflake.nextId());
+                clipGroup.setVideo(dbVideo);
+                clipGroup.setSummary(clipGroupDTO.getSummary());
+                clipGroup.setStart(clipGroupDTO.getStart());
+                clipGroup.setEnd(clipGroupDTO.getEnd());
+                clipGroup.setGroupOrder(groupOrder++);
+                clipGroup.setTenantId(dbTask.getTenantId());
+                
+                // 处理每个核心信息（创建切片）
+                if (clipGroupDTO.getCoreInfo() != null && !clipGroupDTO.getCoreInfo().isEmpty()) {
+                    int clipOrder = 0;
+                    for (CoreInfoDTO coreInfoDTO : clipGroupDTO.getCoreInfo()) {
+                        Clip clip = new Clip();
+                        clip.setId(snowflake.nextId());
+                        clip.setStartTime(coreInfoDTO.getStart());
+                        clip.setEndTime(coreInfoDTO.getEnd());
+                        clip.setOrderInGroup(clipOrder++);
+                        clip.setClipGroup(clipGroup);
+                        clip.setTenantId(dbTask.getTenantId());
+                        // 处理字幕信息
+                        if (videoSliceCallbackBO.isAddSubtitle() && coreInfoDTO.getSentenceInfo() != null && !coreInfoDTO.getSentenceInfo().isEmpty()) {
+                            List<Clip.SubtitleDTO> subtitles = coreInfoDTO.getSentenceInfo().stream()
+                                    .map(subtitleDTO -> {
+                                        Clip.SubtitleDTO subtitle = new Clip.SubtitleDTO();
+                                        subtitle.setStart(subtitleDTO.getStart());
+                                        subtitle.setEnd(subtitleDTO.getEnd());
+                                        subtitle.setText(subtitleDTO.getText());
+                                        return subtitle;
+                                    })
+                                    .collect(Collectors.toList());
+                            clip.setSubtitles(subtitles);
+                        }
+                        
+                        // 将切片添加到切片组和待保存列表
+                        clipGroup.getClips().add(clip);
+                        clipsToSave.add(clip);
+                    }
+                }
+                
+                // 将切片组添加到视频和待保存列表
+                dbVideo.getClipGroups().add(clipGroup);
+                clipGroupsToSave.add(clipGroup);
+            }
+            
+            // 更新任务状态为完成
+            dbTask.setStatus(TaskStatus.FINISHED);
+            
+            // 批量保存所有ClipGroup和Clip
+            clipGroupRepository.saveAll(clipGroupsToSave);
+            clipRepository.saveAll(clipsToSave);
+            
+            // 保存视频和任务
+            videoRepository.save(dbVideo);
+            taskRepository.save(dbTask);
+            
+            log.info("任务Id：{}, 视频Id：{}, 生成视频大纲成功，批量保存了{}个切片组和{}个切片", dbTask.getId(), dbVideo.getId(), clipGroupsToSave.size(), clipsToSave.size());
+        } else {
+            log.error("任务Id：{}, 生成视频大纲失败, 失败原因: Python返回Null", dbTask.getId());
+            dbTask.setStatus(TaskStatus.FAILED);
+            taskRepository.save(dbTask);
+        }
     }
 }

@@ -94,7 +94,8 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/**",
-                    "/portfolio/**"
+                    "/portfolio/**",
+                    "/api/v1/videos/clipVideoCallBack"
                 ).permitAll()
                 .requestMatchers(
                     "/v3/api-docs/**",

@@ -44,14 +44,14 @@ public class Clip extends BaseEntity {
     @Column(name = "subtitles", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     @Comment("句子信息")
-    private List<Subtitle> subtitles;
+    private List<SubtitleDTO> subtitles;
 
     @OneToMany(mappedBy = "clip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClipTag> clipTags;
 
 
     @Data
-    private static class Subtitle {
+    public static class SubtitleDTO {
         private String start;
         private String end;
         private String text;
