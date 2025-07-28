@@ -7,11 +7,13 @@ import com.sanwenyukaochi.security.enums.VideoType;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class VideoSliceAO {
         @JsonSerialize(using = ToStringSerializer.class)
-        private Long id;
+        List<Long> ids;
         private TaskType taskType;
         private VideoType videoType;
         private Integer adaptiveThreshold;

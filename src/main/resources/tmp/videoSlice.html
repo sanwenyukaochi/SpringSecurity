@@ -8,7 +8,13 @@
 </head>
 <body>
 <h2>WebSocket 视频切片测试</h2>
-<input type="text" id="jwt" placeholder="输入 JWT Token" style="width: 400px" />
+
+<label>JWT Token：</label><br>
+<input type="text" id="jwt" placeholder="输入 JWT Token" style="width: 400px" /><br><br>
+
+<label>视频 ID（多个以英文逗号分隔）：</label><br>
+<input type="text" id="videoIds" placeholder="例如: 1234567890,9876543210" style="width: 400px" /><br><br>
+
 <button onclick="connect()">连接</button>
 <button onclick="disconnect()">断开连接</button>
 <button onclick="sendSliceRequest()">发送切片请求</button>
@@ -49,15 +55,24 @@
           document.getElementById("output").innerText += "请先连接 WebSocket！\n";
           return;
       }
+
+      const rawIds = document.getElementById("videoIds").value;
+      if (!rawIds) {
+          document.getElementById("output").innerText += "请输入至少一个视频 ID\n";
+          return;
+      }
+
+      const ids = rawIds.split(",").map(id => id.trim()).filter(id => id);
+
       const payload = {
-          id: "1948227707372441600",
+          ids: ids,
           taskType: "SLICE",
-          videoType: "LIVE_STREAM",
+          videoType: "livestream",
           adaptiveThreshold: 30,
           addSubtitle: true
       };
       stompClient.send("/app/video/slice/create", {}, JSON.stringify(payload));
-      document.getElementById("output").innerText += "发送切片请求:\n" + JSON.stringify(payload) + "\n";
+      document.getElementById("output").innerText += "发送切片请求:\n" + JSON.stringify(payload, null, 2) + "\n";
   }
 </script>
 </body>

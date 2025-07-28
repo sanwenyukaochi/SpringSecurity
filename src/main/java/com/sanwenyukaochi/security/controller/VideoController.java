@@ -122,14 +122,18 @@ public class VideoController {
     @SendToUser("/queue/video-slice/result")
     @PreAuthorize("hasAuthority('video:video:slice')")
     @Operation(summary = "视频切片")
-    public String createVideoSlice(@Valid @Payload VideoSliceAO videoSliceAO, Authentication authentication) {
-        VideoSliceBO videoSliceBO = new VideoSliceBO(
-                videoSliceAO.getId(), 
-                videoSliceAO.getTaskType(), 
-                videoSliceAO.getVideoType(), 
-                videoSliceAO.getAdaptiveThreshold(), 
-                videoSliceAO.isAddSubtitle()
-        );
-        return videoService.createVideoSlice(videoSliceBO, authentication);
+    public List<String> createVideoSlice(@Valid @Payload VideoSliceAO videoSliceAO, Authentication authentication) {
+        return videoSliceAO.getIds().stream()
+                .map(id -> {
+                    VideoSliceBO videoSliceBO = new VideoSliceBO(
+                            id,
+                            videoSliceAO.getTaskType(),
+                            videoSliceAO.getVideoType(),
+                            videoSliceAO.getAdaptiveThreshold(),
+                            videoSliceAO.isAddSubtitle()
+                    );
+                    return videoService.createVideoSlice(videoSliceBO, authentication);
+                })
+                .toList();
     }
 }
