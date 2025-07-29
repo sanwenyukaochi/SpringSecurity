@@ -19,7 +19,8 @@ public class ClipService {
         return clips.map(clip -> new ClipDTO(
                 clip.getId(),
                 clip.getStart(),
-                clip.getEnd()
+                clip.getEnd(),
+                clip.getCoverImage()
         ));
     }
 }

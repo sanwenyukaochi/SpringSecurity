@@ -26,7 +26,8 @@ public class ClipController {
         return Result.success(PageVO.from(clipGroups.map(clip -> new ClipVO(
                 clip.getClipId(),
                 clip.getStart(),
-                clip.getEnd()
+                clip.getEnd(),
+                clip.getCoverImage()
         ))));
     }
 }

@@ -22,6 +22,7 @@ public class ClipGroupService {
                 clipGroup.getSummary(),
                 clipGroup.getStart(),
                 clipGroup.getEnd(),
+                clipGroup.getCoverImage(),
                 clipGroup.getClips().size()
         ));
     }

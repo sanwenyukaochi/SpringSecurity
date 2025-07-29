@@ -12,4 +12,5 @@ public class ClipVO {
     private Long clipId;
     private String start;
     private String end;
+    private String coverImage;
 }

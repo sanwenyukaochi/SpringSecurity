@@ -13,5 +13,6 @@ public class ClipGroupVO {
     private String summary;
     private String start;
     private String end;
+    private String coverImage;
     private Integer clipCount;
 }

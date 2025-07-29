@@ -28,6 +28,7 @@ public class ClipGroupController {
                 clipGroup.getSummary(),
                 clipGroup.getStart(),
                 clipGroup.getEnd(),
+                clipGroup.getCoverImage(),
                 clipGroup.getClipCount()
         ))));
     }
