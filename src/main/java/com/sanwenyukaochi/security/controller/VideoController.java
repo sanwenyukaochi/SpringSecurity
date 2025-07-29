@@ -62,6 +62,7 @@ public class VideoController {
     }
 
     @GetMapping("/queryVideo")
+    @Operation(summary = "查询切片组")
     @PreAuthorize("hasAuthority('video:video:view')")
     public Result<PageVO<QueryVideoVO>> getVideo(@RequestParam(defaultValue = "0") int currentPage, @RequestParam(defaultValue = "6") int size, 
                                                  @RequestBody QueryVideoAO queryVideoAO) {

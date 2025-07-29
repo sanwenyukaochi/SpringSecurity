@@ -4,15 +4,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
-public class ClipGroupVO {
+public class UpdateClipGroupVO {
     @JsonSerialize(using = ToStringSerializer.class)
-    private Long clipGroupId;
+    private Long id;
     private String title;
-    private String start;
-    private String end;
-    private String coverImage;
-    private Integer clipCount;
 }

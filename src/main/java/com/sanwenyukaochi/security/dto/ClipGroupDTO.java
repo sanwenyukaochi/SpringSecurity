@@ -22,4 +22,9 @@ public class ClipGroupDTO {
         this.coverImage = coverImage;
         this.clipCount = clipCount;
     }
+    
+    public ClipGroupDTO(Long id, String summary) {
+        this.id = id;
+        this.summary = summary;
+    }
 }
