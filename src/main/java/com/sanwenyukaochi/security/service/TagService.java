@@ -21,7 +21,8 @@ public class TagService {
                 tag.getId(),
                 tag.getName(),
                 tag.getType(),
-                tag.getCreatedAt()
+                tag.getCreatedAt(),
+                tagRepository.countByClipTags_TagId(tag.getId())
         ));
     }
 }

@@ -32,7 +32,8 @@ public class TagController {
                 tag.getId(),
                 tag.getName(),
                 tag.getType(),
-                tag.getCreatedAt()
+                tag.getCreatedAt(),
+                tag.getClipCount()
         ))));
     }
 }

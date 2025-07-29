@@ -12,6 +12,7 @@ public class TagDTO {
     private String name;
     private String type;
     private Long createdAt;
+    private int clipCount;
 
     public TagDTO(Long id, String name, String type) {
         this.id = id;

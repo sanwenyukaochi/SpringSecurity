@@ -10,4 +10,5 @@ public class TagVO {
     private String name;
     private String type;
     private Long createdAt;
+    private int clipCount;
 }
