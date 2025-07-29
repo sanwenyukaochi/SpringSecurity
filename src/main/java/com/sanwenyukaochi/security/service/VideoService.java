@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +39,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -248,22 +246,22 @@ public class VideoService {
         List<Clip> clips = new ArrayList<>();
         List<ClipTag> tags = new ArrayList<>();
         int groupOrder = 0;
-        for (ClipGroupDTO groupDTO : bo.getClipGroups()) {
+        for (VideoSliceCallbackBO.VideoClipGroupBO groupBO : bo.getClipGroups()) {
             ClipGroup group = new ClipGroup();
             group.setId(snowflake.nextId());
             group.setVideo(video);
-            group.setSummary(groupDTO.getSummary());
-            group.setStart(groupDTO.getStart());
-            group.setEnd(groupDTO.getEnd());
+            group.setSummary(groupBO.getSummary());
+            group.setStart(groupBO.getStart());
+            group.setEnd(groupBO.getEnd());
             group.setGroupOrder(groupOrder++);
             group.setTenantId(task.getTenantId());
             int clipOrder = 0;
-            for (CoreInfoDTO core : groupDTO.getCoreInfo()) {
-                Clip clip = buildClip(core, clipOrder++, group, task, bo);
+            for (VideoSliceCallbackBO.VideoClipBO clipBO : groupBO.getClips()) {
+                Clip clip = buildClip(clipBO, clipOrder++, group, task, bo);
                 clips.add(clip);
                 group.getClips().add(clip);
-                if (StringUtils.hasText(core.getTopic()) && StringUtils.hasText(core.getType())) {
-                    Tag tag = getOrCreateTagFromMap(tagMap, core.getTopic(), core.getType(), task.getTenantId());
+                if (StringUtils.hasText(clipBO.getTopic()) && StringUtils.hasText(clipBO.getType())) {
+                    Tag tag = getOrCreateTagFromMap(tagMap, clipBO.getTopic(), clipBO.getType(), task.getTenantId());
                     ClipTag clipTag = buildClipTag(clip, tag, task);
                     tags.add(clipTag);
                 }
@@ -274,19 +272,16 @@ public class VideoService {
         return new ClipBuildResult(groups, clips, tags);
     }
     
-    private Clip buildClip(CoreInfoDTO dto, int order, ClipGroup group, Task task, VideoSliceCallbackBO bo) {
+    private Clip buildClip(VideoSliceCallbackBO.VideoClipBO clipBO, int order, ClipGroup group, Task task, VideoSliceCallbackBO callbackBO) {
         Clip clip = new Clip();
         clip.setId(snowflake.nextId());
-        clip.setStart(dto.getStart());
-        clip.setEnd(dto.getEnd());
+        clip.setStart(clipBO.getStart());
+        clip.setEnd(clipBO.getEnd());
         clip.setOrderInGroup(order);
         clip.setClipGroup(group);
         clip.setTenantId(task.getTenantId());
-        if (bo.isAddSubtitle() && dto.getSentenceInfo() != null) {
-            List<Clip.SubtitleDTO> subtitles = dto.getSentenceInfo().stream()
-                    .map(s -> new Clip.SubtitleDTO(s.getStart(), s.getEnd(), s.getText()))
-                    .collect(Collectors.toList());
-            clip.setSubtitles(subtitles);
+        if (callbackBO.isAddSubtitle() && clipBO.getSubtitles() != null) {
+            clip.setSubtitles(clipBO.getSubtitles());
         }
         return clip;
     }
