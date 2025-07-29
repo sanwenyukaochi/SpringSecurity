@@ -23,7 +23,7 @@ import com.sanwenyukaochi.security.repository.TagRepository;
 import com.sanwenyukaochi.security.security.service.UserDetailsImpl;
 import com.sanwenyukaochi.security.storage.FileStorage;
 import com.sanwenyukaochi.security.utils.FfmpegUtils;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +45,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import cn.hutool.core.io.FileUtil;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
@@ -226,14 +227,24 @@ public class VideoService {
             batchSave(result.clipTags(), clipTagRepository::saveAll);
             videoRepository.save(video);
             taskRepository.save(task);
-            log.info("任务Id：{}, 视频Id：{}, 成功保存 {} 个组，{} 个剪辑，{} 个标签",
+            log.info("任务Id：{}, 视频Id：{}, 成功保存 {} 个组，{} 个切片，{} 个标签",
                     task.getId(), video.getId(),
                     result.clipGroups().size(), result.clips().size(), result.clipTags().size());
         } catch (Exception e) {
             log.error("处理剪辑回调失败，任务Id：{}, 错误：{}", task.getId(), e.getMessage(), e);
-            task.setStatus(TaskStatus.FAILED);
-            taskRepository.save(task);
+            updateTaskStatusInNewTransaction(task.getId(), TaskStatus.FAILED);
             throw e;
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateTaskStatusInNewTransaction(Long taskId, TaskStatus status) {
+        try {
+            Task task = taskRepository.findById(taskId).orElseThrow(() -> new APIException(HttpStatus.HTTP_NOT_FOUND, "任务不存在"));
+            task.setStatus(status);
+            taskRepository.save(task);
+        } catch (Exception e) {
+            log.error("更新任务状态失败，任务Id：{}, 状态：{}, 错误：{}", taskId, status, e.getMessage(), e);
         }
     }
     private record ClipBuildResult(
