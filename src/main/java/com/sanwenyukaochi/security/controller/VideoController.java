@@ -3,6 +3,7 @@ package com.sanwenyukaochi.security.controller;
 import com.sanwenyukaochi.security.ao.*;
 import com.sanwenyukaochi.security.bo.VideoBO;
 import com.sanwenyukaochi.security.bo.VideoSliceBO;
+import com.sanwenyukaochi.security.bo.VideoSliceCallbackBO;
 import com.sanwenyukaochi.security.dto.VideoDTO;
 import com.sanwenyukaochi.security.enums.VideoType;
 import com.sanwenyukaochi.security.service.VideoService;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -29,6 +31,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -38,6 +41,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class VideoController {
     private final VideoService videoService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @PostMapping("/upload")
     @PreAuthorize("hasAuthority('video:video:upload')")
@@ -136,5 +140,37 @@ public class VideoController {
                     return videoService.createVideoSlice(videoSliceBO, authentication);
                 })
                 .toList();
+    }
+
+    @PostMapping("/clipVideoCallBack")
+    @Operation(summary = "Python切片回调接口")
+    public Result<String> handleClipVideoCallback(@RequestBody SliceVideoTmpCallbackAO sliceVideoCallbackAO) {
+        // TODO 清理 SliceVideoTmpCallbackAO，这里通知python修改格式
+        VideoSliceCallbackBO videoSliceCallbackBO = new VideoSliceCallbackBO(
+                Long.parseLong(sliceVideoCallbackAO.getTaskId()),
+                Long.parseLong(sliceVideoCallbackAO.getVideoId()),
+                sliceVideoCallbackAO.getVideoPath(),
+                sliceVideoCallbackAO.getVideoType(),
+                sliceVideoCallbackAO.getClipSections().stream()
+                        .map(section -> new VideoSliceCallbackBO.VideoClipGroupBO(
+                                section.getStart(),
+                                section.getEnd(),
+                                section.getSummary(),
+                                section.getCoreInfo().stream()
+                                        .map(core -> new VideoSliceCallbackBO.VideoClipBO(
+                                                core.getStart(),
+                                                core.getEnd(),
+                                                core.getTopic(),
+                                                core.getType(),
+                                                core.getSentenceInfo()
+                                        ))
+                                        .collect(Collectors.toList())
+                        ))
+                        .collect(Collectors.toList()),
+                sliceVideoCallbackAO.isAddSubtitle()
+        );
+        redisTemplate.opsForValue().set(sliceVideoCallbackAO.getTaskId(), sliceVideoCallbackAO, 30, TimeUnit.DAYS);
+        videoService.handleClipVideoCallbackAsync(videoSliceCallbackBO);
+        return Result.success("收到回调");
     }
 }

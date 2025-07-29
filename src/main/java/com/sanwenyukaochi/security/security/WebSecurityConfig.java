@@ -95,7 +95,7 @@ public class WebSecurityConfig {
                 .requestMatchers(
                     "/api/auth/**",
                     "/portfolio/**",
-                    "/api/v1/videos/clipVideoCallBack"
+                    "/api/video/clipVideoCallBack"
                 ).permitAll()
                 .requestMatchers(
                     "/v3/api-docs/**",

@@ -5,7 +5,6 @@ import cn.hutool.http.HttpStatus;
 import com.sanwenyukaochi.security.annotation.DataScope;
 import com.sanwenyukaochi.security.bo.VideoSliceBO;
 import com.sanwenyukaochi.security.bo.VideoSliceCallbackBO;
-import com.sanwenyukaochi.security.constant.FileConstants;
 import com.sanwenyukaochi.security.bo.VideoBO;
 import com.sanwenyukaochi.security.dto.*;
 import com.sanwenyukaochi.security.entity.Clip;
@@ -34,7 +33,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -69,6 +67,7 @@ public class VideoService {
     private String localDir;
     @Value("${agent.video-slice.callback-url}")
     private String callbackUrl;
+    private final VideoCoverService videoCoverService;
 
     @DataScope
     public Page<VideoDTO> findAllVideo(VideoBO newVideoBO, Pageable pageable) {
@@ -87,33 +86,24 @@ public class VideoService {
     @SneakyThrows
     public VideoDTO uploadVideo(VideoBO videoBO, Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long tenantId = userDetails.getTenant().getId();
+        Long createdBy = userDetails.getId();
         Video newVideo = new Video();
         newVideo.setId(snowflake.nextId());
         newVideo.setFileName(videoBO.getFileName());
         newVideo.setFileExt(videoBO.getFileExt());
-        // 构建新视频对象路径
-        String renamedObjectPath = String.format("%s/%s/%s/%s.%s", userDetails.getTenant().getId(), userDetails.getId(), newVideo.getId(), newVideo.getId(), videoBO.getFileExt());
+        String renamedObjectPath = String.format("%s/%s/%s/%s.%s", tenantId, createdBy, newVideo.getId(), newVideo.getId(), videoBO.getFileExt());
         newVideo.setVideoPath(String.format("%s/%s", fileStorage.getBucketPath(), renamedObjectPath));
-        // 构建封面图路径
-        String coverObjectPath = String.format("%s/%s/%s/%s/%s.%s", userDetails.getTenant().getId(), userDetails.getId(), newVideo.getId(), FileConstants.COVER_DIR_NAME, newVideo.getId(), FileConstants.EXT_JPG);
-        newVideo.setCoverImage(String.format("%s/%s", fileStorage.getBucketPath(), coverObjectPath));
-        // 修改 OBS 上视频对象名
-        String originalObjectPath = String.format("%s/%s/%s.%s", userDetails.getTenant().getId(), userDetails.getId(), videoBO.getFileName(), videoBO.getFileExt());
+        String originalObjectPath = String.format("%s/%s/%s.%s", tenantId, createdBy, videoBO.getFileName(), videoBO.getFileExt());
         fileStorage.renameObject(originalObjectPath, renamedObjectPath);
-        // 下载 OBS 视频到本地
         Path videoObjectPath = Paths.get(renamedObjectPath);
         Path localVideoPath = Paths.get(localDir).resolve(videoObjectPath);
         FileUtil.mkdir(localVideoPath.getParent().toFile());
         if (!FileUtil.exist(localVideoPath.toFile())) fileStorage.downloadFileByCheckpoint(videoObjectPath.toString(), localVideoPath.toString());
-        // 生成封面图
-        Path localCoverPath = Paths.get(localDir, coverObjectPath);
-        if (localCoverPath.getParent() != null && Files.notExists(localCoverPath.getParent())) Files.createDirectories(localCoverPath.getParent());
-        FfmpegUtils.getFirstImageFromVideo(localVideoPath.toString(), "00:00:00.000", localCoverPath.toString());
-        // 上传封面图至 OBS
-        fileStorage.uploadFileByFileStream(coverObjectPath, localCoverPath.toString());
         newVideo.setFileSize(new File(localVideoPath.toString()).length());
         newVideo.setDuration(FfmpegUtils.getVideoDuration(localVideoPath.toString()));
-        newVideo.setTenantId(userDetails.getTenant().getId());
+        newVideo.setTenantId(tenantId);
+        newVideo.setCoverImage(videoCoverService.generateVideoCover(newVideo, tenantId, createdBy));
         videoRepository.save(newVideo);
         return new VideoDTO(
                 newVideo.getId(),
@@ -184,7 +174,7 @@ public class VideoService {
                 .uri("/api/v1/allinone")
                 .bodyValue(new AgentVideoSliceDTO(
                         dbVideo.getFullFileNameWithId(),
-                        dbVideo.getVideoPath().replace(fileStorage.getBucketPath(), localDir),
+                        dbVideo.getVideoPath().replace(fileStorage.getBucketPath(), "/root/sfs_turbo/linkgen-staging"),
                         videoSliceBO.getTaskType(),
                         videoSliceBO.getVideoType(),
                         callbackUrl,
@@ -266,6 +256,7 @@ public class VideoService {
             group.setEnd(groupBO.getEnd());
             group.setGroupOrder(groupOrder++);
             group.setTenantId(task.getTenantId());
+            group.setCoverImage(videoCoverService.generateClipGroupCover(video, group, task.getTenantId(), task.getCreatedBy()));
             int clipOrder = 0;
             for (VideoSliceCallbackBO.VideoClipBO clipBO : groupBO.getClips()) {
                 Clip clip = buildClip(clipBO, clipOrder++, group, task, bo);
@@ -291,6 +282,7 @@ public class VideoService {
         clip.setOrderInGroup(order);
         clip.setClipGroup(group);
         clip.setTenantId(task.getTenantId());
+        clip.setCoverImage(videoCoverService.generateClipCover(group.getVideo(), clip, task.getTenantId(), task.getCreatedBy()));
         if (callbackBO.isAddSubtitle() && clipBO.getSubtitles() != null) {
             clip.setSubtitles(clipBO.getSubtitles());
         }

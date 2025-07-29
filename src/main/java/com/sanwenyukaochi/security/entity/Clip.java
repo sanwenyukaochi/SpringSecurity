@@ -49,6 +49,9 @@ public class Clip extends BaseEntity {
     @OneToMany(mappedBy = "clip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClipTag> clipTags;
 
+    @Column(name = "cover_image", length = 225)
+    @Comment("切片封面存储路径")
+    private String coverImage;
 
     @Data
     @AllArgsConstructor

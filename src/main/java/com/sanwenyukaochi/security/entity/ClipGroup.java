@@ -45,4 +45,8 @@ public class ClipGroup extends BaseEntity {
     
     @OneToMany(mappedBy = "clipGroup", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Clip> clips = new ArrayList<>();
+
+    @Column(name = "cover_image", length = 225)
+    @Comment("切片组封面存储路径")
+    private String coverImage;
 }
