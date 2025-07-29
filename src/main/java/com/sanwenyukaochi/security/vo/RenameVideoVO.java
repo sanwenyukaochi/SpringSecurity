@@ -1,0 +1,16 @@
+package com.sanwenyukaochi.security.vo;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public class RenameVideoVO {
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long id;
+    private String videoName;
+}

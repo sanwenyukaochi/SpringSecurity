@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UpdateClipGroupVO {
+public class RenameClipGroupVO {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
     private String title;

@@ -137,11 +137,7 @@ public class VideoService {
         videoRepository.save(dbVideo);
         return new VideoDTO(
                 dbVideo.getId(),
-                dbVideo.getFullFileNameWithName(),
-                dbVideo.getFileSize(),
-                dbVideo.getDuration(),
-                dbVideo.getVideoPath(),
-                dbVideo.getCoverImage()
+                dbVideo.getFullFileNameWithName()
         );
     }
 

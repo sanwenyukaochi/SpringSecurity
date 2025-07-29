@@ -7,10 +7,7 @@ import com.sanwenyukaochi.security.bo.VideoSliceCallbackBO;
 import com.sanwenyukaochi.security.dto.VideoDTO;
 import com.sanwenyukaochi.security.enums.VideoType;
 import com.sanwenyukaochi.security.service.VideoService;
-import com.sanwenyukaochi.security.vo.QueryVideoVO;
-import com.sanwenyukaochi.security.vo.Result;
-import com.sanwenyukaochi.security.vo.UploadVideoVO;
-import com.sanwenyukaochi.security.vo.VideoTypeVO;
+import com.sanwenyukaochi.security.vo.*;
 import com.sanwenyukaochi.security.vo.page.PageVO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -82,19 +79,16 @@ public class VideoController {
     @PutMapping("/rename")
     @PreAuthorize("hasAuthority('video:video:update')")
     @Operation(summary = "重命名视频", description = "传入视频id, 视频名称")
-    public Result<UploadVideoVO> updateVideo(@RequestBody UpdateVideoAO updateVideoAO) {
+    public Result<RenameVideoVO> updateVideo(@RequestBody UpdateVideoAO updateVideoAO) {
         VideoBO newVideoBO = new VideoBO(
                 updateVideoAO.getId(), 
                 FilenameUtils.getBaseName(updateVideoAO.getVideoName()), 
                 FilenameUtils.getExtension(updateVideoAO.getVideoName())
         );
         VideoDTO newVideoDTO = videoService.updateVideo(newVideoBO);
-        return Result.success(new UploadVideoVO(
-                newVideoDTO.getVideoName(), 
-                newVideoDTO.getFileSize(), 
-                newVideoDTO.getDuration(), 
-                newVideoDTO.getVideoPath(), 
-                newVideoDTO.getCoverImage()
+        return Result.success(new RenameVideoVO(
+                newVideoDTO.getId(),
+                newVideoDTO.getVideoName()
         ));
     }
 

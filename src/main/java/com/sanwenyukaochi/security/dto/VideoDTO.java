@@ -14,4 +14,9 @@ public class VideoDTO {
     private Double duration;
     private String videoPath;
     private String coverImage;
+
+    public VideoDTO(Long id, String fullFileNameWithName) {
+        this.id = id;
+        this.videoName = fullFileNameWithName;
+    }
 }

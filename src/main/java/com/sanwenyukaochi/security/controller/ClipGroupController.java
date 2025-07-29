@@ -6,7 +6,7 @@ import com.sanwenyukaochi.security.dto.ClipGroupDTO;
 import com.sanwenyukaochi.security.service.ClipGroupService;
 import com.sanwenyukaochi.security.vo.ClipGroupVO;
 import com.sanwenyukaochi.security.vo.Result;
-import com.sanwenyukaochi.security.vo.UpdateClipGroupVO;
+import com.sanwenyukaochi.security.vo.RenameClipGroupVO;
 import com.sanwenyukaochi.security.vo.page.PageVO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -40,13 +40,13 @@ public class ClipGroupController {
 
     @PutMapping("/rename")
     @Operation(summary = "重命名切片组标题")
-    public Result<UpdateClipGroupVO> updateClipGroup(@RequestBody UpdateClipGroupAO updateClipGroupAO) {
+    public Result<RenameClipGroupVO> updateClipGroup(@RequestBody UpdateClipGroupAO updateClipGroupAO) {
         ClipGroupBO newClipGroupBO = new ClipGroupBO(
                 updateClipGroupAO.getId(),
                 updateClipGroupAO.getTitle()
         );
         ClipGroupDTO clipGroupDTO = clipGroupService.updateClipGroup(newClipGroupBO);
-        return Result.success(new UpdateClipGroupVO(
+        return Result.success(new RenameClipGroupVO(
                 clipGroupDTO.getId(),
                 clipGroupDTO.getSummary()
         ));
