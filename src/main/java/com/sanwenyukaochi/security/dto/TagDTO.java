@@ -11,4 +11,11 @@ public class TagDTO {
     private Long id;
     private String name;
     private String type;
+    private Long createdAt;
+
+    public TagDTO(Long id, String name, String type) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+    }
 }
