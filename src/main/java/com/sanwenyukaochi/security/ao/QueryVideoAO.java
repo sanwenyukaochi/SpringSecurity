@@ -16,15 +16,12 @@ public class QueryVideoAO {
     private String videoName;
 
     @Getter
+    @AllArgsConstructor
     public enum VideoSortField {
         CREATED_AT("创建时间", "createdAt"),
         FILE_NAME("文件名称", "fileName"),
         FILE_SIZE("文件大小", "fileSize");
         private final String label;
         private final String fieldName;
-        VideoSortField(String label, String fieldName) {
-            this.label = label;
-            this.fieldName = fieldName;
-        }
     }
 }
