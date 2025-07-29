@@ -20,7 +20,8 @@ public class VideoBO {
         this.fileExt = fileExt;
     }
 
-    public VideoBO(Boolean hasClips) {
+    public VideoBO(String fileName, Boolean hasClips) {
+        this.fileName = fileName;
         this.hasClips = hasClips;
     }
 

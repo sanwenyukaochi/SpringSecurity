@@ -5,6 +5,7 @@ import cn.hutool.http.HttpStatus;
 import com.sanwenyukaochi.security.vo.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.authentication.*;
@@ -62,6 +63,12 @@ public class GlobalExceptionHandler {
     public Result<Object> handleNoHandlerFoundException(NoHandlerFoundException e) {
         log.warn("接口不存在: {}", e.getMessage(), e);
         return Result.error(HttpStatus.HTTP_NOT_FOUND, "接口不存在");
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public Result<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        log.warn("请求体格式不存在: {}", e.getMessage(), e);
+        return Result.error(HttpStatus.HTTP_BAD_REQUEST, "请求体格式不存在");
     }
 
     // =========================

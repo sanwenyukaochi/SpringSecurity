@@ -20,6 +20,7 @@ import com.sanwenyukaochi.security.repository.*;
 import com.sanwenyukaochi.security.repository.ClipTagRepository;
 import com.sanwenyukaochi.security.repository.TagRepository;
 import com.sanwenyukaochi.security.security.service.UserDetailsImpl;
+import com.sanwenyukaochi.security.specification.VideoSpecification;
 import com.sanwenyukaochi.security.storage.FileStorage;
 import com.sanwenyukaochi.security.utils.FfmpegUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -70,8 +72,9 @@ public class VideoService {
     private final VideoCoverService videoCoverService;
 
     @DataScope
-    public Page<VideoDTO> findAllVideo(VideoBO newVideoBO, Pageable pageable) {
-        Page<Video> all = newVideoBO.getHasClips() == null ? videoRepository.findAll(pageable) : videoRepository.findAllByHasClips(newVideoBO.getHasClips(), pageable);
+    public Page<VideoDTO> findAllVideo(VideoBO videoBO, Pageable pageable) {
+        Specification<Video> spec = VideoSpecification.buildSpecification(videoBO.getHasClips(), videoBO.getFileName());
+        Page<Video> all = videoRepository.findAll(spec, pageable);
         return all.map(newVideo -> new VideoDTO(
                 newVideo.getId(),
                 newVideo.getFullFileNameWithName(),
