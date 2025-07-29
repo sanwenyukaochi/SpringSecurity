@@ -73,7 +73,7 @@ public class VideoController {
         );
         Page<VideoDTO> videoPage = videoService.findAllVideo(newVideoBO, pageable);
         return Result.success(PageVO.from(videoPage.map(video -> new QueryVideoVO(
-                video.getVideoId(),
+                video.getId(),
                 video.getVideoName(),
                 video.getFileSize(),
                 video.getDuration(),
@@ -163,8 +163,7 @@ public class VideoController {
                                                 core.getTopic(),
                                                 core.getType(),
                                                 core.getSentenceInfo()
-                                        ))
-                                        .collect(Collectors.toList())
+                                        )).collect(Collectors.toList())
                         ))
                         .collect(Collectors.toList()),
                 sliceVideoCallbackAO.isAddSubtitle()
