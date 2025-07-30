@@ -16,6 +16,7 @@ public class ClipVO {
     private String start;
     private String end;
     private String coverImage;
+    private String videoPath;
     private List<TagVO> tags;
 
     @Data

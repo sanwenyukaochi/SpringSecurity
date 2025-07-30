@@ -32,6 +32,7 @@ public class ClipController {
                 clip.getStart(),
                 clip.getEnd(),
                 clip.getCoverImage(),
+                clip.getVideoPath(),
                 clip.getTags().stream().map(clipTag -> new ClipVO.TagVO(
                         clipTag.getName(),
                         clipTag.getType()
@@ -50,6 +51,7 @@ public class ClipController {
                 clip.getStart(),
                 clip.getEnd(),
                 clip.getCoverImage(),
+                clip.getVideoPath(),
                 clip.getTags().stream().map(clipTag -> new ClipVO.TagVO(
                         clipTag.getName(),
                         clipTag.getType()

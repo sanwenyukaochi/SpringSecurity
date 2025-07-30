@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClipService {
     private final ClipRepository clipRepository;
+
     public Page<ClipDTO> findAllClipsByClipGroupId(Long clipGroupId, Pageable pageable) {
         Page<Clip> clips = clipRepository.findAllByClipGroupId(clipGroupId, pageable);
         return clips.map(clip -> new ClipDTO(
@@ -24,6 +25,7 @@ public class ClipService {
                 clip.getStart(),
                 clip.getEnd(),
                 clip.getCoverImage(),
+                clip.getClipGroup().getVideo().getVideoPath(),
                 clip.getClipTags().stream()
                         .map(clipTag -> new TagDTO(
                                 clipTag.getId(),
@@ -40,6 +42,7 @@ public class ClipService {
                 clip.getStart(),
                 clip.getEnd(),
                 clip.getCoverImage(),
+                clip.getClipGroup().getVideo().getVideoPath(),
                 clip.getClipTags().stream()
                         .map(clipTag -> new TagDTO(
                                 clipTag.getId(),
