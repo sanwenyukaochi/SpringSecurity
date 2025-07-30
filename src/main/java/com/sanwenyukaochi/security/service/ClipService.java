@@ -27,7 +27,23 @@ public class ClipService {
                 clip.getClipTags().stream()
                         .map(clipTag -> new TagDTO(
                                 clipTag.getId(),
-                                clipTag.getTag().getName(), 
+                                clipTag.getTag().getName(),
+                                clipTag.getTag().getType()
+                        )).collect(Collectors.toList())
+        ));
+    }
+
+    public Page<ClipDTO> findAllClipsByTagId(Long tagId, Pageable pageable) {
+        Page<Clip> clips = clipRepository.findAllByClipTagsTagId(tagId, pageable);
+        return clips.map(clip -> new ClipDTO(
+                clip.getId(),
+                clip.getStart(),
+                clip.getEnd(),
+                clip.getCoverImage(),
+                clip.getClipTags().stream()
+                        .map(clipTag -> new TagDTO(
+                                clipTag.getId(),
+                                clipTag.getTag().getName(),
                                 clipTag.getTag().getType()
                         )).collect(Collectors.toList())
         ));

@@ -10,7 +10,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClipRepository extends JpaRepository<Clip, Long> {
     int countByClipGroupId(Long id);
-    
+
     @EntityGraph(attributePaths = {"clipTags", "clipTags.tag"})
     Page<Clip> findAllByClipGroupId(Long clipGroupId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"clipTags", "clipTags.tag"})
+    Page<Clip> findAllByClipTagsTagId(Long tagId, Pageable pageable);
 }
