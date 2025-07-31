@@ -104,7 +104,11 @@ public class WebSecurityConfig {
                     "/swagger-resources/**",
                     "/webjars/**"
                 ).access((authentication, context) -> {
-                        Set<String> whitelistIps = Set.of("127.0.0.1", "::1");
+                        Set<String> whitelistIps = Set.of(
+                                "127.0.0.1", 
+                                "192.168.3.6", 
+                                "192.168.3.11", 
+                                "::1");
                         String ip = context.getRequest().getRemoteAddr();
                         return new AuthorizationDecision(whitelistIps.contains(ip));
                 })
