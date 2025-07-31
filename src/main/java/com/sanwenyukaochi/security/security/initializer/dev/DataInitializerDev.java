@@ -39,13 +39,13 @@ public class DataInitializerDev implements CommandLineRunner {
         Tenant tenantB = createTenant(snowflake.nextId(), "租户组B", "tenant_group_b", true, userAdminId, userAdminId);
 
         // 2. 创建用户
-        User userAdmin = createUser(userAdminId, "system_admin", "123456", "system_admin@sys.com", "13800000001", true, true, true, true, sysTenant, userAdminId, userAdminId);
-        User userTenantA = createUser(snowflake.nextId(), "tenant_a_admin", "123456", "tenant_a_admin@a.com", "13800000002", true, true, true, true, tenantA, userAdmin.getId(), userAdmin.getId());
-        User userTenantB = createUser(snowflake.nextId(), "tenant_b_admin", "123456", "tenant_b_admin@b.com", "13800000003", true, true, true, true, tenantB, userAdmin.getId(), userAdmin.getId());
-        User userAA = createUser(snowflake.nextId(), "tenant_a_user_a", "123456", "user_a_a@a.com", "13800000004", true, true, true, true, tenantA, userTenantA.getId(), userTenantA.getId());
-        User userAB = createUser(snowflake.nextId(), "tenant_a_user_b", "123456", "tenant_a_user_b@a.com", "13800000005", true, true, true, true, tenantA, userTenantA.getId(), userTenantA.getId());
-        User userBA = createUser(snowflake.nextId(), "tenant_b_user_a", "123456", "tenant_b_user_a@b.com", "13800000006", true, true, true, true, tenantB, userTenantB.getId(), userTenantB.getId());
-        User userBB = createUser(snowflake.nextId(), "tenant_b_user_b", "123456", "tenant_b_user_b@b.com", "13800000007", true, true, true, true, tenantB, userTenantB.getId(), userTenantB.getId());
+        User userAdmin = createUser(userAdminId, "system_admin", "系统管理员", "123456", "system_admin@sys.com", "13800000001", true, true, true, true, sysTenant, userAdminId, userAdminId);
+        User userTenantA = createUser(snowflake.nextId(), "tenant_a_admin", "租户A管理员", "123456", "tenant_a_admin@a.com", "13800000002", true, true, true, true, tenantA, userAdmin.getId(), userAdmin.getId());
+        User userTenantB = createUser(snowflake.nextId(), "tenant_b_admin", "租户B管理员", "123456", "tenant_b_admin@b.com", "13800000003", true, true, true, true, tenantB, userAdmin.getId(), userAdmin.getId());
+        User userAA = createUser(snowflake.nextId(), "tenant_a_user_a", "租户A用户A", "123456", "user_a_a@a.com", "13800000004", true, true, true, true, tenantA, userTenantA.getId(), userTenantA.getId());
+        User userAB = createUser(snowflake.nextId(), "tenant_a_user_b", "租户A用户B", "123456", "tenant_a_user_b@a.com", "13800000005", true, true, true, true, tenantA, userTenantA.getId(), userTenantA.getId());
+        User userBA = createUser(snowflake.nextId(), "tenant_b_user_a", "租户B用户A", "123456", "tenant_b_user_a@b.com", "13800000006", true, true, true, true, tenantB, userTenantB.getId(), userTenantB.getId());
+        User userBB = createUser(snowflake.nextId(), "tenant_b_user_b", "租户B用户B", "123456", "tenant_b_user_b@b.com", "13800000007", true, true, true, true, tenantB, userTenantB.getId(), userTenantB.getId());
 
         // 3. 创建角色
         Role roleAdmin = createRole(snowflake.nextId(), "admin", "系统管理员", 1, true, sysTenant, userAdmin.getId(), userAdmin.getId());
@@ -66,6 +66,8 @@ public class DataInitializerDev implements CommandLineRunner {
         Permission videoUpdatePermission = createPermission(snowflake.nextId(), "video:video:update", "视频重命名", "/api/video/rename", 3, videoManagePermission.getId(), "2", true, sysTenant, userAdminId, userAdminId);
         Permission videoDeletePermission = createPermission(snowflake.nextId(), "video:video:delete", "视频删除", "/api/video/delete", 4, videoManagePermission.getId(), "2", true, sysTenant, userAdminId, userAdminId);
         Permission videoSlicePermission = createPermission(snowflake.nextId(), "video:video:slice", "视频切片", "/video/slice/create", 5, videoManagePermission.getId(), "2", true, sysTenant, userAdminId, userAdminId);
+        Permission accountManagePermission = createPermission(snowflake.nextId(), "account:user:manage", "账户管理", "/api/account", 1, 0L, "1", true, sysTenant, userAdminId, userAdminId);
+        Permission accountViewPermission = createPermission(snowflake.nextId(), "account:user:view", "账户列表查询", "/api/account/users", 1, videoManagePermission.getId(), "2", true, sysTenant, userAdminId, userAdminId);
 
         // 4. 绑定用户和角色
         bindUserAndRole(snowflake.nextId(), userAdmin, roleAdmin, sysTenant);
@@ -96,6 +98,9 @@ public class DataInitializerDev implements CommandLineRunner {
         bindRoleAndPermission(snowflake.nextId(), roleAdmin, videoViewPermission, sysTenant);
         bindRoleAndPermission(snowflake.nextId(), roleAdmin, videoUpdatePermission, sysTenant);
         bindRoleAndPermission(snowflake.nextId(), roleAdmin, videoDeletePermission, sysTenant);
+        bindRoleAndPermission(snowflake.nextId(), roleAdmin, accountManagePermission, sysTenant);
+        bindRoleAndPermission(snowflake.nextId(), roleAdmin, accountViewPermission, sysTenant);
+
         bindRoleAndPermission(snowflake.nextId(), roleAdmin, videoSlicePermission, sysTenant);
         
         bindRoleAndPermission(snowflake.nextId(), roleTenantA, userViewPermission, tenantA);
@@ -124,13 +129,14 @@ public class DataInitializerDev implements CommandLineRunner {
                 });
     }
 
-    private User createUser(Long id, String username, String password, String email, String phone, Boolean status, Boolean accountNonExpired, Boolean accountNonLocked, Boolean credentialsNonExpired, Tenant tenant, Long createdBy, Long updatedBy) {
+    private User createUser(Long id, String username, String nickName,  String password, String email, String phone, Boolean status, Boolean accountNonExpired, Boolean accountNonLocked, Boolean credentialsNonExpired, Tenant tenant, Long createdBy, Long updatedBy) {
         return userRepository.findByUserName(username)
                 .orElseGet(() -> {
                     User newUser = new User();
                     newUser.setId(id);
                     newUser.setTenant(tenant);
                     newUser.setUserName(username);
+                    newUser.setNickName(nickName);
                     newUser.setPassword(passwordEncoder.encode(password));
                     newUser.setEmail(email);
                     newUser.setPhone(phone);
