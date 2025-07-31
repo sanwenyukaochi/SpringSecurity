@@ -15,9 +15,20 @@
 <label>视频 ID（多个以英文逗号分隔）：</label><br>
 <input type="text" id="videoIds" placeholder="例如: 1234567890,9876543210" style="width: 400px" /><br><br>
 
+<label>任务 ID（查询特定任务）：</label><br>
+<input type="text" id="taskId" placeholder="输入任务 ID" style="width: 400px" /><br><br>
+
+<label>分页参数：</label><br>
+<label>当前页码：</label>
+<input type="number" id="currentPage" placeholder="页码（从0开始）" value="0" min="0" style="width: 100px" />
+<label>每页大小：</label>
+<input type="number" id="pageSize" placeholder="每页条数" value="6" min="1" style="width: 100px" /><br><br>
+
 <button onclick="connect()">连接</button>
 <button onclick="disconnect()">断开连接</button>
 <button onclick="sendSliceRequest()">发送切片请求</button>
+<button onclick="queryAllTasks()">查询所有任务</button>
+<button onclick="queryTaskById()">根据ID查询任务</button>
 <pre id="output"></pre>
 
 <script>
@@ -32,8 +43,14 @@
       stompClient.connect({ Authorization: 'Bearer ' + jwt }, function (frame) {
           document.getElementById("output").innerText += "连接成功: " + frame + "\n";
 
+          // 订阅视频切片结果
           stompClient.subscribe("/user/queue/video-slice/result", function (message) {
-              document.getElementById("output").innerText += "收到响应:\n" + message.body + "\n";
+              document.getElementById("output").innerText += "收到视频切片响应:\n" + message.body + "\n";
+          });
+          
+          // 订阅任务查询结果
+          stompClient.subscribe("/user/queue/task/result", function (message) {
+              document.getElementById("output").innerText += "收到任务查询响应:\n" + JSON.stringify(JSON.parse(message.body), null, 2) + "\n";
           });
       }, function (error) {
           document.getElementById("output").innerText += "连接失败: " + error + "\n";
@@ -73,6 +90,43 @@
       };
       stompClient.send("/app/video/slice/create", {}, JSON.stringify(payload));
       document.getElementById("output").innerText += "发送切片请求:\n" + JSON.stringify(payload, null, 2) + "\n";
+  }
+  
+  function queryAllTasks() {
+      if (!stompClient || !stompClient.connected) {
+          document.getElementById("output").innerText += "请先连接 WebSocket！\n";
+          return;
+      }
+      
+      const currentPage = document.getElementById("currentPage").value || 0;
+      const pageSize = document.getElementById("pageSize").value || 6;
+      
+      const payload = {
+          currentPage: parseInt(currentPage),
+          size: parseInt(pageSize)
+      };
+      
+      stompClient.send("/app/task/query", {}, JSON.stringify(payload));
+      document.getElementById("output").innerText += "发送查询所有任务请求:\n" + JSON.stringify(payload, null, 2) + "\n";
+  }
+  
+  function queryTaskById() {
+      if (!stompClient || !stompClient.connected) {
+          document.getElementById("output").innerText += "请先连接 WebSocket！\n";
+          return;
+      }
+      
+      const taskId = document.getElementById("taskId").value;
+      if (!taskId) {
+          document.getElementById("output").innerText += "请输入任务 ID\n";
+          return;
+      }
+      
+      const payload = {
+          taskId: taskId
+      };
+      stompClient.send("/app/task/query/byId", {}, JSON.stringify(payload));
+      document.getElementById("output").innerText += "发送查询任务请求:\n" + JSON.stringify(payload, null, 2) + "\n";
   }
 </script>
 </body>
