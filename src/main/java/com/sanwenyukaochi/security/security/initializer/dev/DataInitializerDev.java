@@ -39,13 +39,13 @@ public class DataInitializerDev implements CommandLineRunner {
         Tenant tenantB = createTenant(snowflake.nextId(), "租户组B", "tenant_group_b", true, userAdminId, userAdminId);
 
         // 2. 创建用户
-        User userAdmin = createUser(userAdminId, "system_admin", "系统管理员", "123456", "system_admin@sys.com", "13800000001", true, true, true, true, sysTenant, userAdminId, userAdminId);
-        User userTenantA = createUser(snowflake.nextId(), "tenant_a_admin", "租户A管理员", "123456", "tenant_a_admin@a.com", "13800000002", true, true, true, true, tenantA, userAdmin.getId(), userAdmin.getId());
-        User userTenantB = createUser(snowflake.nextId(), "tenant_b_admin", "租户B管理员", "123456", "tenant_b_admin@b.com", "13800000003", true, true, true, true, tenantB, userAdmin.getId(), userAdmin.getId());
-        User userAA = createUser(snowflake.nextId(), "tenant_a_user_a", "租户A用户A", "123456", "user_a_a@a.com", "13800000004", true, true, true, true, tenantA, userTenantA.getId(), userTenantA.getId());
-        User userAB = createUser(snowflake.nextId(), "tenant_a_user_b", "租户A用户B", "123456", "tenant_a_user_b@a.com", "13800000005", true, true, true, true, tenantA, userTenantA.getId(), userTenantA.getId());
-        User userBA = createUser(snowflake.nextId(), "tenant_b_user_a", "租户B用户A", "123456", "tenant_b_user_a@b.com", "13800000006", true, true, true, true, tenantB, userTenantB.getId(), userTenantB.getId());
-        User userBB = createUser(snowflake.nextId(), "tenant_b_user_b", "租户B用户B", "123456", "tenant_b_user_b@b.com", "13800000007", true, true, true, true, tenantB, userTenantB.getId(), userTenantB.getId());
+        User userAdmin = createUser(userAdminId, "system_admin", "系统管理员", "123456", "system_admin@sys.com", "13800000001", "https://www.gravatar.com/avatar/?d=retro",  true, true, true, true, sysTenant, userAdminId, userAdminId);
+        User userTenantA = createUser(snowflake.nextId(), "tenant_a_admin", "租户A管理员", "123456", "tenant_a_admin@a.com", "13800000002", "https://www.gravatar.com/avatar/?d=retro", true, true, true, true, tenantA, userAdmin.getId(), userAdmin.getId());
+        User userTenantB = createUser(snowflake.nextId(), "tenant_b_admin", "租户B管理员", "123456", "tenant_b_admin@b.com", "13800000003", "https://www.gravatar.com/avatar/?d=retro", true, true, true, true, tenantB, userAdmin.getId(), userAdmin.getId());
+        User userAA = createUser(snowflake.nextId(), "tenant_a_user_a", "租户A用户A", "123456", "user_a_a@a.com", "13800000004", "https://www.gravatar.com/avatar/?d=retro", true, true, true, true, tenantA, userTenantA.getId(), userTenantA.getId());
+        User userAB = createUser(snowflake.nextId(), "tenant_a_user_b", "租户A用户B", "123456", "tenant_a_user_b@a.com", "13800000005", "https://www.gravatar.com/avatar/?d=retro", true, true, true, true, tenantA, userTenantA.getId(), userTenantA.getId());
+        User userBA = createUser(snowflake.nextId(), "tenant_b_user_a", "租户B用户A", "123456", "tenant_b_user_a@b.com", "13800000006", "https://www.gravatar.com/avatar/?d=retro", true, true, true, true, tenantB, userTenantB.getId(), userTenantB.getId());
+        User userBB = createUser(snowflake.nextId(), "tenant_b_user_b", "租户B用户B", "123456", "tenant_b_user_b@b.com", "13800000007", "https://www.gravatar.com/avatar/?d=retro", true, true, true, true, tenantB, userTenantB.getId(), userTenantB.getId());
 
         // 3. 创建角色
         Role roleAdmin = createRole(snowflake.nextId(), "admin", "系统管理员", 1, true, sysTenant, userAdmin.getId(), userAdmin.getId());
@@ -129,7 +129,7 @@ public class DataInitializerDev implements CommandLineRunner {
                 });
     }
 
-    private User createUser(Long id, String username, String nickName,  String password, String email, String phone, Boolean status, Boolean accountNonExpired, Boolean accountNonLocked, Boolean credentialsNonExpired, Tenant tenant, Long createdBy, Long updatedBy) {
+    private User createUser(Long id, String username, String nickName,  String password, String email, String phone, String avatar, Boolean status, Boolean accountNonExpired, Boolean accountNonLocked, Boolean credentialsNonExpired, Tenant tenant, Long createdBy, Long updatedBy) {
         return userRepository.findByUserName(username)
                 .orElseGet(() -> {
                     User newUser = new User();

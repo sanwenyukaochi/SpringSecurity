@@ -50,7 +50,7 @@ public class User extends BaseEntity {
     @Comment("手机号")
     private String phone;
 
-    @Column(name = "avatar")
+    @Column(name = "avatar", nullable = false)
     @Comment("头像")
     private String avatar;
 
