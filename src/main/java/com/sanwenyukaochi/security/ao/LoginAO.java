@@ -22,16 +22,16 @@ import java.lang.annotation.*;
 public class LoginAO {
     @NotBlank(message = "请输入用户名")
     @Size(min = 6, max = 20, message = "用户名长度应为6-20字符")
-    private String username;
-    
+    private String userName;
+
     @NotBlank(message = "请输入密码")
     @PasswordSize(min = 6, max = 20, message = "密码长度应为6~20个字符")
-    private String password;
+    private String encryptedPassword;
 
-    @NotBlank(message = "请输入验证码Key")
+//    @NotBlank(message = "请输入验证码Key")
     private String captchaKey;
 
-    @NotBlank(message = "请输入验证码")
+//    @NotBlank(message = "请输入验证码")
     private String captcha;
 
     @Target({ElementType.FIELD})

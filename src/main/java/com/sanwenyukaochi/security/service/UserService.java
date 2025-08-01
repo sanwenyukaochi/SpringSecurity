@@ -23,6 +23,10 @@ public class UserService {
                 newUser.getNickName(),
                 newUser.getPhone(),
                 newUser.getAvatar(),
+                new AccountDTO.TenantVO(
+                        newUser.getTenant().getId(),
+                        newUser.getTenant().getName()
+                ),
                 newUser.getUpdatedAt(),
                 newUser.getCreatedAt()
         ));
@@ -36,6 +40,10 @@ public class UserService {
                 userDetails.getNickName(),
                 userDetails.getPhone(),
                 userDetails.getAvatar(),
+                new AccountDTO.TenantVO(
+                        userDetails.getTenant().getId(),
+                        userDetails.getTenant().getName()
+                ),
                 userDetails.getUpdatedAt(),
                 userDetails.getCreatedAt()
         );

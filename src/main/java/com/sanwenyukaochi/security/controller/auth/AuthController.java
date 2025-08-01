@@ -32,7 +32,7 @@ public class AuthController {
     @PostMapping("/signIn")
     @Operation(summary = "获取认证token", description = "传入账号:username,密码:password")
     public Result<LoginVO> authenticateUser(@Valid @RequestBody LoginAO loginAO) {
-        LoginBO loginBO = new LoginBO(loginAO.getUsername(), loginAO.getPassword(), loginAO.getCaptchaKey(), loginAO.getCaptcha());
+        LoginBO loginBO = new LoginBO(loginAO.getUserName(), loginAO.getEncryptedPassword(), loginAO.getCaptchaKey(), loginAO.getCaptcha());
         JwtTokenDTO jwtTokenDTO = authService.getTokenPair(loginBO);
         return Result.success(new LoginVO(jwtTokenDTO.getAccessToken(), jwtTokenDTO.getRefreshToken()));
     }

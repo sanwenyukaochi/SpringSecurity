@@ -38,10 +38,10 @@ public class AuthService {
     private final Environment env;
 
     public JwtTokenDTO getTokenPair(LoginBO loginBO) {
-        if (!Objects.equals(loginBO.getCaptcha(), redisTemplate.opsForValue().get(loginBO.getCaptchaKey())) && !Arrays.asList(env.getActiveProfiles()).contains("dev")) {
-            throw new APIException(HttpStatus.HTTP_UNAUTHORIZED, "验证码不正确");
-        }
-        redisTemplate.delete(loginBO.getCaptchaKey());
+//        if (!Objects.equals(loginBO.getCaptcha(), redisTemplate.opsForValue().get(loginBO.getCaptchaKey())) && !Arrays.asList(env.getActiveProfiles()).contains("dev")) {
+//            throw new APIException(HttpStatus.HTTP_UNAUTHORIZED, "验证码不正确");
+//        }
+//        redisTemplate.delete(loginBO.getCaptchaKey());
         Authentication authentication;
         try {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginBO.getUsername(), RSAUtil.decrypt(loginBO.getPassword()));

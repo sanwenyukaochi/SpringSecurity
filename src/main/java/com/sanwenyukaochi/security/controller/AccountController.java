@@ -7,7 +7,6 @@ import com.sanwenyukaochi.security.vo.page.PageVO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +34,10 @@ public class AccountController {
                 newUser.getNickName(),
                 newUser.getPhone(),
                 newUser.getAvatar(),
+                new AccountVO.TenantVO(
+                        newUser.getTenant().getTenantId(),
+                        newUser.getTenant().getTenantName()
+                ),
                 newUser.getUpdatedAt(),
                 newUser.getCreatedAt()
         ))));
@@ -50,6 +53,10 @@ public class AccountController {
                 user.getNickName(),
                 user.getPhone(),
                 user.getAvatar(),
+                new AccountVO.TenantVO(
+                        user.getTenant().getTenantId(),
+                        user.getTenant().getTenantName()
+                ),
                 user.getUpdatedAt(),
                 user.getCreatedAt()
         ));
