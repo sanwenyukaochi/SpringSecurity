@@ -140,6 +140,7 @@ public class DataInitializerDev implements CommandLineRunner {
                     newUser.setPassword(passwordEncoder.encode(password));
                     newUser.setEmail(email);
                     newUser.setPhone(phone);
+                    newUser.setAvatar(avatar);
                     newUser.setStatus(status);
                     newUser.setAccountNonExpired(accountNonExpired);
                     newUser.setAccountNonLocked(accountNonLocked);
