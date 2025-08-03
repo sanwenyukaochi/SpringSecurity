@@ -1,8 +1,10 @@
 package com.sanwenyukaochi.security.controller;
 
 import com.sanwenyukaochi.security.dto.AccountDTO;
+import com.sanwenyukaochi.security.dto.RouterDTO;
 import com.sanwenyukaochi.security.vo.AccountVO;
 import com.sanwenyukaochi.security.vo.Result;
+import com.sanwenyukaochi.security.vo.RouterVO;
 import com.sanwenyukaochi.security.vo.page.PageVO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -11,11 +13,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.sanwenyukaochi.security.service.UserService;
+import com.sanwenyukaochi.security.service.RouterService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -23,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class AccountController {
     private final UserService userService;
+    private final RouterService routerService;
     @GetMapping("/users")
     @Operation(summary = "查询账户列表")
     public Result<PageVO<AccountVO>> listUsers(@RequestParam(defaultValue = "0") int currentPage, @RequestParam(defaultValue = "6") int size) {
@@ -61,4 +69,26 @@ public class AccountController {
                 user.getCreatedAt()
         ));
     }
+
+    @GetMapping("/router")
+    @Operation(summary = "获取当前用户路由权限")
+    public Result<List<RouterVO>> getRouter(Authentication authentication) {
+        List<RouterDTO> routerDTOs = routerService.getUserRouters(authentication);
+        return Result.success(convertRouters(routerDTOs));
+    }
+
+    private List<RouterVO> convertRouters(List<RouterDTO> routerDTOs) {
+        if (routerDTOs == null) return Collections.emptyList();
+        return routerDTOs.stream()
+                .map(dto -> new RouterVO(
+                        dto.getId(),
+                        dto.getName(),
+                        dto.getCode(),
+                        dto.getPath(),
+                        dto.getType(),
+                        dto.getSort(),
+                        convertRouters(dto.getChildren())
+                )).collect(Collectors.toList());
+    }
+
 }
