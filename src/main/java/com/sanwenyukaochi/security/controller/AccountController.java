@@ -82,11 +82,11 @@ public class AccountController {
         return routerDTOs.stream()
                 .map(dto -> new RouterVO(
                         dto.getId(),
+                        dto.getPath(),
                         dto.getName(),
                         dto.getCode(),
-                        dto.getPath(),
-                        dto.getType(),
                         dto.getSort(),
+                        new RouterVO.RouterMeta(dto.getName()),
                         convertRouters(dto.getChildren())
                 )).collect(Collectors.toList());
     }

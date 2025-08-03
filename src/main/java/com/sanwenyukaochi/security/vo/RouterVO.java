@@ -14,17 +14,17 @@ import java.util.List;
 public class RouterVO {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
+    private String path;
     private String name;
     private String code;
-    private String path;
-    private String type;
     private Integer sort;
+    private RouterMeta meta;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<RouterVO> children;
-    public boolean isMenu() {
-        return "1".equals(type);
-    }
-    public boolean isButton() {
-        return "2".equals(type);
+    
+    @Getter
+    @AllArgsConstructor
+    public static class RouterMeta {
+        private String title;
     }
 }
