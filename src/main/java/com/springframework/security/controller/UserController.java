@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
 
-    @RequestMapping("/hello")
-    public String hello(){
+    @RequestMapping("/")
+    public String index(){
         return "Hello, Spring Security!";
     }
 }
