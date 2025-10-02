@@ -1,5 +1,7 @@
 package com.springframework.security.config;
 
+import com.springframework.security.filter.CaptchaFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -8,9 +10,14 @@ import org.springframework.security.config.annotation.web.configurers.FormLoginC
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CaptchaFilter captchaFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -33,10 +40,11 @@ public class SecurityConfig {
                 //把所有接口都会进行登录状态检查的默认行为，再加回来
                 .authorizeHttpRequests( (authorizeHttpRequests) -> {
                     authorizeHttpRequests
-                            .requestMatchers("/toLogin").permitAll() //特殊情况的设置，permitAll允许不登录就可以访问
+                            .requestMatchers("/toLogin", "/common/captcha").permitAll() //特殊情况的设置，permitAll允许不登录就可以访问
                             .anyRequest().authenticated(); //除了上面的特殊情况外，其他任何对后端接口的请求，都需要认证（登录）后才能访问
                 })
-
+                //验证码filter加在接收登录账号密码的filter之前
+                .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
