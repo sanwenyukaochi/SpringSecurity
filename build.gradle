@@ -24,6 +24,8 @@ dependencies {
     implementation 'cn.hutool:hutool-captcha:5.8.40'
     implementation 'cn.hutool:hutool-json:5.8.40'
     implementation 'cn.hutool:hutool-http:5.8.40'
+    implementation 'cn.hutool:hutool-jwt:5.8.40'
+    implementation("com.auth0:java-jwt:4.5.0")
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     runtimeOnly 'org.postgresql:postgresql'
