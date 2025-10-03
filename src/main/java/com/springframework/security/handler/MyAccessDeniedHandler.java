@@ -21,7 +21,7 @@ public class MyAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding("utf-8");
 
         //采用构建器模式，链式编程创建一个R对象
-        Result<Object> result = Result.builder().code(401).msg("权限不足").build();
+        Result<Object> result = Result.builder().code(403).msg("权限不足").build();
 
         //hutool工具包，把R对象转成json字符串
         String json = JSONUtil.toJsonStr(result);
