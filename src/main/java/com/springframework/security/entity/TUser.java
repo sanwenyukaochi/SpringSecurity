@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import java.time.OffsetDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "t_user",
@@ -62,7 +63,7 @@ public class TUser {
 
     @Column(name = "create_time")
     @Comment("创建时间")
-    private OffsetDateTime createTime;
+    private Date createTime;
 
     @Column(name = "create_by")
     @Comment("创建人")
@@ -70,7 +71,7 @@ public class TUser {
 
     @Column(name = "edit_time")
     @Comment("编辑时间")
-    private OffsetDateTime editTime;
+    private Date editTime;
 
     @Column(name = "edit_by")
     @Comment("编辑人")
@@ -78,5 +79,5 @@ public class TUser {
 
     @Column(name = "last_login_time")
     @Comment("最近登录时间")
-    private OffsetDateTime lastLoginTime;
+    private Date lastLoginTime;
 }
