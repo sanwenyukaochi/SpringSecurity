@@ -1,15 +1,16 @@
 package com.springframework.security.service.impl;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springframework.security.entity.TRole;
 import com.springframework.security.entity.TUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -34,8 +35,10 @@ public class UserDetailsImpl implements UserDetails {
     private Date editTime;
     private Long editBy;
     private Date lastLoginTime;
+    @JsonIgnore
+    private List<TRole> rolesList;
 
-    public static UserDetailsImpl build(TUser user) {
+    public static UserDetailsImpl build(TUser user, List<TRole> rolesList) {
         return new UserDetailsImpl(
                 user.getId(),
                 user.getLoginAct(),
@@ -51,13 +54,18 @@ public class UserDetailsImpl implements UserDetails {
                 user.getCreateBy(),
                 user.getEditTime(),
                 user.getEditBy(),
-                user.getLastLoginTime()
+                user.getLastLoginTime(),
+                rolesList
         );
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        for (TRole role : rolesList) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole()));
+        }
+        return authorities;
     }
 
     @JsonIgnore
