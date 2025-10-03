@@ -1,6 +1,9 @@
 package com.springframework.security.config;
 
+import com.springframework.security.filter.CaptchaFilter;
+import com.springframework.security.filter.TokenFilter;
 import com.springframework.security.handler.AppLogoutSuccessHandler;
+import com.springframework.security.handler.MyAccessDeniedHandler;
 import com.springframework.security.handler.MyAuthenticationFailureHandler;
 import com.springframework.security.handler.MyAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -26,6 +31,10 @@ public class SecurityConfig {
     private final MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
     private final MyAuthenticationFailureHandler myAuthenticationFailureHandler;
     private final AppLogoutSuccessHandler appLogoutSuccessHandler;
+    private final TokenFilter tokenFilter;
+    private final MyAccessDeniedHandler myAccessDeniedHandler;
+    private final CaptchaFilter captchaFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -70,6 +79,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors((corsConfiguration) -> corsConfiguration.configurationSource(corsConfigurationSource))
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(tokenFilter, LogoutFilter.class)
+                .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling((exceptionHandling) -> {
+                    exceptionHandling.accessDeniedHandler(myAccessDeniedHandler); //没有权限的时候，执行该handler
+                })
                 .build();
     }
 
