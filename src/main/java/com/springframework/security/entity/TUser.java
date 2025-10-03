@@ -3,7 +3,7 @@ package com.springframework.security.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import java.time.OffsetDateTime;
+
 import java.util.Date;
 
 @Entity
