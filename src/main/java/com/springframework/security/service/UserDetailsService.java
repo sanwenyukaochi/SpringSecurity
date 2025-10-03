@@ -1,4 +1,4 @@
 package com.springframework.security.service;
 
-public interface UserService  {
+public interface UserDetailsService {
 }

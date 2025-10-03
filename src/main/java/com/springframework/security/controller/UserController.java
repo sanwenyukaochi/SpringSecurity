@@ -1,6 +1,6 @@
 package com.springframework.security.controller;
 
-import com.springframework.security.util.LoginInfoUtil;
+import com.springframework.security.util.SecurityUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,7 +50,7 @@ public class UserController {
     @RequestMapping(value = "/welcome5")
     public @ResponseBody Object welcome5() { //@ResponseBody注解，表示方法返回字符串或者json
         //如何拿到登录人的完整信息，比如userId、phone、email、loginAct ......
-        return LoginInfoUtil.getCurrentLoginUser();
+        return SecurityUtils.getCurrentLoginUser();
     }
 
 }
