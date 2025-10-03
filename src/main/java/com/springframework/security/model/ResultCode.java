@@ -12,8 +12,9 @@ import lombok.Getter;
 public enum ResultCode {
 
     SUCCESS(HttpStatus.HTTP_OK, "操作成功"),
-    ERROR(HttpStatus.HTTP_INTERNAL_ERROR, "操作失败");
-    
+    ERROR(HttpStatus.HTTP_INTERNAL_ERROR, "操作失败"),
+    ACCESS_DENIED(HttpStatus.HTTP_FORBIDDEN, "权限不足"),
+    ACCESS_UNAUTHORIZED(HttpStatus.HTTP_UNAUTHORIZED, "未登录");
     private Integer code;
     private String msg;
     

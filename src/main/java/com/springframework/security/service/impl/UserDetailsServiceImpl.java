@@ -8,10 +8,9 @@ import com.springframework.security.repository.UserRepository;
 import com.springframework.security.repository.UserRoleRepository;
 import com.springframework.security.repository.PermissionRepository;
 import com.springframework.security.repository.RolePermissionRepository;
-import com.springframework.security.service.UserService;
+import com.springframework.security.service.UserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService, org.springframework.security.core.userdetails.UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;

@@ -64,6 +64,7 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         rolesList.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole())));
