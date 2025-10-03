@@ -14,7 +14,7 @@ import org.hibernate.annotations.Comment;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TUserRole {
+public class UserRole {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +26,11 @@ public class TUserRole {
     @JoinColumn(name = "user_id",
             foreignKey = @ForeignKey(name = "t_user_role_ibfk_1"))
     @Comment("关联的用户")
-    private TUser user;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id",
             foreignKey = @ForeignKey(name = "t_user_role_ibfk_2"))
     @Comment("关联的角色")
-    private TRole role;
+    private Role role;
 }

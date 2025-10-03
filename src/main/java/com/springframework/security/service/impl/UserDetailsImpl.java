@@ -1,9 +1,9 @@
 package com.springframework.security.service.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.springframework.security.entity.TPermission;
-import com.springframework.security.entity.TRole;
-import com.springframework.security.entity.TUser;
+import com.springframework.security.entity.Permission;
+import com.springframework.security.entity.Role;
+import com.springframework.security.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,11 +37,11 @@ public class UserDetailsImpl implements UserDetails {
     private Long editBy;
     private Date lastLoginTime;
     @JsonIgnore
-    private List<TRole> rolesList;
+    private List<Role> rolesList;
     @JsonIgnore
-    private List<TPermission> permissionsList;
+    private List<Permission> permissionsList;
 
-    public static UserDetailsImpl build(TUser user, List<TRole> rolesList, List<TPermission> permissionsList) {
+    public static UserDetailsImpl build(User user, List<Role> rolesList, List<Permission> permissionsList) {
         return new UserDetailsImpl(
                 user.getId(),
                 user.getLoginAct(),
@@ -68,7 +68,7 @@ public class UserDetailsImpl implements UserDetails {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         rolesList.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole())));
         permissionsList.stream()
-                .map(TPermission::getCode)
+                .map(Permission::getCode)
                 .filter(code -> code != null && !code.isBlank())
                 .forEach(code -> authorities.add(new SimpleGrantedAuthority(code)));
         return authorities;
