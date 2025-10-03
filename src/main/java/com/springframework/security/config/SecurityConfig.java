@@ -80,7 +80,7 @@ public class SecurityConfig {
                 .cors((corsConfiguration) -> corsConfiguration.configurationSource(corsConfigurationSource))
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(tokenFilter, LogoutFilter.class)
-                .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class)
+//                .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling((exceptionHandling) -> {
                     exceptionHandling.accessDeniedHandler(myAccessDeniedHandler); //没有权限的时候，执行该handler
                 })

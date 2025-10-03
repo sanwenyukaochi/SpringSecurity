@@ -117,6 +117,12 @@ public class ClueController {
         return "clueView";
     }
 
+    @PreAuthorize(value = "hasAuthority('clue:import')")
+    @RequestMapping(value = "/api/clue/imports")
+    public String clueImports() {
+        return "clueImports";
+    }
+
     @PreAuthorize(value = "hasAuthority('clue:del')")
     @RequestMapping(value = "/api/clue/del")
     public String clueDel() {
