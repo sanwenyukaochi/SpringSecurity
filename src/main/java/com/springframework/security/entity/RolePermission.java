@@ -14,7 +14,7 @@ import org.hibernate.annotations.Comment;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TRolePermission {
+public class RolePermission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +26,11 @@ public class TRolePermission {
     @JoinColumn(name = "role_id",
             foreignKey = @ForeignKey(name = "t_role_permission_ibfk_1"))
     @Comment("关联的角色")
-    private TRole role;
+    private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "permission_id",
             foreignKey = @ForeignKey(name = "t_role_permission_ibfk_2"))
     @Comment("关联的权限")
-    private TPermission permission;
+    private Permission permission;
 }

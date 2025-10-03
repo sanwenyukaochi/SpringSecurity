@@ -10,7 +10,7 @@ import org.hibernate.annotations.Comment;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TPermission {
+public class Permission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

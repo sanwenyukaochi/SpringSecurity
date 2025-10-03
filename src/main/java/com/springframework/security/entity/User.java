@@ -17,7 +17,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TUser {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

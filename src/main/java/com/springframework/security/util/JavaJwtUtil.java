@@ -7,7 +7,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.springframework.security.entity.TUser;
+import com.springframework.security.entity.User;
 
 
 import java.util.Date;
@@ -20,11 +20,11 @@ public class JavaJwtUtil {
     public static final String secret = "0S/12dSd0=;2Sfdjkgh3OPYs";
 
     public static void main(String[] args) {
-        TUser tUser = new TUser();
-        tUser.setId(10282L);
-        tUser.setLoginAct("cat");
-        tUser.setEmail("cat@163.com");
-        String userJson = JSONUtil.toJsonStr(tUser);
+        User user = new User();
+        user.setId(10282L);
+        user.setLoginAct("cat");
+        user.setEmail("cat@163.com");
+        String userJson = JSONUtil.toJsonStr(user);
 
         //生成jwt字符串
         String token = createToken(userJson);
