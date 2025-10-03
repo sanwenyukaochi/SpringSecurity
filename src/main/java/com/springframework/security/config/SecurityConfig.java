@@ -34,7 +34,8 @@ public class SecurityConfig {
                     public void customize(FormLoginConfigurer<HttpSecurity> formLogin) {
                         // 框架默认接收登录提交请求的地址是 /login，但是我们把它给弄丢了，需要捡回来
                         formLogin.loginProcessingUrl("/user/login") //登录的账号密码往哪个地址提交
-                                .loginPage("/toLogin"); //定制登录页（Thymeleaf页面）
+                                .loginPage("/toLogin") //定制登录页（Thymeleaf页面）
+                                .successForwardUrl("/welcome");
                     }
                 })
                 //把所有接口都会进行登录状态检查的默认行为，再加回来
