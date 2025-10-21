@@ -1,10 +1,10 @@
-package com.sanwenyukaochi.security;
+package com.secure.notes;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SecurityApplicationTests {
+class NotesApplicationTests {
 
     @Test
     void contextLoads() {
