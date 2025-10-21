@@ -3,16 +3,18 @@ package com.secure.notes.service.impl;
 import com.secure.notes.model.Note;
 import com.secure.notes.repository.NoteRepository;
 import com.secure.notes.service.NoteService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class NoteServiceImpl implements NoteService {
 
-    @Autowired
-    private NoteRepository noteRepository;
+    private final NoteRepository noteRepository;
 
     @Override
     public Note createNoteForUser(String username, String content) {
