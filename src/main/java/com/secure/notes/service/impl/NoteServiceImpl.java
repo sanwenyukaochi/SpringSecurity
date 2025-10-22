@@ -17,7 +17,7 @@ public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
 
-    private AuditLogService auditLogService;
+    private final AuditLogService auditLogService;
 
     @Override
     public Note createNoteForUser(String username, String content) {
