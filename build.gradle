@@ -23,6 +23,7 @@ ext {
     set('jjwtVersion', "0.13.0")
     set('postgresqlVersion', "42.7.8")
     set('googleauthVersion', "1.5.0")
+    set('hutoolVersion', "5.8.24")
 }
 
 dependencies {
@@ -38,6 +39,7 @@ dependencies {
     runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
     runtimeOnly "org.postgresql:postgresql:${postgresqlVersion}"
+    implementation "cn.hutool:hutool-core:${hutoolVersion}"
     implementation "com.warrenstrange:googleauth:${googleauthVersion}"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
