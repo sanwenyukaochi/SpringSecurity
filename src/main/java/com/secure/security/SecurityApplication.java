@@ -1,13 +1,13 @@
-package com.secure.notes;
+package com.secure.security;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class NotesApplication {
+public class SecurityApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(NotesApplication.class, args);
+		SpringApplication.run(SecurityApplication.class, args);
 	}
 
 }
