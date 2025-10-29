@@ -62,14 +62,14 @@ public class User extends BaseEntity {
     private Boolean enabled = true;
 
     @Schema(title = "双因素认证密钥", example = "JBOSSWS3DPKG3PXP", description = "TOTP Secret，用于Google Authenticator等")
-    @Column(name = "two_factor_secret", nullable = false, length = 64)
+    @Column(name = "two_factor_secret", nullable = true, length = 64)
     @Comment("双因素认证密钥（TOTP Secret，用于Google Authenticator等）")
     private String twoFactorSecret;
 
     @Schema(title = "是否启用双因素认证", description = "true 表示启用，false 表示未启用")
-    @Column(name = "is_two_factor_enabled", nullable = false)
+    @Column(name = "two_factor_enabled", nullable = false)
     @Comment("是否启用双因素认证（true=启用，false=未启用）")
-    private boolean isTwoFactorEnabled = false;
+    private Boolean twoFactorEnabled = false;
 
     @Schema(title = "注册方式", description = "用户注册来源，如 EMAIL、GITHUB、GOOGLE、WECHAT、SYSTEM 等")
     @Column(name = "sign_up_method", nullable = false, length = 10)
