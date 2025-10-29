@@ -31,7 +31,7 @@ public class UserDetailsImpl implements UserDetails {
     private Boolean enabled;
 
     private String twoFactorSecret;
-    private boolean isTwoFactorEnabled;
+    private Boolean twoFactorEnabled;
     private String signUpMethod;
 
     private List<String> roles;
@@ -48,7 +48,7 @@ public class UserDetailsImpl implements UserDetails {
                 .credentialsNonExpired(user.getCredentialsNonExpired())
                 .enabled(user.getEnabled())
                 .twoFactorSecret(user.getTwoFactorSecret())
-                .isTwoFactorEnabled(user.isTwoFactorEnabled())
+                .twoFactorEnabled(user.getTwoFactorEnabled())
                 .signUpMethod(user.getSignUpMethod())
                 .roles(roles)
                 .permissions(permissions)
