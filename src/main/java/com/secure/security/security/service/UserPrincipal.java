@@ -1,6 +1,8 @@
 package com.secure.security.security.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.secure.security.model.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,12 +16,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@NoArgsConstructor
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class UserDetailsImpl implements UserDetails {
+public class UserPrincipal implements UserDetails {
 
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
     private String username;
     private String email;
@@ -38,7 +41,7 @@ public class UserDetailsImpl implements UserDetails {
     private List<String> permissions;
 
     public static UserDetails build(User user, List<String> roles, List<String> permissions) {
-        return UserDetailsImpl.builder()
+        return UserPrincipal.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())

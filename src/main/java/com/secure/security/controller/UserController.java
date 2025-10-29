@@ -1,7 +1,7 @@
 package com.secure.security.controller;
 
 import com.secure.security.model.dto.Result;
-import com.secure.security.security.service.UserDetailsImpl;
+import com.secure.security.security.service.UserPrincipal;
 import com.secure.security.service.UserService;
 
 
@@ -22,7 +22,7 @@ public class UserController {
 
     @GetMapping("/info")
     public Result<?> getUserInfo(Authentication authentication) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return Result.success(Map.of("userInfo", userDetails));
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        return Result.success(Map.of("userInfo", userPrincipal));
     }
 }
