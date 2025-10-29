@@ -26,6 +26,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("用户不存在: " + username));
         List<Role> roleList = user.getRoles().stream().map(UserRole::getRole).toList();
         List<Permission> permissions = roleList.stream().flatMap(role -> role.getPermissions().stream()).map(RolePermission::getPermission).toList();
-        return UserDetailsImpl.build(user, roleList.stream().map(Role::getCode).toList(), permissions.stream().map(Permission::getCode).toList());
+        return UserPrincipal.build(user, roleList.stream().map(Role::getCode).toList(), permissions.stream().map(Permission::getCode).toList());
     }
 }

@@ -10,7 +10,7 @@ import com.secure.security.repository.UserRepository;
 import com.secure.security.security.jwt.JwtUtils;
 import com.secure.security.security.request.LoginRequest;
 import com.secure.security.security.request.SignupRequest;
-import com.secure.security.security.service.UserDetailsImpl;
+import com.secure.security.security.service.UserPrincipal;
 import com.secure.security.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +48,9 @@ public class AuthServiceImpl implements AuthService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-            return jwtUtils.generateTokenFromUsername(userDetails.getUsername());
+            return jwtUtils.generateTokenFromUsername(userPrincipal.getUsername());
         } catch (UsernameNotFoundException e) {
             log.warn("用户不存在: {}", loginRequest.username());
             throw new GlobalException(HttpStatus.UNAUTHORIZED.value(), "用户不存在");
