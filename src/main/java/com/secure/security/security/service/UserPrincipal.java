@@ -12,9 +12,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Data
 @Builder
@@ -60,18 +61,11 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        if (roles != null) {
-            authorities.addAll(roles.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .toList());
-        }
-        if (permissions != null) {
-            authorities.addAll(permissions.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .toList());
-        }
-        return authorities;
+        return Stream.of(roles, permissions)
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .map(SimpleGrantedAuthority::new)
+                .toList();
     }
 
     @Override
@@ -93,6 +87,5 @@ public class UserPrincipal implements UserDetails {
     public boolean isEnabled() {
         return enabled;
     }
-
 
 }
