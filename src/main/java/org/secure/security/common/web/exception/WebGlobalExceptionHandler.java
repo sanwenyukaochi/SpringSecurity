@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import org.secure.security.common.web.model.Result;
-import org.secure.security.common.web.model.ResultBuilder;
 import org.secure.security.common.web.util.I18nMessageTool;
 import org.secure.security.common.web.util.JSON;
 import org.slf4j.Logger;
@@ -32,8 +31,8 @@ public class WebGlobalExceptionHandler {
   @ExceptionHandler(value = NoResourceFoundException.class)
   public Result exceptionHandler(HttpServletResponse response, NoResourceFoundException e) {
     response.setStatus(HttpStatus.NOT_FOUND.value());
-    return ResultBuilder.aResult()
-        .msg("api not found")
+    return Result.builder()
+        .message("api not found")
         .code("api.not.found")
         .build();
   }
@@ -61,8 +60,8 @@ public class WebGlobalExceptionHandler {
   }
 
   private Result createResult(BaseException e) {
-    return ResultBuilder.aResult()
-        .msg(e.getMessage())
+    return Result.builder()
+        .message(e.getMessage())
         .code(e.getCode() == null ? Result.FAIL_CODE : e.getCode())
         .build();
   }
