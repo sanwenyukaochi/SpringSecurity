@@ -16,12 +16,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * 捕捉Spring security filter chain 中抛出的未知异常
  */
 @Slf4j
+@Component
 public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
 
     @Override

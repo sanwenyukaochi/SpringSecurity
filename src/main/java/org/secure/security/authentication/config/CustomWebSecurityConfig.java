@@ -1,16 +1,13 @@
 package org.secure.security.authentication.config;
 
-import jakarta.servlet.Filter;
-
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.secure.security.authentication.handler.exception.CustomAuthenticationExceptionHandler;
 import org.secure.security.authentication.handler.exception.CustomAuthorizationExceptionHandler;
 import org.secure.security.authentication.handler.exception.CustomSecurityExceptionHandler;
 import org.secure.security.authentication.handler.login.LoginFailHandler;
 import org.secure.security.authentication.handler.login.LoginSuccessHandler;
-//import org.secure.security.authentication.handler.login.gitee.GiteeAuthenticationFilter;
-//import org.secure.security.authentication.handler.login.gitee.GiteeAuthenticationProvider;
 import org.secure.security.authentication.handler.login.sms.SmsAuthenticationFilter;
 import org.secure.security.authentication.handler.login.sms.SmsAuthenticationProvider;
 import org.secure.security.authentication.handler.login.username.UsernameAuthenticationFilter;
@@ -28,9 +25,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
@@ -38,15 +33,13 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class CustomWebSecurityConfig {
 
     private final ApplicationContext applicationContext;
-    private final AuthenticationEntryPoint authenticationExceptionHandler = new CustomAuthenticationExceptionHandler();
-    private final AccessDeniedHandler authorizationExceptionHandler = new CustomAuthorizationExceptionHandler();
-    private final Filter globalSpringSecurityExceptionHandler = new CustomSecurityExceptionHandler();
-    public CustomWebSecurityConfig(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
+    private final CustomAuthenticationExceptionHandler authenticationExceptionHandler;
+    private final CustomAuthorizationExceptionHandler authorizationExceptionHandler;
+    private final CustomSecurityExceptionHandler globalSpringSecurityExceptionHandler;
 
     /**
      * 禁用不必要的默认filter，处理异常响应内容
@@ -104,34 +97,21 @@ public class CustomWebSecurityConfig {
         LoginFailHandler loginFailHandler = applicationContext.getBean(LoginFailHandler.class);
 
         // 加一个登录方式。用户名、密码登录
-
-
-        UsernameAuthenticationFilter usernameLoginFilter = new UsernameAuthenticationFilter(
+        UsernameAuthenticationFilter usernameAuthenticationFilter = new UsernameAuthenticationFilter(
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/username"),
                 new ProviderManager(List.of(applicationContext.getBean(UsernameAuthenticationProvider.class))),
                 loginSuccessHandler,
                 loginFailHandler);
 
-        http.addFilterBefore(usernameLoginFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(usernameAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 加一个登录方式。短信验证码 登录
-
-
-        SmsAuthenticationFilter smsLoginFilter = new SmsAuthenticationFilter(
+        SmsAuthenticationFilter smsAuthenticationFilter = new SmsAuthenticationFilter(
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/sms"),
                 new ProviderManager(List.of(applicationContext.getBean(SmsAuthenticationProvider.class))),
                 loginSuccessHandler,
                 loginFailHandler);
-        http.addFilterBefore(smsLoginFilter, UsernamePasswordAuthenticationFilter.class);
-
-        // 加一个登录方式。Gitee 登录
-//    GiteeAuthenticationFilter giteeFilter = new GiteeAuthenticationFilter(
-//            PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/gitee"),
-//        new ProviderManager(
-//            List.of(applicationContext.getBean(GiteeAuthenticationProvider.class))),
-//        loginSuccessHandler,
-//        loginFailHandler);
-//    http.addFilterBefore(giteeFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
