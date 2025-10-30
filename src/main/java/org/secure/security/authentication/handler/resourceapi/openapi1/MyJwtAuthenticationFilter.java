@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.secure.security.authentication.service.JwtService;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
-import org.secure.security.common.web.exception.ExceptionTool;
+import org.secure.security.common.web.exception.BaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,7 +33,7 @@ public class MyJwtAuthenticationFilter extends OncePerRequestFilter {
 
     String jwtToken = request.getHeader("Authorization");
     if (StringUtils.isEmpty(jwtToken)) {
-     ExceptionTool.throwException("JWT token is missing!", "miss.token");
+        throw  new BaseException("miss.token", "JWT token is missing!", HttpStatus.BAD_REQUEST);
     }
     if (jwtToken.startsWith("Bearer ")) {
       jwtToken = jwtToken.substring(7);
@@ -51,9 +51,9 @@ public class MyJwtAuthenticationFilter extends OncePerRequestFilter {
       SecurityContextHolder.getContext().setAuthentication(authentication);
     }catch (ExpiredJwtException e) {
       // 转换异常，指定code，让前端知道时token过期，去调刷新token接口
-      ExceptionTool.throwException("jwt过期", HttpStatus.UNAUTHORIZED, "token.expired");
+        throw new BaseException("token.expired", "jwt过期", HttpStatus.UNAUTHORIZED);
     } catch (Exception e) {
-      ExceptionTool.throwException("jwt无效", HttpStatus.UNAUTHORIZED, "token.invalid");
+        throw new BaseException("token.invalid", "jwt无效", HttpStatus.UNAUTHORIZED);
     }
     // 放行
     filterChain.doFilter(request, response);
