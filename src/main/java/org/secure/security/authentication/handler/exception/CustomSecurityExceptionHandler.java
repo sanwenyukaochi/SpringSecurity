@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.secure.security.common.web.exception.BaseException;
-import org.secure.security.common.web.model.ResultBuilder;
 import org.secure.security.common.web.util.JSON;
 import org.secure.security.common.web.model.Result;
 import org.slf4j.Logger;
@@ -37,14 +36,14 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
           .msg(e.getMessage())
           .code(e.getCode())
           .build();
-      response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(e.getHttpStatus().value());
       PrintWriter writer = response.getWriter();
       writer.write(JSON.stringify(result));
       writer.flush();
       writer.close();
     } catch (AuthenticationException | AccessDeniedException e) {
-      response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(HttpStatus.FORBIDDEN.value());
       PrintWriter writer = response.getWriter();
       writer.print(JSON.stringify(Result.fail(e.getMessage())));
@@ -57,7 +56,7 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
           .msg("System Error")
           .code("system.error")
           .build();
-      response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
       PrintWriter writer = response.getWriter();
       writer.write(JSON.stringify(result));

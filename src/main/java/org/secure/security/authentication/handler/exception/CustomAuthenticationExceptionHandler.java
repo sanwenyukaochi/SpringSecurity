@@ -21,7 +21,7 @@ public class CustomAuthenticationExceptionHandler implements
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response,
       AuthenticationException authException) throws IOException, ServletException {
-    response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
     PrintWriter writer = response.getWriter();
     writer.print(JSON.stringify(Result.fail("${authentication.fail:认证失败}")));

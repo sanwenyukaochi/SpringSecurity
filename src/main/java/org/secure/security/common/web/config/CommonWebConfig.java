@@ -13,28 +13,28 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CommonWebConfig implements WebMvcConfigurer, InitializingBean {
 
-  private final ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
-  public CommonWebConfig(ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-  }
+    public CommonWebConfig(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
-  /**
-   * 全局配置Spring Controller序列化
-   */
-  @Bean
-  public ObjectMapper objectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    // 数字相关的类型，全部格式化成字符串
-    objectMapper.configure(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS.mappedFeature(), true);
-    // 当json传来多余的字段过来，反序列化时不抛异常
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    return objectMapper;
-  }
+    /**
+     * 全局配置Spring Controller序列化
+     */
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        // 数字相关的类型，全部格式化成字符串
+        objectMapper.configure(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS.mappedFeature(), true);
+        // 当json传来多余的字段过来，反序列化时不抛异常
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return objectMapper;
+    }
 
-  @Override
-  public void afterPropertiesSet() throws Exception {
-    // 某些场景，需要通过静态方法获取到Bean，所以要用一个静态变量，指向 applicationContext
-    SpringBeanTool.setApplicationContext(applicationContext);
-  }
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // 某些场景，需要通过静态方法获取到Bean，所以要用一个静态变量，指向 applicationContext
+        SpringBeanTool.setApplicationContext(applicationContext);
+    }
 }

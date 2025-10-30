@@ -2,7 +2,6 @@ package org.secure.security.test;
 
 import org.secure.security.authentication.handler.resourceapi.openapi2.OpenApi2LoginInfo;
 import org.secure.security.common.web.model.Result;
-import org.secure.security.common.web.model.ResultBuilder;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
 import org.secure.security.common.web.util.JSON;
 import org.springframework.security.core.Authentication;

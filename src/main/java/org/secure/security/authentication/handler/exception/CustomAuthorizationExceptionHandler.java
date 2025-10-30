@@ -21,7 +21,7 @@ public class CustomAuthorizationExceptionHandler implements AccessDeniedHandler 
   @Override
   public void handle(HttpServletRequest request, HttpServletResponse response,
       AccessDeniedException accessDeniedException) throws IOException, ServletException {
-    response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setStatus(HttpStatus.FORBIDDEN.value());
     PrintWriter writer = response.getWriter();
     writer.print(JSON.stringify(Result.fail("${low.power:无权访问}")));
