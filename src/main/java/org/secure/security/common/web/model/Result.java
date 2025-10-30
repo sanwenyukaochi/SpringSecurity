@@ -6,66 +6,46 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 响应信息主体
+ * 统一 JSON 返回结构
  *
+ * @author sanwenyukaochi
+ * @version 1.0
+ * @since 2025-07-13
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Result {
+public class Result<T> {
 
     public static final String SUCCESS_CODE = "success";
     public static final String ERROR_CODE = "error";
     private String code;
     private String message;
-    private Object data;
+    private T data;
 
-    public static Result success() {
-        return Result.builder()
-                .code(SUCCESS_CODE)
-                .message(SUCCESS_CODE)
-                .data(null)
-                .build();
+    // -------------------- Success --------------------
+    public static <T> Result<T> success() {
+        return Result.<T>builder().code(SUCCESS_CODE).message(SUCCESS_CODE).data(null).build();
     }
 
-    public static Result success(String message) {
-        return Result.builder()
-                .code(SUCCESS_CODE)
-                .message(message)
-                .data(null)
-                .build();
+    public static <T> Result<T> success(String message) {
+        return Result.<T>builder().code(SUCCESS_CODE).message(message).data(null).build();
     }
 
-    public static Result success(String message, Object data) {
-        return Result.builder()
-                .code(SUCCESS_CODE)
-                .message(message)
-                .data(data)
-                .build();
+    public static <T> Result<T> success(String message, T data) {
+        return Result.<T>builder().code(SUCCESS_CODE).message(message).data(data).build();
     }
 
-    public static Result error(Object data, String msg) {
-        return Result.builder()
-                .code(ERROR_CODE)
-                .message(msg)
-                .data(data)
-                .build();
+    public static <T> Result<T> error(String message) {
+        return Result.<T>builder().code(ERROR_CODE).message(message).data(null).build();
     }
 
-    public static Result error(String msg) {
-        return Result.builder()
-                .code(ERROR_CODE)
-                .message(msg)
-                .data(null)
-                .build();
+    public static <T> Result<T> error(String message, T data) {
+        return Result.<T>builder().code(ERROR_CODE).message(message).data(data).build();
     }
 
-    public static Result error(Object data) {
-        return Result.builder()
-                .code(ERROR_CODE)
-                .message(ERROR_CODE)
-                .data(data)
-                .build();
+    public static <T> Result<T> error(T data) {
+        return Result.<T>builder().code(ERROR_CODE).message(ERROR_CODE).data(data).build();
     }
 }
