@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.secure.security.common.web.exception.BaseException;
-import org.secure.security.common.web.model.ResultBuilder;
 import org.secure.security.common.web.util.JSON;
 import org.secure.security.common.web.model.Result;
 import org.slf4j.Logger;
@@ -33,8 +32,8 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
     } catch (BaseException e) {
       // 自定义异常
-      Result result = ResultBuilder.aResult()
-          .msg(e.getMessage())
+      Result result = Result.builder()
+          .message(e.getMessage())
           .code(e.getCode())
           .build();
       response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
@@ -53,8 +52,8 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
       // 未知异常
-      Result result = ResultBuilder.aResult()
-          .msg("System Error")
+      Result result = Result.builder()
+          .message("System Error")
           .code("system.error")
           .build();
       response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);

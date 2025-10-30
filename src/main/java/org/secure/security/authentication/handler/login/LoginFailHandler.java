@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import org.secure.security.common.web.model.ResultBuilder;
 import org.secure.security.common.web.util.JSON;
 import org.secure.security.common.web.model.Result;
 import org.springframework.http.MediaType;
@@ -25,10 +24,10 @@ public class LoginFailHandler implements AuthenticationFailureHandler {
     String errorMessage = exception.getMessage();
     response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
     PrintWriter writer = response.getWriter();
-    Result responseData = ResultBuilder.aResult()
+    Result responseData = Result.builder()
         .data(null)
         .code("login.fail")
-        .msg(errorMessage)
+        .message(errorMessage)
         .build();
     writer.print(JSON.stringify(responseData));
     writer.flush();

@@ -2,7 +2,6 @@ package org.secure.security.test;
 
 import org.secure.security.authentication.handler.resourceapi.openapi2.OpenApi2LoginInfo;
 import org.secure.security.common.web.model.Result;
-import org.secure.security.common.web.model.ResultBuilder;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
 import org.secure.security.common.web.util.JSON;
 import org.springframework.security.core.Authentication;
@@ -22,9 +21,9 @@ public class TestDemoController {
         .getAuthentication()
         .getPrincipal();
     System.out.println("自家用户登录信息：" + JSON.stringify(userLoginInfo));
-    return ResultBuilder.aResult()
+    return Result.builder()
         .data(userLoginInfo)
-        .msg("${test.message.a:测试国际化消息 A}")
+        .message("${test.message.a:测试国际化消息 A}")
         .build();
   }
 
@@ -35,9 +34,9 @@ public class TestDemoController {
         .getAuthentication()
         .getPrincipal();
     System.out.println("三方API登录信息：" + JSON.stringify(userLoginInfo));
-    return ResultBuilder.aResult()
+    return Result.builder()
         .data(userLoginInfo)
-        .msg("SUCCESS B")
+        .message("SUCCESS B")
         .build();
   }
 
@@ -47,19 +46,19 @@ public class TestDemoController {
         .getContext()
         .getAuthentication();
     System.out.println("登录信息：" + JSON.stringify(authentication));
-    return ResultBuilder.aResult()
+    return Result.builder()
         .code(Result.SUCCESS_CODE)
         .data("模拟访问成功的响应数据")
-        .msg("匿名接口，所有人可公开访问")
+        .message("匿名接口，所有人可公开访问")
         .build();
   }
 
   @GetMapping("/business-4")
   public Result getD() {
-    return ResultBuilder.aResult()
+    return Result.builder()
         .code(Result.SUCCESS_CODE)
         .data("模拟 未知 api")
-        .msg("default api ...")
+        .message("default api ...")
         .build();
   }
 
