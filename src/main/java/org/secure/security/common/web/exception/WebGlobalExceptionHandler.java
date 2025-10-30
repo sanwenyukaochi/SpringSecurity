@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import org.secure.security.common.web.model.Result;
-import org.secure.security.common.web.util.I18nMessageTool;
 import org.secure.security.common.web.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class WebGlobalExceptionHandler {
     HashMap<String, String> errorFields = new HashMap<>();
     for (FieldError error : fieldErrors) {
       String fieldName = error.getField();
-      errorFields.put(fieldName, I18nMessageTool.translate(error.getDefaultMessage()));
+      errorFields.put(fieldName, error.getDefaultMessage());
     }
 
     return Result.fail(JSON.stringify(errorFields));
