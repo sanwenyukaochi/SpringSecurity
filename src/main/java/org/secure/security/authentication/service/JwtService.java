@@ -15,12 +15,14 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.secure.security.common.web.exception.ExceptionTool;
+
+import org.secure.security.common.web.exception.BaseException;
 import org.secure.security.common.web.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -58,8 +60,7 @@ public class JwtService implements InitializingBean {
       return kf.generatePrivate(ks);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
-      ExceptionTool.throwException("获取Jwt私钥失败");
-      return null;
+      throw new BaseException("获取Jwt私钥失败", HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -74,8 +75,7 @@ public class JwtService implements InitializingBean {
       return Jwts.parser().setSigningKey(pk).build();
     } catch (Exception e) {
       // 获取公钥失败
-      ExceptionTool.throwException("获取Jwt公钥失败");
-      return null;
+      throw new BaseException("获取Jwt公钥失败", HttpStatus.BAD_REQUEST);
     }
   }
 

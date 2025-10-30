@@ -9,12 +9,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.secure.security.authentication.service.JwtService;
+import org.secure.security.common.web.exception.BaseException;
 import org.secure.security.common.web.model.Result;
-import org.secure.security.common.web.exception.ExceptionTool;
 import org.secure.security.common.web.util.JSON;
 import org.secure.security.common.web.util.TimeTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.RedirectStrategy;
@@ -51,8 +52,7 @@ public class LoginSuccessHandler extends
       Authentication authentication) throws IOException {
     Object principal = authentication.getPrincipal();
     if (principal == null || !(principal instanceof UserLoginInfo)) {
-      ExceptionTool.throwException(
-          "登陆认证成功后，authentication.getPrincipal()返回的Object对象必须是：UserLoginInfo！");
+        throw new BaseException("登陆认证成功后，authentication.getPrincipal()返回的Object对象必须是：UserLoginInfo！", HttpStatus.BAD_REQUEST);
     }
     UserLoginInfo currentUser = (UserLoginInfo) principal;
     currentUser.setSessionId(UUID.randomUUID().toString());

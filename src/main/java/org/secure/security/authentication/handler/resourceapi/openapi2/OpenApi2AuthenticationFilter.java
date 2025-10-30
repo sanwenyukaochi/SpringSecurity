@@ -5,9 +5,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.secure.security.common.web.exception.ExceptionTool;
+
+import org.secure.security.common.web.exception.BaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -26,7 +28,7 @@ public class OpenApi2AuthenticationFilter extends OncePerRequestFilter {
 
     String appId = request.getHeader("x-app-id");
     if (StringUtils.isEmpty(appId)) {
-     ExceptionTool.throwException("x-app-id token is missing!", "miss.appId");
+        throw  new BaseException("miss.appId", "x-app-id token is missing!", HttpStatus.BAD_REQUEST);
     }
 
     // 认证开始前，按SpringSecurity设计，要将Authentication设置到SecurityContext里面去。
