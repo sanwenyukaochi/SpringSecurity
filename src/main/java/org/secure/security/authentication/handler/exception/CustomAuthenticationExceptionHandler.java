@@ -12,10 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
 /**
  * 认证失败时，会执行这个方法。将失败原因告知客户端
  */
+@Component
 public class CustomAuthenticationExceptionHandler implements
         AuthenticationEntryPoint {
 
