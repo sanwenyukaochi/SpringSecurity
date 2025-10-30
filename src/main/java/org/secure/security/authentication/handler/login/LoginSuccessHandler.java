@@ -1,5 +1,7 @@
 package org.secure.security.authentication.handler.login;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -11,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import org.secure.security.authentication.service.JwtService;
 import org.secure.security.common.web.exception.BaseException;
 import org.secure.security.common.web.model.Result;
-import org.secure.security.common.web.util.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -69,20 +70,21 @@ public class LoginSuccessHandler extends
     }
 
     // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
-    response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    ObjectMapper objectMapper = new ObjectMapper();
     PrintWriter writer = response.getWriter();
-    writer.print(JSON.stringify(Result.data(responseData, "${login.success:登录成功！}")));
+    writer.print(objectMapper.writeValueAsString(Result.data(responseData, "${login.success:登录成功！}")));
     writer.flush();
     writer.close();
   }
 
-  public String generateToken(UserLoginInfo currentUser) {
+  public String generateToken(UserLoginInfo currentUser) throws JsonProcessingException {
     long expiredTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10); // 10分钟后过期
     currentUser.setExpiredTime(expiredTime);
     return jwtService.createJwt(currentUser, expiredTime);
   }
 
-  private String generateRefreshToken(UserLoginInfo loginInfo) {
+  private String generateRefreshToken(UserLoginInfo loginInfo) throws JsonProcessingException {
     return jwtService.createJwt(loginInfo, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30));
   }
 

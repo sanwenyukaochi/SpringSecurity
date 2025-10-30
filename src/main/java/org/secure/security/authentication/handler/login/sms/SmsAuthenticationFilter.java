@@ -1,5 +1,6 @@
 package org.secure.security.authentication.handler.login.sms;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import org.secure.security.common.web.util.JSON;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -37,9 +37,10 @@ public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFil
     log.debug("user SmsCodeAuthenticationFilter");
 
     // 提取请求数据
+      ObjectMapper objectMapper = new ObjectMapper();
     String requestJsonData = request.getReader().lines()
         .collect(Collectors.joining(System.lineSeparator()));
-    Map<String, Object> requestMapData = JSON.parseToMap(requestJsonData);
+    Map<String, Object> requestMapData = objectMapper.readValue(requestJsonData,  Map.class);
     String phoneNumber = requestMapData.get("phone").toString();
     String smsCode = requestMapData.get("captcha").toString();
 

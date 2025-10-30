@@ -1,5 +1,6 @@
 package org.secure.security.authentication.handler.exception;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +10,6 @@ import java.io.PrintWriter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.secure.security.common.web.exception.BaseException;
-import org.secure.security.common.web.util.JSON;
 import org.secure.security.common.web.model.Result;
 
 import org.springframework.http.HttpStatus;
@@ -35,17 +35,19 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
           .message(e.getMessage())
           .code(e.getCode())
           .build();
-      response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(e.getHttpStatus().value());
+      ObjectMapper objectMapper = new ObjectMapper();
       PrintWriter writer = response.getWriter();
-      writer.write(JSON.stringify(result));
+      writer.write(objectMapper.writeValueAsString(result));
       writer.flush();
       writer.close();
     } catch (AuthenticationException | AccessDeniedException e) {
-      response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(HttpStatus.FORBIDDEN.value());
+        ObjectMapper objectMapper = new ObjectMapper();
       PrintWriter writer = response.getWriter();
-      writer.print(JSON.stringify(Result.fail(e.getMessage())));
+      writer.print(objectMapper.writeValueAsString(Result.fail(e.getMessage())));
       writer.flush();
       writer.close();
     } catch (Exception e) {
@@ -55,10 +57,11 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
           .message("System Error")
           .code("system.error")
           .build();
-      response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        ObjectMapper objectMapper = new ObjectMapper();
       PrintWriter writer = response.getWriter();
-      writer.write(JSON.stringify(result));
+      writer.write(objectMapper.writeValueAsString(result));
       writer.flush();
       writer.close();
     }

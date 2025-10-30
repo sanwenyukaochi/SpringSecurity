@@ -1,9 +1,9 @@
 package org.secure.security.authentication.handler.login.username;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.secure.security.authentication.service.UserService;
 import org.secure.security.common.web.model.User;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
-import org.secure.security.common.web.util.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -46,7 +46,8 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
     }
 
     UsernameAuthentication token = new UsernameAuthentication();
-    token.setCurrentUser(JSON.convert(user, UserLoginInfo.class));
+      ObjectMapper objectMapper = new ObjectMapper();
+      token.setCurrentUser(objectMapper.convertValue(user, UserLoginInfo.class));
     token.setAuthenticated(true); // 认证通过，这里一定要设成true
     return token;
   }
