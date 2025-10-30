@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -72,10 +71,7 @@ public class LoginSuccessHandler extends
     // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     ObjectMapper objectMapper = new ObjectMapper();
-    PrintWriter writer = response.getWriter();
-    writer.print(objectMapper.writeValueAsString(Result.data(responseData, "${login.success:登录成功！}")));
-    writer.flush();
-    writer.close();
+      objectMapper.writeValue(response.getOutputStream(), Result.data(responseData, "${login.success:登录成功！}"));
   }
 
   public String generateToken(UserLoginInfo currentUser) throws JsonProcessingException {
