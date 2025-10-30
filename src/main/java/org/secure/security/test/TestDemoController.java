@@ -15,56 +15,56 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/open-api")
 public class TestDemoController {
 
-  @GetMapping("/business-1")
-  public Result getA() throws JsonProcessingException {
-    UserLoginInfo userLoginInfo = (UserLoginInfo)SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
-    ObjectMapper objectMapper = new ObjectMapper();
-    System.out.println("自家用户登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
-    return Result.builder()
-        .data(userLoginInfo)
-        .message("${test.message.a:测试国际化消息 A}")
-        .build();
-  }
+    @GetMapping("/business-1")
+    public Result getA() throws JsonProcessingException {
+        UserLoginInfo userLoginInfo = (UserLoginInfo) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        ObjectMapper objectMapper = new ObjectMapper();
+        System.out.println("自家用户登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
+        return Result.builder()
+                .data(userLoginInfo)
+                .message("${test.message.a:测试国际化消息 A}")
+                .build();
+    }
 
-  @GetMapping("/business-2")
-  public Result getB() throws JsonProcessingException {
-    OpenApi2LoginInfo userLoginInfo = (OpenApi2LoginInfo)SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
-    ObjectMapper objectMapper = new ObjectMapper();
-    System.out.println("三方API登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
-    return Result.builder()
-        .data(userLoginInfo)
-        .message("SUCCESS B")
-        .build();
-  }
+    @GetMapping("/business-2")
+    public Result getB() throws JsonProcessingException {
+        OpenApi2LoginInfo userLoginInfo = (OpenApi2LoginInfo) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        ObjectMapper objectMapper = new ObjectMapper();
+        System.out.println("三方API登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
+        return Result.builder()
+                .data(userLoginInfo)
+                .message("SUCCESS B")
+                .build();
+    }
 
-  @GetMapping("/business-3")
-  public Result getC() throws JsonProcessingException {
-    Authentication authentication = SecurityContextHolder
-        .getContext()
-        .getAuthentication();
-    ObjectMapper objectMapper = new ObjectMapper();
-    System.out.println("登录信息：" + objectMapper.writeValueAsString(authentication));
-    return Result.builder()
-        .code(Result.SUCCESS_CODE)
-        .data("模拟访问成功的响应数据")
-        .message("匿名接口，所有人可公开访问")
-        .build();
-  }
+    @GetMapping("/business-3")
+    public Result getC() throws JsonProcessingException {
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+        ObjectMapper objectMapper = new ObjectMapper();
+        System.out.println("登录信息：" + objectMapper.writeValueAsString(authentication));
+        return Result.builder()
+                .code(Result.SUCCESS_CODE)
+                .data("模拟访问成功的响应数据")
+                .message("匿名接口，所有人可公开访问")
+                .build();
+    }
 
-  @GetMapping("/business-4")
-  public Result getD() {
-    return Result.builder()
-        .code(Result.SUCCESS_CODE)
-        .data("模拟 未知 api")
-        .message("default api ...")
-        .build();
-  }
+    @GetMapping("/business-4")
+    public Result getD() {
+        return Result.builder()
+                .code(Result.SUCCESS_CODE)
+                .data("模拟 未知 api")
+                .message("default api ...")
+                .build();
+    }
 
 
 }

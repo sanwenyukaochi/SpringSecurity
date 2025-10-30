@@ -3,6 +3,7 @@ package org.secure.security.common.web.exception;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,48 +21,48 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class WebGlobalExceptionHandler {
 
-  @ExceptionHandler(value = Exception.class)
-  public Result exceptionHandler(HttpServletResponse response, Exception e) {
-    response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-    log.info("服务器异常", e);
-    return Result.error("服务器异常");
-  }
-
-  @ExceptionHandler(value = NoResourceFoundException.class)
-  public Result exceptionHandler(HttpServletResponse response, NoResourceFoundException e) {
-    response.setStatus(HttpStatus.NOT_FOUND.value());
-    return Result.builder()
-        .message("api not found")
-        .code("api.not.found")
-        .build();
-  }
-
-  @ExceptionHandler(value = MethodArgumentNotValidException.class)
-  public Result exceptionHandler(HttpServletResponse response, MethodArgumentNotValidException e) throws JsonProcessingException {
-    response.setStatus(HttpStatus.BAD_REQUEST.value());
-
-    // 国际化翻译 数据校验异常信息
-    BindingResult result = e.getBindingResult();
-    List<FieldError> fieldErrors = result.getFieldErrors();
-    HashMap<String, String> errorFields = new HashMap<>();
-    for (FieldError error : fieldErrors) {
-      String fieldName = error.getField();
-      errorFields.put(fieldName, error.getDefaultMessage());
+    @ExceptionHandler(value = Exception.class)
+    public Result exceptionHandler(HttpServletResponse response, Exception e) {
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        log.info("服务器异常", e);
+        return Result.error("服务器异常");
     }
-    ObjectMapper objectMapper = new ObjectMapper();
-    return Result.error(objectMapper.writeValueAsString(errorFields));
-  }
 
-  @ExceptionHandler(value = BaseException.class)
-  public Result exceptionHandler(HttpServletResponse response, BaseException e) {
-    response.setStatus(e.getHttpStatus().value());
-    return createResult(e);
-  }
+    @ExceptionHandler(value = NoResourceFoundException.class)
+    public Result exceptionHandler(HttpServletResponse response, NoResourceFoundException e) {
+        response.setStatus(HttpStatus.NOT_FOUND.value());
+        return Result.builder()
+                .message("api not found")
+                .code("api.not.found")
+                .build();
+    }
 
-  private Result createResult(BaseException e) {
-    return Result.builder()
-        .message(e.getMessage())
-        .code(e.getCode() == null ? Result.ERROR_CODE : e.getCode())
-        .build();
-  }
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public Result exceptionHandler(HttpServletResponse response, MethodArgumentNotValidException e) throws JsonProcessingException {
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+
+        // 国际化翻译 数据校验异常信息
+        BindingResult result = e.getBindingResult();
+        List<FieldError> fieldErrors = result.getFieldErrors();
+        HashMap<String, String> errorFields = new HashMap<>();
+        for (FieldError error : fieldErrors) {
+            String fieldName = error.getField();
+            errorFields.put(fieldName, error.getDefaultMessage());
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        return Result.error(objectMapper.writeValueAsString(errorFields));
+    }
+
+    @ExceptionHandler(value = BaseException.class)
+    public Result exceptionHandler(HttpServletResponse response, BaseException e) {
+        response.setStatus(e.getHttpStatus().value());
+        return createResult(e);
+    }
+
+    private Result createResult(BaseException e) {
+        return Result.builder()
+                .message(e.getMessage())
+                .code(e.getCode() == null ? Result.ERROR_CODE : e.getCode())
+                .build();
+    }
 }
