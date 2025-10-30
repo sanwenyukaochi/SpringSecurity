@@ -1,11 +1,9 @@
 package org.secure.security.common.web.model;
 
 
-import org.secure.security.common.web.util.I18nMessageTool;
-
 public final class ResultBuilder {
 
-  private Result result;
+  private final Result result;
 
   private ResultBuilder() {
     result = new Result();

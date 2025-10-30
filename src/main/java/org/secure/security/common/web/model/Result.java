@@ -1,5 +1,8 @@
 package org.secure.security.common.web.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -7,9 +10,10 @@ import java.util.HashMap;
  * 响应信息主体
  *
  */
+@Setter
+@Getter
 public class Result implements Serializable {
 
-  private static final long serialVersionUID = -6149948941889889657L;
   private String code;
   private String message;
   private Object data;
@@ -86,27 +90,4 @@ public class Result implements Serializable {
   public Result() {
   }
 
-  public String getCode() {
-    return code;
-  }
-
-  public void setCode(String code) {
-    this.code = code;
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public Object getData() {
-    return data;
-  }
-
-  public void setData(Object data) {
-    this.data = data;
-  }
 }

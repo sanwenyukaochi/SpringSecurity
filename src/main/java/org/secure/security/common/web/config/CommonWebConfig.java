@@ -3,10 +3,7 @@ package org.secure.security.common.web.config;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.secure.security.common.web.service.DatabaseI18nMessageSource;
-import org.secure.security.common.web.util.I18nMessageTool;
 import org.secure.security.common.web.util.SpringBeanTool;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -39,14 +36,5 @@ public class CommonWebConfig implements WebMvcConfigurer, InitializingBean {
   public void afterPropertiesSet() throws Exception {
     // 某些场景，需要通过静态方法获取到Bean，所以要用一个静态变量，指向 applicationContext
     SpringBeanTool.setApplicationContext(applicationContext);
-
-    // 使得 I18nMessageTool 支持通过读取数据库的方式获取翻译
-    try {
-      DatabaseI18nMessageSource messageSource = applicationContext.getBean(
-          DatabaseI18nMessageSource.class);
-      I18nMessageTool.setDatabaseSource(messageSource);
-    } catch (BeansException e) {
-      // 可选，允许不设置DatabaseI18nMessageSource
-    }
   }
 }

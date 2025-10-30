@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import org.secure.security.common.web.model.Result;
 import org.secure.security.common.web.model.ResultBuilder;
-import org.secure.security.common.web.util.I18nMessageTool;
 import org.secure.security.common.web.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
