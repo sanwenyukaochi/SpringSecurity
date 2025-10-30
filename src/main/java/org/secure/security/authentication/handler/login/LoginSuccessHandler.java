@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
 import org.secure.security.authentication.service.JwtService;
 import org.secure.security.common.web.exception.BaseException;
 import org.secure.security.common.web.model.Result;
@@ -27,61 +29,59 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class LoginSuccessHandler extends
-    AbstractAuthenticationTargetUrlRequestHandler implements AuthenticationSuccessHandler {
+        AbstractAuthenticationTargetUrlRequestHandler implements AuthenticationSuccessHandler {
 
-  @Autowired
-  private ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
-  @Autowired
-  private JwtService jwtService;
+    @Autowired
+    private JwtService jwtService;
 
-  public LoginSuccessHandler() {
-    this.setRedirectStrategy(new RedirectStrategy() {
-      @Override
-      public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
-          throws IOException {
-        // 更改重定向策略，前后端分离项目，后端使用RestFul风格，无需做重定向
-        // Do nothing, no redirects in REST
-      }
-    });
-  }
-
-  @Override
-  public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-      Authentication authentication) throws IOException {
-    Object principal = authentication.getPrincipal();
-    if (principal == null || !(principal instanceof UserLoginInfo)) {
-        throw new BaseException("登陆认证成功后，authentication.getPrincipal()返回的Object对象必须是：UserLoginInfo！", HttpStatus.BAD_REQUEST);
-    }
-    UserLoginInfo currentUser = (UserLoginInfo) principal;
-    currentUser.setSessionId(UUID.randomUUID().toString());
-
-    // 生成token和refreshToken
-    Map<String, Object> responseData = new LinkedHashMap<>();
-    responseData.put("token", generateToken(currentUser));
-    responseData.put("refreshToken", generateRefreshToken(currentUser));
-
-    // 一些特殊的登录参数。比如三方登录，需要额外返回一个字段是否需要跳转的绑定已有账号页面
-    Object details = authentication.getDetails();
-    if (details instanceof Map) {
-      Map detailsMap = (Map)details;
-      responseData.putAll(detailsMap);
+    public LoginSuccessHandler() {
+        this.setRedirectStrategy(new RedirectStrategy() {
+            @Override
+            public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
+                    throws IOException {
+                // 更改重定向策略，前后端分离项目，后端使用RestFul风格，无需做重定向
+                // Do nothing, no redirects in REST
+            }
+        });
     }
 
-    // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.writeValue(response.getOutputStream(), Result.success("${login.success:登录成功！}", responseData));
-  }
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException {
+        Object principal = authentication.getPrincipal();
+        if (principal == null || !(principal instanceof UserLoginInfo currentUser)) {
+            throw new BaseException("登陆认证成功后，authentication.getPrincipal()返回的Object对象必须是：UserLoginInfo！", HttpStatus.BAD_REQUEST);
+        }
+        currentUser.setSessionId(UUID.randomUUID().toString());
 
-  public String generateToken(UserLoginInfo currentUser) throws JsonProcessingException {
-    long expiredTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10); // 10分钟后过期
-    currentUser.setExpiredTime(expiredTime);
-    return jwtService.createJwt(currentUser, expiredTime);
-  }
+        // 生成token和refreshToken
+        Map<String, Object> responseData = new LinkedHashMap<>();
+        responseData.put("token", generateToken(currentUser));
+        responseData.put("refreshToken", generateRefreshToken(currentUser));
 
-  private String generateRefreshToken(UserLoginInfo loginInfo) throws JsonProcessingException {
-    return jwtService.createJwt(loginInfo, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30));
-  }
+        // 一些特殊的登录参数。比如三方登录，需要额外返回一个字段是否需要跳转的绑定已有账号页面
+        Object details = authentication.getDetails();
+        if (details instanceof Map detailsMap) {
+            responseData.putAll(detailsMap);
+        }
+
+        // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.writeValue(response.getOutputStream(), Result.success("${login.success:登录成功！}", responseData));
+    }
+
+    public String generateToken(UserLoginInfo currentUser) throws JsonProcessingException {
+        long expiredTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10); // 10分钟后过期
+        currentUser.setExpiredTime(expiredTime);
+        return jwtService.createJwt(currentUser, expiredTime);
+    }
+
+    private String generateRefreshToken(UserLoginInfo loginInfo) throws JsonProcessingException {
+        return jwtService.createJwt(loginInfo, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30));
+    }
 
 }

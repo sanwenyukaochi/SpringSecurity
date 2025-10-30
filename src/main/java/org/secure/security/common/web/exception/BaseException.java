@@ -1,25 +1,27 @@
 package org.secure.security.common.web.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public class BaseException extends RuntimeException {
 
-  private static final long serialVersionUID = -7972131521045668011L;
-  private final HttpStatus httpStatus;
-  private String code; // 自定义一个全局唯一的code，
+    private final HttpStatus httpStatus;
 
-  public BaseException() {
-    httpStatus = HttpStatus.BAD_REQUEST;
-  }
+    private String code; // 自定义一个全局唯一的code，
 
-  public BaseException(HttpStatus httpStatus) {
-    this.httpStatus = httpStatus;
-  }
+    public BaseException() {
+        httpStatus = HttpStatus.BAD_REQUEST;
+    }
 
-  public BaseException(String message, HttpStatus httpStatus) {
-    super(message);
-    this.httpStatus = httpStatus;
-  }
+    public BaseException(HttpStatus httpStatus) {
+        this.httpStatus = httpStatus;
+    }
+
+    public BaseException(String message, HttpStatus httpStatus) {
+        super(message);
+        this.httpStatus = httpStatus;
+    }
 
     public BaseException(String code, String message, HttpStatus httpStatus) {
         this.code = code;
@@ -27,31 +29,20 @@ public class BaseException extends RuntimeException {
         this.httpStatus = httpStatus;
     }
 
-  public BaseException(String message, Throwable cause, HttpStatus httpStatus) {
-    super(message, cause);
-    this.httpStatus = httpStatus;
-  }
+    public BaseException(String message, Throwable cause, HttpStatus httpStatus) {
+        super(message, cause);
+        this.httpStatus = httpStatus;
+    }
 
-  public BaseException(Throwable cause, HttpStatus httpStatus) {
-    super(cause);
-    this.httpStatus = httpStatus;
-  }
+    public BaseException(Throwable cause, HttpStatus httpStatus) {
+        super(cause);
+        this.httpStatus = httpStatus;
+    }
 
-  public BaseException(String message, Throwable cause, boolean enableSuppression,
-      boolean writableStackTrace, HttpStatus httpStatus) {
-    super(message, cause, enableSuppression, writableStackTrace);
-    this.httpStatus = httpStatus;
-  }
+    public BaseException(String message, Throwable cause, boolean enableSuppression,
+                         boolean writableStackTrace, HttpStatus httpStatus) {
+        super(message, cause, enableSuppression, writableStackTrace);
+        this.httpStatus = httpStatus;
+    }
 
-  public HttpStatus getHttpStatus() {
-    return httpStatus;
-  }
-
-  public String getCode() {
-    return code;
-  }
-
-  public void setCode(String code) {
-    this.code = code;
-  }
 }

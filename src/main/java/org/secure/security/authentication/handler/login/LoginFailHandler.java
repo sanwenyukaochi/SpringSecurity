@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
+
 import org.secure.security.common.web.model.Result;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -17,19 +19,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoginFailHandler implements AuthenticationFailureHandler {
 
-  @Override
-  public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-      AuthenticationException exception) throws IOException, ServletException {
-    String errorMessage = exception.getMessage();
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    @Override
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+                                        AuthenticationException exception) throws IOException, ServletException {
+        String errorMessage = exception.getMessage();
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-    Result responseData = Result.builder()
-        .data(null)
-        .code("login.fail")
-        .message(errorMessage)
-        .build();
-    ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.writeValue(response.getOutputStream(), responseData);
+        Result responseData = Result.builder()
+                .data(null)
+                .code("login.fail")
+                .message(errorMessage)
+                .build();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.writeValue(response.getOutputStream(), responseData);
 
-  }
+    }
 }
