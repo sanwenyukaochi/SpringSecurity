@@ -1,9 +1,9 @@
 package org.secure.security.authentication.handler.login.sms;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.secure.security.authentication.service.UserService;
 import org.secure.security.common.web.model.User;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
-import org.secure.security.common.web.util.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -31,7 +31,8 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         // BadCredentialsException就是这个异常的子类
         throw new BadCredentialsException("${user.not.found:找不到用户!}");
       }
-      UserLoginInfo currentUser = JSON.convert(user, UserLoginInfo.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);
 
       SmsAuthentication token = new SmsAuthentication();
       token.setCurrentUser(currentUser);

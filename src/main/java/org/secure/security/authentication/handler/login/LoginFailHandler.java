@@ -1,11 +1,11 @@
 package org.secure.security.authentication.handler.login;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import org.secure.security.common.web.util.JSON;
 import org.secure.security.common.web.model.Result;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -22,14 +22,15 @@ public class LoginFailHandler implements AuthenticationFailureHandler {
   public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
       AuthenticationException exception) throws IOException, ServletException {
     String errorMessage = exception.getMessage();
-    response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     PrintWriter writer = response.getWriter();
     Result responseData = Result.builder()
         .data(null)
         .code("login.fail")
         .message(errorMessage)
         .build();
-    writer.print(JSON.stringify(responseData));
+    ObjectMapper objectMapper = new ObjectMapper();
+    writer.print(objectMapper.writeValueAsString(responseData));
     writer.flush();
     writer.close();
   }

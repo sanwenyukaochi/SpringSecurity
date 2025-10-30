@@ -1,5 +1,7 @@
 package org.secure.security.authentication.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtParser;
@@ -18,7 +20,6 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.secure.security.common.web.exception.BaseException;
-import org.secure.security.common.web.util.JSON;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,12 +34,14 @@ public class JwtService implements InitializingBean {
 
   private JwtParser jwtParser;
 
-  public String createJwt(Object jwtPayload, long expiredAt) {
+  public String createJwt(Object jwtPayload, long expiredAt) throws JsonProcessingException {
     //添加构成JWT的参数
     Map<String, Object> headMap = new HashMap();
     headMap.put("alg", SignatureAlgorithm.RS256.getValue());//使用RS256签名算法
     headMap.put("typ", "JWT");
-    Map body = JSON.parse(JSON.stringify(jwtPayload), HashMap.class);
+    ObjectMapper objectMapper = new ObjectMapper();
+    @SuppressWarnings("unchecked")
+    Map<String, Object> body = objectMapper.convertValue(jwtPayload, Map.class);
     String jwt = Jwts.builder()
         .setHeader(headMap)
         .setClaims(body)
@@ -93,7 +96,8 @@ public class JwtService implements InitializingBean {
     if (jwtPayload == null) {
       return null;
     }
-    return JSON.convert(jwtPayload, jwtPayloadClass);
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.convertValue(jwtPayload, jwtPayloadClass);
   }
 
   public static <T> T getPayload(String jwt, Class<T> jwtPayloadClass) {
@@ -105,7 +109,8 @@ public class JwtService implements InitializingBean {
       // jwt字符串由3部分组成，用英文的点分割：herder.payload.sign
       // 可以直接取中间一段，进行Base64解码
       byte[] decodedBytes = Base64.getDecoder().decode(jwt.split("\\.")[1]);
-      return JSON.parse(new String(decodedBytes), jwtPayloadClass);
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.readValue(new String(decodedBytes), jwtPayloadClass);
     } catch (Exception e) {
       return null;
     }

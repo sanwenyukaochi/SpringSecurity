@@ -1,9 +1,10 @@
 package org.secure.security.test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.secure.security.authentication.handler.resourceapi.openapi2.OpenApi2LoginInfo;
 import org.secure.security.common.web.model.Result;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
-import org.secure.security.common.web.util.JSON;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,12 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestDemoController {
 
   @GetMapping("/business-1")
-  public Result getA() {
+  public Result getA() throws JsonProcessingException {
     UserLoginInfo userLoginInfo = (UserLoginInfo)SecurityContextHolder
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    System.out.println("自家用户登录信息：" + JSON.stringify(userLoginInfo));
+    ObjectMapper objectMapper = new ObjectMapper();
+    System.out.println("自家用户登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
     return Result.builder()
         .data(userLoginInfo)
         .message("${test.message.a:测试国际化消息 A}")
@@ -28,12 +30,13 @@ public class TestDemoController {
   }
 
   @GetMapping("/business-2")
-  public Result getB() {
+  public Result getB() throws JsonProcessingException {
     OpenApi2LoginInfo userLoginInfo = (OpenApi2LoginInfo)SecurityContextHolder
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    System.out.println("三方API登录信息：" + JSON.stringify(userLoginInfo));
+    ObjectMapper objectMapper = new ObjectMapper();
+    System.out.println("三方API登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
     return Result.builder()
         .data(userLoginInfo)
         .message("SUCCESS B")
@@ -41,11 +44,12 @@ public class TestDemoController {
   }
 
   @GetMapping("/business-3")
-  public Result getC() {
+  public Result getC() throws JsonProcessingException {
     Authentication authentication = SecurityContextHolder
         .getContext()
         .getAuthentication();
-    System.out.println("登录信息：" + JSON.stringify(authentication));
+    ObjectMapper objectMapper = new ObjectMapper();
+    System.out.println("登录信息：" + objectMapper.writeValueAsString(authentication));
     return Result.builder()
         .code(Result.SUCCESS_CODE)
         .data("模拟访问成功的响应数据")

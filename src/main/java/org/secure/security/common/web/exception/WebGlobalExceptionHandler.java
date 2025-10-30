@@ -1,12 +1,13 @@
 package org.secure.security.common.web.exception;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.secure.security.common.web.model.Result;
-import org.secure.security.common.web.util.JSON;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -36,7 +37,7 @@ public class WebGlobalExceptionHandler {
   }
 
   @ExceptionHandler(value = MethodArgumentNotValidException.class)
-  public Result exceptionHandler(HttpServletResponse response, MethodArgumentNotValidException e) {
+  public Result exceptionHandler(HttpServletResponse response, MethodArgumentNotValidException e) throws JsonProcessingException {
     response.setStatus(HttpStatus.BAD_REQUEST.value());
 
     // 国际化翻译 数据校验异常信息
@@ -47,8 +48,8 @@ public class WebGlobalExceptionHandler {
       String fieldName = error.getField();
       errorFields.put(fieldName, error.getDefaultMessage());
     }
-
-    return Result.fail(JSON.stringify(errorFields));
+    ObjectMapper objectMapper = new ObjectMapper();
+    return Result.fail(objectMapper.writeValueAsString(errorFields));
   }
 
   @ExceptionHandler(value = BaseException.class)

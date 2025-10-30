@@ -1,5 +1,6 @@
 package org.secure.security.authentication.handler.login.username;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -7,7 +8,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.secure.security.common.web.util.JSON;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -44,7 +44,8 @@ public class UsernameAuthenticationFilter extends AbstractAuthenticationProcessi
     // 提取请求数据
     String requestJsonData = request.getReader().lines()
         .collect(Collectors.joining(System.lineSeparator()));
-    Map<String, Object> requestMapData = JSON.parseToMap(requestJsonData);
+      ObjectMapper objectMapper = new ObjectMapper();
+      Map<String, Object> requestMapData = objectMapper.readValue(requestJsonData, Map.class);
     String username = requestMapData.get("username").toString();
     String password = requestMapData.get("password").toString();
 
