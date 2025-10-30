@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import org.secure.security.common.web.model.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,9 +23,6 @@ public class CustomAuthorizationExceptionHandler implements AccessDeniedHandler 
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setStatus(HttpStatus.FORBIDDEN.value());
       ObjectMapper objectMapper = new ObjectMapper();
-    PrintWriter writer = response.getWriter();
-    writer.print(objectMapper.writeValueAsString(Result.fail("${low.power:无权访问}")));
-    writer.flush();
-    writer.close();
+      objectMapper.writeValue(response.getOutputStream(), Result.fail("${low.power:无权访问}"));
   }
 }

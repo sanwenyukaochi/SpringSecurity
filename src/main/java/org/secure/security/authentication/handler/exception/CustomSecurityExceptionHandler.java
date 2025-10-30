@@ -6,7 +6,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.secure.security.common.web.exception.BaseException;
@@ -38,18 +37,12 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(e.getHttpStatus().value());
       ObjectMapper objectMapper = new ObjectMapper();
-      PrintWriter writer = response.getWriter();
-      writer.write(objectMapper.writeValueAsString(result));
-      writer.flush();
-      writer.close();
+        objectMapper.writeValue(response.getOutputStream(), result);
     } catch (AuthenticationException | AccessDeniedException e) {
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(HttpStatus.FORBIDDEN.value());
         ObjectMapper objectMapper = new ObjectMapper();
-      PrintWriter writer = response.getWriter();
-      writer.print(objectMapper.writeValueAsString(Result.fail(e.getMessage())));
-      writer.flush();
-      writer.close();
+        objectMapper.writeValue(response.getOutputStream(), Result.fail(e.getMessage()));
     } catch (Exception e) {
       log.error(e.getMessage(), e);
       // 未知异常
@@ -60,10 +53,7 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         ObjectMapper objectMapper = new ObjectMapper();
-      PrintWriter writer = response.getWriter();
-      writer.write(objectMapper.writeValueAsString(result));
-      writer.flush();
-      writer.close();
+        objectMapper.writeValue(response.getOutputStream(), result);
     }
   }
 }
