@@ -18,7 +18,7 @@ import java.util.List;
 public class UserLoginInfo implements UserDetails {
 
     private String sessionId; // 会话id，全局唯一
-    private Long userId;
+    private Long id;
     private String username;
     private String password;
     private String phone;
