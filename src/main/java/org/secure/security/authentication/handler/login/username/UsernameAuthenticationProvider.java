@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * 帐号密码登录认证
  */
@@ -46,9 +48,8 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
 
         ObjectMapper objectMapper = new ObjectMapper();
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);
-        UsernameAuthentication token = new UsernameAuthentication();
-        token.setCurrentUser(currentUser);
-        token.setAuthenticated(true); // 认证通过，这里一定要设成true
+        UsernameAuthentication token = new UsernameAuthentication(currentUser, true, List.of());
+        // 认证通过，这里一定要设成true
         return token;
     }
 

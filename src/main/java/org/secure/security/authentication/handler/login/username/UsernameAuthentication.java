@@ -5,6 +5,9 @@ import lombok.Setter;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 /**
  * SpringSecurity传输登录认证的数据的载体，相当一个Dto
@@ -20,9 +23,18 @@ public class UsernameAuthentication extends AbstractAuthenticationToken {
     private String password; // 前端传过来
     private UserLoginInfo currentUser; // 认证成功后，后台从数据库获取信息
 
-    public UsernameAuthentication() {
-        // 权限，用不上，直接null
-        super(null);
+    public UsernameAuthentication(String username, String password, Boolean authenticated) {
+        this.username = username;
+        this.password = password;
+        super(null); // 权限，用不上，直接null
+        super.setAuthenticated(authenticated);
+    }
+
+    public UsernameAuthentication(UserLoginInfo currentUser, Boolean authenticated,
+                             Collection<? extends GrantedAuthority> authorities) {
+        this.currentUser = currentUser;
+        super(authorities);
+        super.setAuthenticated(authenticated);
     }
 
     @Override
