@@ -18,12 +18,11 @@ import org.springframework.stereotype.Component;
  * 认证失败时，会执行这个方法。将失败原因告知客户端
  */
 @Component
-public class CustomAuthenticationExceptionHandler implements
-        AuthenticationEntryPoint {
+public class CustomAuthenticationExceptionHandler implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException {
+                         AuthenticationException authenticationException) throws IOException, ServletException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         ObjectMapper objectMapper = new ObjectMapper();
