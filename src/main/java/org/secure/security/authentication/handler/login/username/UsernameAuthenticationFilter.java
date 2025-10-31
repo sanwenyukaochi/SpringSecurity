@@ -4,11 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -44,20 +40,14 @@ public class UsernameAuthenticationFilter extends AbstractAuthenticationProcessi
         log.debug("use UsernameAuthenticationFilter");
 
         // 提取请求数据
-        String requestJsonData = request.getReader().lines()
-                .collect(Collectors.joining(System.lineSeparator()));
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> requestMapData = objectMapper.readValue(requestJsonData, Map.class);
-        String username = requestMapData.get("username").toString();
-        String password = requestMapData.get("password").toString();
+        LoginRequest loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
 
         // 封装成Spring Security需要的对象
         UsernameAuthentication authentication = new UsernameAuthentication();
-        authentication.setUsername(username);
-        authentication.setPassword(password);
-        authentication.setAuthenticated(false);
-
-        // 开始登录认证。SpringSecurity会利用 Authentication对象去寻找 AuthenticationProvider进行登录认证
+        authentication.setUsername(loginRequest.username());
+        authentication.setPassword(loginRequest.password());
+        authentication.setAuthenticated(false); // 开始登录认证。SpringSecurity会利用 Authentication对象去寻找 AuthenticationProvider进行登录认证
         return getAuthenticationManager().authenticate(authentication);
     }
 

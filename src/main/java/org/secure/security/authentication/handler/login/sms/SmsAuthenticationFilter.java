@@ -4,13 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -39,15 +34,11 @@ public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
         // 提取请求数据
         ObjectMapper objectMapper = new ObjectMapper();
-        String requestJsonData = request.getReader().lines()
-                .collect(Collectors.joining(System.lineSeparator()));
-        Map<String, Object> requestMapData = objectMapper.readValue(requestJsonData, Map.class);
-        String phoneNumber = requestMapData.get("phone").toString();
-        String smsCode = requestMapData.get("captcha").toString();
+        LoginRequest loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
 
         SmsAuthentication authentication = new SmsAuthentication();
-        authentication.setPhone(phoneNumber);
-        authentication.setSmsCode(smsCode);
+        authentication.setPhone(loginRequest.phone());
+        authentication.setSmsCode(loginRequest.captcha());
         authentication.setAuthenticated(false); // 提取参数阶段，authenticated一定是false
         return this.getAuthenticationManager().authenticate(authentication);
     }
