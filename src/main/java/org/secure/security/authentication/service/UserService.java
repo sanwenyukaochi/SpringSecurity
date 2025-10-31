@@ -27,6 +27,7 @@ public class UserService {
             testUser.setRoleId("manager");
             testUser.setPassword(passwordEncoder.encode("manager"));
             testUser.setPhone("123000123");
+            testUser.setNickname("Tom");
             return testUser;
         }
         return null;
@@ -40,6 +41,7 @@ public class UserService {
             testUser.setRoleId("manager");
             testUser.setPassword(passwordEncoder.encode("manager"));
             testUser.setPhone("1234567890");
+            testUser.setNickname("manager");
             return testUser;
         }
         return null;
@@ -52,6 +54,8 @@ public class UserService {
             testUser.setUsername("admin");
             testUser.setRoleId("admin");
             testUser.setPassword(passwordEncoder.encode("admin"));
+            testUser.setPhone("1234567890");
+            testUser.setNickname("admin");
             return testUser;
         }
         return null;

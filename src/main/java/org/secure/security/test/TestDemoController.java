@@ -16,10 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestDemoController {
 
     @GetMapping("/business-1")
-    public Result getA() throws JsonProcessingException {
-        UserLoginInfo userLoginInfo = (UserLoginInfo) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
+    public Result<?> getA(Authentication authentication) throws JsonProcessingException {
+        UserLoginInfo userLoginInfo = (UserLoginInfo) authentication
                 .getPrincipal();
         ObjectMapper objectMapper = new ObjectMapper();
         System.out.println("自家用户登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
@@ -30,7 +28,7 @@ public class TestDemoController {
     }
 
     @GetMapping("/business-2")
-    public Result getB() throws JsonProcessingException {
+    public Result<?> getB() throws JsonProcessingException {
         OpenApi2LoginInfo userLoginInfo = (OpenApi2LoginInfo) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
@@ -44,7 +42,7 @@ public class TestDemoController {
     }
 
     @GetMapping("/business-3")
-    public Result getC() throws JsonProcessingException {
+    public Result<?> getC() throws JsonProcessingException {
         Authentication authentication = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
@@ -58,7 +56,7 @@ public class TestDemoController {
     }
 
     @GetMapping("/business-4")
-    public Result getD() {
+    public Result<?> getD() {
         return Result.builder()
                 .code(Result.SUCCESS_CODE)
                 .data("模拟 未知 api")

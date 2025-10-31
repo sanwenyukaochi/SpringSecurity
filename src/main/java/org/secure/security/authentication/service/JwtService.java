@@ -1,6 +1,7 @@
 package org.secure.security.authentication.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -114,6 +115,7 @@ public class JwtService implements InitializingBean {
             return null;
         }
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return objectMapper.convertValue(jwtPayload, jwtPayloadClass);
     }
 }
