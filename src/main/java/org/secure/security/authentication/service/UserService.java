@@ -1,15 +1,15 @@
 package org.secure.security.authentication.service;
 
+import lombok.RequiredArgsConstructor;
 import org.secure.security.common.web.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 通过openId获取用户信息
