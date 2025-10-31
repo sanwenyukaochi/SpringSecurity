@@ -40,7 +40,7 @@ public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFil
         authentication.setPhone(loginRequest.phone());
         authentication.setSmsCode(loginRequest.captcha());
         authentication.setAuthenticated(false); // 提取参数阶段，authenticated一定是false
-        return this.getAuthenticationManager().authenticate(authentication);
+        return getAuthenticationManager().authenticate(authentication);
     }
 
 }
