@@ -12,6 +12,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class SmsAuthenticationProvider implements AuthenticationProvider {
@@ -39,9 +41,8 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
 
         ObjectMapper objectMapper = new ObjectMapper();
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);
-        SmsAuthentication token = new SmsAuthentication();
-        token.setCurrentUser(currentUser);
-        token.setAuthenticated(true); // 认证通过，一定要设成true
+        SmsAuthentication token = new SmsAuthentication(currentUser, true, List.of());
+        // 认证通过，一定要设成true
         return token;
     }
 

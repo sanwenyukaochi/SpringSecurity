@@ -36,10 +36,8 @@ public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFil
         ObjectMapper objectMapper = new ObjectMapper();
         LoginRequest loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
 
-        SmsAuthentication authentication = new SmsAuthentication();
-        authentication.setPhone(loginRequest.phone());
-        authentication.setSmsCode(loginRequest.captcha());
-        authentication.setAuthenticated(false); // 提取参数阶段，authenticated一定是false
+        SmsAuthentication authentication = new SmsAuthentication(loginRequest.phone(), loginRequest.captcha(), false);
+        // 提取参数阶段，authenticated一定是false
         return getAuthenticationManager().authenticate(authentication);
     }
 
