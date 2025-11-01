@@ -17,14 +17,18 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 @Slf4j
 public class GitHubAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
+    private final ObjectMapper objectMapper;
+
     public GitHubAuthenticationFilter(PathPatternRequestMatcher pathRequestMatcher,
                                       AuthenticationManager authenticationManager,
                                       AuthenticationSuccessHandler authenticationSuccessHandler,
-                                      AuthenticationFailureHandler authenticationFailureHandler) {
+                                      AuthenticationFailureHandler authenticationFailureHandler,
+                                      ObjectMapper objectMapper) {
         super(pathRequestMatcher);
         setAuthenticationManager(authenticationManager);
         setAuthenticationSuccessHandler(authenticationSuccessHandler);
         setAuthenticationFailureHandler(authenticationFailureHandler);
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -32,7 +36,6 @@ public class GitHubAuthenticationFilter extends AbstractAuthenticationProcessing
                                                 HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         log.debug("use GithubAuthenticationFilter");
 
-        ObjectMapper objectMapper = new ObjectMapper();
         GitHubLoginRequest githubLoginRequest = objectMapper.readValue(request.getInputStream(), GitHubLoginRequest.class);
 
         GitHubAuthentication authentication = new GitHubAuthentication(githubLoginRequest.code(), false);

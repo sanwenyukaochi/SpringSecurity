@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.secure.security.common.web.exception.BaseException;
 import org.secure.security.common.web.model.Result;
@@ -24,7 +25,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -39,12 +43,10 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
                     .build();
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(e.getHttpStatus().value());
-            ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.writeValue(response.getOutputStream(), result);
         } catch (AuthenticationException | AccessDeniedException e) {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpStatus.FORBIDDEN.value());
-            ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.writeValue(response.getOutputStream(), Result.error(e.getMessage()));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -55,7 +57,6 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
                     .build();
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.writeValue(response.getOutputStream(), result);
         }
     }

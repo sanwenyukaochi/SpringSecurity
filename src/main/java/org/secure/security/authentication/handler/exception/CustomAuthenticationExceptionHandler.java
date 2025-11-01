@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+import lombok.RequiredArgsConstructor;
 import org.secure.security.common.web.model.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,14 +19,16 @@ import org.springframework.stereotype.Component;
  * 认证失败时，会执行这个方法。将失败原因告知客户端
  */
 @Component
+@RequiredArgsConstructor
 public class CustomAuthenticationExceptionHandler implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authenticationException) throws IOException, ServletException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(response.getOutputStream(), Result.error("${authentication.fail:认证失败}"));
     }
 }

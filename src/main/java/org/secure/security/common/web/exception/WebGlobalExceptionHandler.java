@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.secure.security.common.web.model.Result;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,10 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class WebGlobalExceptionHandler {
+
+    private final ObjectMapper objectMapper;
 
     @ExceptionHandler(value = Exception.class)
     public Result<?> exceptionHandler(HttpServletResponse response, Exception e) {
@@ -49,7 +53,6 @@ public class WebGlobalExceptionHandler {
             String fieldName = error.getField();
             errorFields.put(fieldName, error.getDefaultMessage());
         }
-        ObjectMapper objectMapper = new ObjectMapper();
         return Result.error(objectMapper.writeValueAsString(errorFields));
     }
 

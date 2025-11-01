@@ -6,6 +6,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
@@ -18,10 +19,13 @@ import java.util.Date;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtService {
 
     @Value("${spring.app.jwtSecret}")
     private String jwtSecret;
+
+    private final ObjectMapper objectMapper;
 
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -34,7 +38,6 @@ public class JwtService {
 
     public String generateTokenFromUsername(String username, UserLoginInfo userInfo, long expiredTime) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(userInfo);
             return Jwts.builder()
                     .subject(username)
@@ -62,7 +65,6 @@ public class JwtService {
 
     public UserLoginInfo validateJwtToken(String authToken, Class<UserLoginInfo> userLoginInfoClass) throws JsonProcessingException {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             Jws<Claims> claimsJws = Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(authToken);
             Claims claims = claimsJws.getPayload();
             String json = claims.get("user", String.class);

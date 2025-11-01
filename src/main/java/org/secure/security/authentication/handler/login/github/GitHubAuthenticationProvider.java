@@ -28,6 +28,8 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
 
     private final UserIdentityService userIdentityService;
 
+    private final ObjectMapper objectMapper;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String code = (String) authentication.getPrincipal();
@@ -38,7 +40,6 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
             UserIdentity userIdentity = userIdentityService.getUserIdentityByProviderUserId(profile.id(), UserIdentity.AuthProvider.GITHUB);
             User user = userService.findById(userIdentity.getUserId());
 
-            ObjectMapper objectMapper = new ObjectMapper();
             UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);
             GitHubAuthentication token = new GitHubAuthentication(currentUser, true, List.of());
             // 构造认证对象

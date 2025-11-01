@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+import lombok.RequiredArgsConstructor;
 import org.secure.security.common.web.model.Result;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -17,7 +18,10 @@ import org.springframework.stereotype.Component;
  * AbstractAuthenticationProcessingFilter抛出AuthenticationException异常后，会跑到这里来
  */
 @Component
+@RequiredArgsConstructor
 public class LoginFailHandler implements AuthenticationFailureHandler {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
@@ -30,7 +34,6 @@ public class LoginFailHandler implements AuthenticationFailureHandler {
                 .code("login.fail")
                 .message(errorMessage)
                 .build();
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(response.getOutputStream(), responseData);
 
     }

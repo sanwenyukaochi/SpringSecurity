@@ -2,6 +2,7 @@ package org.secure.security.authentication.config;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.secure.security.authentication.handler.exception.CustomAuthenticationExceptionHandler;
 import org.secure.security.authentication.handler.exception.CustomAuthorizationExceptionHandler;
@@ -102,13 +103,15 @@ public class CustomWebSecurityConfig {
 
         LoginSuccessHandler loginSuccessHandler = applicationContext.getBean(LoginSuccessHandler.class);
         LoginFailHandler loginFailHandler = applicationContext.getBean(LoginFailHandler.class);
+        ObjectMapper objectMapper = applicationContext.getBean(ObjectMapper.class);
 
         // 加一个登录方式。用户名、密码登录
         UsernameAuthenticationFilter usernameAuthenticationFilter = new UsernameAuthenticationFilter(
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/application/username"),
                 new ProviderManager(List.of(applicationContext.getBean(UsernameAuthenticationProvider.class))),
                 loginSuccessHandler,
-                loginFailHandler);
+                loginFailHandler,
+                objectMapper);
 
         http.addFilterBefore(usernameAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -117,7 +120,8 @@ public class CustomWebSecurityConfig {
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/application/sms"),
                 new ProviderManager(List.of(applicationContext.getBean(SmsAuthenticationProvider.class))),
                 loginSuccessHandler,
-                loginFailHandler);
+                loginFailHandler,
+                objectMapper);
 
         http.addFilterBefore(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -126,7 +130,8 @@ public class CustomWebSecurityConfig {
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/oauth/github"),
                 new ProviderManager(List.of(applicationContext.getBean(GitHubAuthenticationProvider.class))),
                 loginSuccessHandler,
-                loginFailHandler);
+                loginFailHandler,
+                objectMapper);
 
         http.addFilterBefore(githubAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

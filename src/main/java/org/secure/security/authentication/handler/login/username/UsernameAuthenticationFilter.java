@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -24,14 +25,18 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 @Slf4j
 public class UsernameAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
+    private final ObjectMapper objectMapper;
+
     public UsernameAuthenticationFilter(PathPatternRequestMatcher pathRequestMatcher,
                                         AuthenticationManager authenticationManager,
                                         AuthenticationSuccessHandler authenticationSuccessHandler,
-                                        AuthenticationFailureHandler authenticationFailureHandler) {
+                                        AuthenticationFailureHandler authenticationFailureHandler,
+                                        ObjectMapper objectMapper) {
         super(pathRequestMatcher);
         setAuthenticationManager(authenticationManager);
         setAuthenticationSuccessHandler(authenticationSuccessHandler);
         setAuthenticationFailureHandler(authenticationFailureHandler);
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -40,7 +45,6 @@ public class UsernameAuthenticationFilter extends AbstractAuthenticationProcessi
         log.debug("use UsernameAuthenticationFilter");
 
         // 提取请求数据
-        ObjectMapper objectMapper = new ObjectMapper();
         UsernameLoginRequest usernameLoginRequest = objectMapper.readValue(request.getInputStream(), UsernameLoginRequest.class);
 
         // 封装成Spring Security需要的对象
