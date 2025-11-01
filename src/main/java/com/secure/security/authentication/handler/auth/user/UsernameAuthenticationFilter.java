@@ -1,0 +1,56 @@
+package com.secure.security.authentication.handler.auth.user;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+
+/**
+ * 用户名密码登录
+ * AbstractAuthenticationProcessingFilter 的实现类要做的工作：
+ * 1. 从HttpServletRequest提取授权凭证。假设用户使用 用户名/密码 登录，就需要在这里提取username和password。
+ * 然后，把提取到的授权凭证封装到的Authentication对象，并且authentication.isAuthenticated()一定返回false
+ * 2. 将Authentication对象传给AuthenticationManager进行实际的授权操作
+ */
+@Slf4j
+public class UsernameAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+
+    private final ObjectMapper objectMapper;
+
+    public UsernameAuthenticationFilter(PathPatternRequestMatcher pathRequestMatcher,
+                                        AuthenticationManager authenticationManager,
+                                        AuthenticationSuccessHandler authenticationSuccessHandler,
+                                        AuthenticationFailureHandler authenticationFailureHandler,
+                                        ObjectMapper objectMapper) {
+        super(pathRequestMatcher);
+        setAuthenticationManager(authenticationManager);
+        setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        setAuthenticationFailureHandler(authenticationFailureHandler);
+        this.objectMapper = objectMapper;
+    }
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request,
+                                                HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+        log.debug("use UsernameAuthenticationFilter");
+
+        // 提取请求数据
+        UsernameLoginRequest usernameLoginRequest = objectMapper.readValue(request.getInputStream(), UsernameLoginRequest.class);
+
+        // 封装成Spring Security需要的对象
+        UsernameAuthentication authentication = new UsernameAuthentication(usernameLoginRequest.username(), usernameLoginRequest.password(), false);
+        // 开始登录认证。SpringSecurity会利用 Authentication对象去寻找 AuthenticationProvider进行登录认证
+        return getAuthenticationManager().authenticate(authentication);
+    }
+
+}
