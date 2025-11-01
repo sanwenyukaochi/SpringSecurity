@@ -3,7 +3,7 @@ package org.secure.security.authentication.handler.login.github.dto;
 import lombok.Data;
 
 @Data
-public class GithubUserProfile {
+public class GitHubUserProfile {
     private Long id;
     private String login;
     private String nodeId;

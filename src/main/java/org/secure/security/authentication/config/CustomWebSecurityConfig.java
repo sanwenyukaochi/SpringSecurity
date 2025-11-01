@@ -12,8 +12,8 @@ import org.secure.security.authentication.handler.login.sms.SmsAuthenticationFil
 import org.secure.security.authentication.handler.login.sms.SmsAuthenticationProvider;
 import org.secure.security.authentication.handler.login.username.UsernameAuthenticationFilter;
 import org.secure.security.authentication.handler.login.username.UsernameAuthenticationProvider;
-import org.secure.security.authentication.handler.login.github.GithubAuthenticationFilter;
-import org.secure.security.authentication.handler.login.github.GithubAuthenticationProvider;
+import org.secure.security.authentication.handler.login.github.GitHubAuthenticationFilter;
+import org.secure.security.authentication.handler.login.github.GitHubAuthenticationProvider;
 import org.secure.security.authentication.filter.JwtTokenAuthenticationFilter;
 import org.secure.security.authentication.handler.resourceapi.openapi2.OpenApi2AuthenticationFilter;
 import org.secure.security.authentication.service.JwtService;
@@ -122,9 +122,9 @@ public class CustomWebSecurityConfig {
         http.addFilterBefore(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 加一个登录方式。GitHub OAuth2 登录
-        GithubAuthenticationFilter githubAuthenticationFilter = new GithubAuthenticationFilter(
+        GitHubAuthenticationFilter githubAuthenticationFilter = new GitHubAuthenticationFilter(
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/oauth/github"),
-                new ProviderManager(List.of(applicationContext.getBean(GithubAuthenticationProvider.class))),
+                new ProviderManager(List.of(applicationContext.getBean(GitHubAuthenticationProvider.class))),
                 loginSuccessHandler,
                 loginFailHandler);
 

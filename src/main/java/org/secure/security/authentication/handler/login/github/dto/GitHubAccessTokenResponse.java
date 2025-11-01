@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class AccessTokenResponse {
+public class GitHubAccessTokenResponse {
     @JsonProperty("access_token")
     private String accessToken;
     @JsonProperty("token_type")

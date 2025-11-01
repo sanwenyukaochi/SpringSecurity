@@ -10,18 +10,18 @@ import java.util.Collection;
 
 @Setter
 @Getter
-public class GithubAuthentication extends AbstractAuthenticationToken {
+public class GitHubAuthentication extends AbstractAuthenticationToken {
 
     private String code;
     private UserLoginInfo currentUser;
 
-    public GithubAuthentication(String code, Boolean authenticated) {
+    public GitHubAuthentication(String code, Boolean authenticated) {
         this.code = code;
         super(null); // 权限，用不上，直接null
         super.setAuthenticated(authenticated);
     }
 
-    public GithubAuthentication(UserLoginInfo currentUser, Boolean authenticated,
+    public GitHubAuthentication(UserLoginInfo currentUser, Boolean authenticated,
                                 Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.currentUser = currentUser;

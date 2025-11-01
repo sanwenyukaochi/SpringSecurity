@@ -15,9 +15,9 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Slf4j
-public class GithubAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class GitHubAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-    public GithubAuthenticationFilter(PathPatternRequestMatcher pathRequestMatcher,
+    public GitHubAuthenticationFilter(PathPatternRequestMatcher pathRequestMatcher,
                                       AuthenticationManager authenticationManager,
                                       AuthenticationSuccessHandler authenticationSuccessHandler,
                                       AuthenticationFailureHandler authenticationFailureHandler) {
@@ -33,9 +33,9 @@ public class GithubAuthenticationFilter extends AbstractAuthenticationProcessing
         log.debug("use GithubAuthenticationFilter");
 
         ObjectMapper objectMapper = new ObjectMapper();
-        GithubLoginRequest githubLoginRequest = objectMapper.readValue(request.getInputStream(), GithubLoginRequest.class);
+        GitHubLoginRequest githubLoginRequest = objectMapper.readValue(request.getInputStream(), GitHubLoginRequest.class);
 
-        GithubAuthentication authentication = new GithubAuthentication(githubLoginRequest.code(), false);
+        GitHubAuthentication authentication = new GitHubAuthentication(githubLoginRequest.code(), false);
         return getAuthenticationManager().authenticate(authentication);
     }
 }
