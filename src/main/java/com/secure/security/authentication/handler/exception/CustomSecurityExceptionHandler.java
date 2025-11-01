@@ -37,7 +37,7 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (BaseException e) {
             // 自定义异常
-            Result result = Result.builder()
+            Result<?> result = Result.builder()
                     .message(e.getMessage())
                     .code(e.getCode())
                     .build();
@@ -51,7 +51,7 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             // 未知异常
-            Result result = Result.builder()
+            Result<?> result = Result.builder()
                     .message("System Error")
                     .code("system.error")
                     .build();
