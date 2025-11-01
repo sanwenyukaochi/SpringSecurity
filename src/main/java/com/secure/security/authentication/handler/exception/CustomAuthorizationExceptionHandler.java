@@ -30,6 +30,6 @@ public class CustomAuthorizationExceptionHandler implements AccessDeniedHandler 
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        objectMapper.writeValue(response.getOutputStream(), Result.error("${low.power:无权访问}"));
+        objectMapper.writeValue(response.getOutputStream(), Result.error("无权访问"));
     }
 }

@@ -40,7 +40,7 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
             UserIdentity userIdentity = userIdentityService.getUserIdentityByProviderUserId(profile.id(), UserIdentity.AuthProvider.GITHUB);
             User user = userService.findById(userIdentity.getUserId());
 
-            UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);
+            UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限
             GitHubAuthentication token = new GitHubAuthentication(currentUser, true, List.of());
             // 构造认证对象
             return token;

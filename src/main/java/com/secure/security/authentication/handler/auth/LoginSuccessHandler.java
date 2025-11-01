@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -60,21 +61,19 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
         currentUser.setSessionId(UUID.randomUUID().toString());
 
         // 生成token和refreshToken
-        Map<String, Object> responseData = new LinkedHashMap<>();
-        responseData.put("token", generateToken(currentUser));
-        responseData.put("refreshToken", generateRefreshToken(currentUser));
+        String token = generateToken(currentUser);
+        String refreshToken = generateRefreshToken(currentUser);
 
         // 一些特殊的登录参数。比如三方登录，需要额外返回一个字段是否需要跳转的绑定已有账号页面
-        Object details = authentication.getDetails();
-        if (details instanceof Map<?, ?> detailsMap) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> map = (Map<String, Object>) detailsMap;
-            responseData.putAll(map);
-        }
-
+        @SuppressWarnings("unchecked")
+        Map<String, Object> additionalInfo = Optional.ofNullable(authentication.getDetails())
+                .filter(Map.class::isInstance)
+                .map(Map.class::cast)
+                .orElse(Map.of());
+        LoginResponse loginResponse = new LoginResponse(token, refreshToken, additionalInfo);
         // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), Result.success("${login.success:登录成功！}", responseData));
+        objectMapper.writeValue(response.getOutputStream(), Result.success("登录成功", loginResponse));
     }
 
     public String generateToken(UserLoginInfo userLoginInfo) throws JsonProcessingException {

@@ -33,6 +33,7 @@ public class UserLoginInfo implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        //TODO 权限
         return List.of();
     }
 
