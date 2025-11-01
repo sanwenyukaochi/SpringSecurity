@@ -27,7 +27,7 @@ public class TestDemoController {
         return Result.builder()
                 .code(Result.SUCCESS_CODE)
                 .data(userLoginInfo)
-                .message("${test.message.a:测试国际化消息 A}")
+                .message("测试国际化消息 A")
                 .build();
     }
 

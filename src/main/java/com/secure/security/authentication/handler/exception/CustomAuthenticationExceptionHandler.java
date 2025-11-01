@@ -29,6 +29,6 @@ public class CustomAuthenticationExceptionHandler implements AuthenticationEntry
                          AuthenticationException authenticationException) throws IOException, ServletException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        objectMapper.writeValue(response.getOutputStream(), Result.error("${authentication.fail:认证失败}"));
+        objectMapper.writeValue(response.getOutputStream(), Result.error("认证失败"));
     }
 }

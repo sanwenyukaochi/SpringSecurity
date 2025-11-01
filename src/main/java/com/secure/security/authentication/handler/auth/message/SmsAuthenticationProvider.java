@@ -33,15 +33,15 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
             // 密码错误，直接抛异常。
             // 根据SpringSecurity框架的代码逻辑，认证失败时，应该抛这个异常：org.springframework.security.core.AuthenticationException
             // BadCredentialsException就是这个异常的子类
-            throw new UsernameNotFoundException("${user.not.found:找不到用户!}");
+            throw new UsernameNotFoundException("找不到用户");
         }
 
         // 验证验证码是否正确
         if (!validateSmsCode(smsCode)) {
-            throw new BadCredentialsException("${verify.sms.code.fail:验证码不正确！}");
+            throw new BadCredentialsException("验证码不正确");
         }
 
-        UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);
+        UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限
         SmsAuthentication token = new SmsAuthentication(currentUser, true, List.of());
         // 认证通过，一定要设成true
         return token;
