@@ -12,6 +12,8 @@ import org.secure.security.authentication.handler.login.sms.SmsAuthenticationFil
 import org.secure.security.authentication.handler.login.sms.SmsAuthenticationProvider;
 import org.secure.security.authentication.handler.login.username.UsernameAuthenticationFilter;
 import org.secure.security.authentication.handler.login.username.UsernameAuthenticationProvider;
+import org.secure.security.authentication.handler.login.github.GithubAuthenticationFilter;
+import org.secure.security.authentication.handler.login.github.GithubAuthenticationProvider;
 import org.secure.security.authentication.filter.JwtTokenAuthenticationFilter;
 import org.secure.security.authentication.handler.resourceapi.openapi2.OpenApi2AuthenticationFilter;
 import org.secure.security.authentication.service.JwtService;
@@ -95,7 +97,7 @@ public class CustomWebSecurityConfig {
     public SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
         commonHttpSetting(http);
         // 使用securityMatcher限定当前配置作用的路径
-        http.securityMatcher("/user/login/*")
+        http.securityMatcher("/user/login/**")
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
 
         LoginSuccessHandler loginSuccessHandler = applicationContext.getBean(LoginSuccessHandler.class);
@@ -103,7 +105,7 @@ public class CustomWebSecurityConfig {
 
         // 加一个登录方式。用户名、密码登录
         UsernameAuthenticationFilter usernameAuthenticationFilter = new UsernameAuthenticationFilter(
-                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/username"),
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/application/username"),
                 new ProviderManager(List.of(applicationContext.getBean(UsernameAuthenticationProvider.class))),
                 loginSuccessHandler,
                 loginFailHandler);
@@ -112,12 +114,21 @@ public class CustomWebSecurityConfig {
 
         // 加一个登录方式。短信验证码 登录
         SmsAuthenticationFilter smsAuthenticationFilter = new SmsAuthenticationFilter(
-                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/sms"),
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/application/sms"),
                 new ProviderManager(List.of(applicationContext.getBean(SmsAuthenticationProvider.class))),
                 loginSuccessHandler,
                 loginFailHandler);
 
         http.addFilterBefore(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // 加一个登录方式。GitHub OAuth2 登录
+        GithubAuthenticationFilter githubAuthenticationFilter = new GithubAuthenticationFilter(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/oauth/github"),
+                new ProviderManager(List.of(applicationContext.getBean(GithubAuthenticationProvider.class))),
+                loginSuccessHandler,
+                loginFailHandler);
+
+        http.addFilterBefore(githubAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
