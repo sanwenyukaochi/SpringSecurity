@@ -1,10 +1,10 @@
-package com.secure.security.authentication.handler.auth.user;
+package com.secure.security.authentication.handler.auth.email;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import com.secure.security.authentication.handler.auth.UserLoginInfo;
 import com.secure.security.authentication.service.UserService;
 import com.secure.security.domain.model.entity.User;
-import com.secure.security.authentication.handler.auth.UserLoginInfo;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -15,47 +15,36 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * 帐号密码登录认证
- */
 @Component
 @RequiredArgsConstructor
-public class UsernameAuthenticationProvider implements AuthenticationProvider {
+public class EmailAuthenticationProvider implements AuthenticationProvider {
 
     private final UserService userService;
-
     private final PasswordEncoder passwordEncoder;
-
     private final ObjectMapper objectMapper;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        // 用户提交的用户名 + 密码：
-        String username = (String) authentication.getPrincipal();
+        String email = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
 
-        User user = userService.getUserFromDB(username);
+        User user = userService.getUserByEmail(email);
         if (user == null) {
-            // 根据SpringSecurity框架的代码逻辑，认证失败时，应该抛这个异常：org.springframework.security.core.AuthenticationException
-            // UsernameNotFoundException就是这个异常的子类
-            // 抛出异常后后，AuthenticationFailureHandler的实现类会处理这个异常。
-            throw new UsernameNotFoundException("找不到用户");
+            throw new UsernameNotFoundException("邮箱不存在");
         }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            // 密码错误，直接抛异常。
-            // BadCredentialsException就是这个异常的子类
-            throw new BadCredentialsException("用户名或密码不正确");
+            throw new BadCredentialsException("邮箱或密码不正确");
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限
-        UsernameAuthentication token = new UsernameAuthentication(currentUser, true, List.of());
+        EmailAuthentication token = new EmailAuthentication(currentUser, true, List.of());
         // 认证通过，这里一定要设成true
         return token;
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return UsernameAuthentication.class.isAssignableFrom(authentication);
+        return EmailAuthentication.class.isAssignableFrom(authentication);
     }
 }

@@ -20,6 +20,10 @@ public class UserService {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("用户不存在"));
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("邮箱不存在"));
+    }
+
     public User findById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("用户不存在"));
     }

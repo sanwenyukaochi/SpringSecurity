@@ -1,23 +1,5 @@
 package com.secure.security.authentication.config;
 
-import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import com.secure.security.authentication.handler.exception.CustomAuthenticationExceptionHandler;
-import com.secure.security.authentication.handler.exception.CustomAuthorizationExceptionHandler;
-import com.secure.security.authentication.handler.exception.CustomSecurityExceptionHandler;
-import com.secure.security.authentication.handler.auth.LoginFailHandler;
-import com.secure.security.authentication.handler.auth.LoginSuccessHandler;
-import com.secure.security.authentication.handler.auth.message.SmsAuthenticationFilter;
-import com.secure.security.authentication.handler.auth.message.SmsAuthenticationProvider;
-import com.secure.security.authentication.handler.auth.user.UsernameAuthenticationFilter;
-import com.secure.security.authentication.handler.auth.user.UsernameAuthenticationProvider;
-import com.secure.security.authentication.handler.auth.github.GitHubAuthenticationFilter;
-import com.secure.security.authentication.handler.auth.github.GitHubAuthenticationProvider;
-import com.secure.security.authentication.filter.JwtTokenAuthenticationFilter;
-import com.secure.security.authentication.handler.resourceapi.openapi2.OpenApi2AuthenticationFilter;
-import com.secure.security.authentication.service.JwtService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +16,27 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import com.secure.security.authentication.handler.auth.LoginFailHandler;
+import com.secure.security.authentication.handler.auth.LoginSuccessHandler;
+import com.secure.security.authentication.handler.auth.message.SmsAuthenticationFilter;
+import com.secure.security.authentication.handler.auth.message.SmsAuthenticationProvider;
+import com.secure.security.authentication.handler.auth.user.UsernameAuthenticationFilter;
+import com.secure.security.authentication.handler.auth.user.UsernameAuthenticationProvider;
+import com.secure.security.authentication.handler.auth.github.GitHubAuthenticationFilter;
+import com.secure.security.authentication.handler.auth.github.GitHubAuthenticationProvider;
+import com.secure.security.authentication.handler.auth.email.EmailAuthenticationFilter;
+import com.secure.security.authentication.handler.auth.email.EmailAuthenticationProvider;
+import com.secure.security.authentication.handler.exception.CustomAuthenticationExceptionHandler;
+import com.secure.security.authentication.handler.exception.CustomAuthorizationExceptionHandler;
+import com.secure.security.authentication.handler.exception.CustomSecurityExceptionHandler;
+import com.secure.security.authentication.handler.resourceapi.openapi2.OpenApi2AuthenticationFilter;
+import com.secure.security.authentication.filter.JwtTokenAuthenticationFilter;
+import com.secure.security.authentication.service.JwtService;
+
+import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -124,6 +127,16 @@ public class CustomWebSecurityConfig {
                 objectMapper);
 
         http.addFilterBefore(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // 加一个登录方式。邮箱密码 登录
+        EmailAuthenticationFilter emailAuthenticationFilter = new EmailAuthenticationFilter(
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/user/login/application/email"),
+                new ProviderManager(List.of(applicationContext.getBean(EmailAuthenticationProvider.class))),
+                loginSuccessHandler,
+                loginFailHandler,
+                objectMapper);
+
+        http.addFilterBefore(emailAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 加一个登录方式。GitHub OAuth2 登录
         GitHubAuthenticationFilter githubAuthenticationFilter = new GitHubAuthenticationFilter(
