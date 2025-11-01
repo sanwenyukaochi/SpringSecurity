@@ -16,8 +16,8 @@ public class GithubAuthentication extends AbstractAuthenticationToken {
     private UserLoginInfo currentUser;
 
     public GithubAuthentication(String code, Boolean authenticated) {
-        super(null);
         this.code = code;
+        super(null); // 权限，用不上，直接null
         super.setAuthenticated(authenticated);
     }
 
@@ -30,7 +30,7 @@ public class GithubAuthentication extends AbstractAuthenticationToken {
 
     @Override
     public Object getCredentials() {
-        return null;
+        return isAuthenticated() ? null : code;
     }
 
     @Override
