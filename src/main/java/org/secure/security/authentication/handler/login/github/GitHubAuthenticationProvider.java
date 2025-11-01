@@ -2,8 +2,8 @@ package org.secure.security.authentication.handler.login.github;
 
 import lombok.RequiredArgsConstructor;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
-import org.secure.security.authentication.handler.login.github.dto.GithubUserProfile;
-import org.secure.security.authentication.handler.login.github.service.GithubOAuthService;
+import org.secure.security.authentication.handler.login.github.dto.GitHubUserProfile;
+import org.secure.security.authentication.handler.login.github.service.GitHubOAuthService;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -14,16 +14,16 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class GithubAuthenticationProvider implements AuthenticationProvider {
+public class GitHubAuthenticationProvider implements AuthenticationProvider {
 
-    private final GithubOAuthService githubOAuthService;
+    private final GitHubOAuthService githubOAuthService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String code = (String) authentication.getPrincipal();
         try {
             String accessToken = githubOAuthService.exchangeCodeForToken(code);
-            GithubUserProfile profile = githubOAuthService.fetchUserProfile(accessToken);
+            GitHubUserProfile profile = githubOAuthService.fetchUserProfile(accessToken);
 
             UserLoginInfo currentUser = UserLoginInfo.builder()
                     .id(profile.getId())
@@ -34,7 +34,7 @@ public class GithubAuthenticationProvider implements AuthenticationProvider {
                     .accountNonLocked(true)
                     .credentialsNonExpired(true)
                     .build();
-            return new GithubAuthentication(currentUser, true, List.of());
+            return new GitHubAuthentication(currentUser, true, List.of());
         } catch (Exception e) {
             throw new BadCredentialsException("GitHub OAuth2 登录失败: " + e.getMessage());
         }
@@ -42,6 +42,6 @@ public class GithubAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return GithubAuthentication.class.isAssignableFrom(authentication);
+        return GitHubAuthentication.class.isAssignableFrom(authentication);
     }
 }

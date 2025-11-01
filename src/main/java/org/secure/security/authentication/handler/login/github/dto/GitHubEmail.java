@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GithubEmail {
+public class GitHubEmail {
     private String email;
     private Boolean primary;
     private Boolean verified;

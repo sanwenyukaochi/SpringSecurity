@@ -1,9 +1,9 @@
 package org.secure.security.authentication.handler.login.github.service;
 
 import lombok.RequiredArgsConstructor;
-import org.secure.security.authentication.handler.login.github.dto.AccessTokenResponse;
-import org.secure.security.authentication.handler.login.github.dto.GithubEmail;
-import org.secure.security.authentication.handler.login.github.dto.GithubUserProfile;
+import org.secure.security.authentication.handler.login.github.dto.GitHubAccessTokenResponse;
+import org.secure.security.authentication.handler.login.github.dto.GitHubEmail;
+import org.secure.security.authentication.handler.login.github.dto.GitHubUserProfile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class GithubOAuthService {
+public class GitHubOAuthService {
 
     @Value("${spring.security.oauth2.client.registration.github.client-id:}")
     private String clientId;
@@ -35,26 +35,26 @@ public class GithubOAuthService {
                 "code", code
         );
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
-        ResponseEntity<AccessTokenResponse> resp = restTemplate.exchange(url, HttpMethod.POST, entity, AccessTokenResponse.class);
+        ResponseEntity<GitHubAccessTokenResponse> resp = restTemplate.exchange(url, HttpMethod.POST, entity, GitHubAccessTokenResponse.class);
         if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null && resp.getBody().getAccessToken() != null) {
             return resp.getBody().getAccessToken();
         }
         throw new IllegalStateException("GitHub access_token 获取失败");
     }
 
-    public GithubUserProfile fetchUserProfile(String accessToken) {
+    public GitHubUserProfile fetchUserProfile(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         HttpEntity<Void> entity = new HttpEntity<>(headers);
-        ResponseEntity<GithubUserProfile> resp = restTemplate.exchange("https://api.github.com/user", HttpMethod.GET, entity, GithubUserProfile.class);
+        ResponseEntity<GitHubUserProfile> resp = restTemplate.exchange("https://api.github.com/user", HttpMethod.GET, entity, GitHubUserProfile.class);
         if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
-            GithubUserProfile profile = resp.getBody();
+            GitHubUserProfile profile = resp.getBody();
             if (profile.getEmail() == null || profile.getEmail().isBlank()) {
                 // 额外获取邮箱
-                ResponseEntity<GithubEmail[]> emailResp = restTemplate.exchange("https://api.github.com/user/emails", HttpMethod.GET, entity, GithubEmail[].class);
+                ResponseEntity<GitHubEmail[]> emailResp = restTemplate.exchange("https://api.github.com/user/emails", HttpMethod.GET, entity, GitHubEmail[].class);
                 if (emailResp.getStatusCode().is2xxSuccessful() && emailResp.getBody() != null) {
-                    for (GithubEmail e : emailResp.getBody()) {
+                    for (GitHubEmail e : emailResp.getBody()) {
                         if (Boolean.TRUE.equals(e.getPrimary())) {
                             profile.setEmail(e.getEmail());
                             break;

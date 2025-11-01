@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/public/login/github")
-public class GithubLoginConfigController {
+public class GitHubLoginConfigController {
 
     @Value("${spring.security.oauth2.client.registration.github.client-id:}")
     private String clientId;
