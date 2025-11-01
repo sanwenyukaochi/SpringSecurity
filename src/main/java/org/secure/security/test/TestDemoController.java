@@ -2,6 +2,7 @@ package org.secure.security.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.secure.security.authentication.handler.resourceapi.openapi2.OpenApi2LoginInfo;
 import org.secure.security.common.web.model.Result;
 import org.secure.security.authentication.handler.login.UserLoginInfo;
@@ -13,15 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/open-api")
+@RequiredArgsConstructor
 public class TestDemoController {
+
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/business-1")
     public Result<?> getA(Authentication authentication) throws JsonProcessingException {
         UserLoginInfo userLoginInfo = (UserLoginInfo) authentication
                 .getPrincipal();
-        ObjectMapper objectMapper = new ObjectMapper();
         System.out.println("自家用户登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
         return Result.builder()
+                .code(Result.SUCCESS_CODE)
                 .data(userLoginInfo)
                 .message("${test.message.a:测试国际化消息 A}")
                 .build();
@@ -33,9 +37,9 @@ public class TestDemoController {
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
-        ObjectMapper objectMapper = new ObjectMapper();
         System.out.println("三方API登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
         return Result.builder()
+                .code(Result.SUCCESS_CODE)
                 .data(userLoginInfo)
                 .message("SUCCESS B")
                 .build();
@@ -46,7 +50,6 @@ public class TestDemoController {
         Authentication authentication = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
-        ObjectMapper objectMapper = new ObjectMapper();
         System.out.println("登录信息：" + objectMapper.writeValueAsString(authentication));
         return Result.builder()
                 .code(Result.SUCCESS_CODE)

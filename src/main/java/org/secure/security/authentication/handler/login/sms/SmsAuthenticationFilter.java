@@ -17,14 +17,18 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 @Slf4j
 public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
+    private final ObjectMapper objectMapper;
+
     public SmsAuthenticationFilter(PathPatternRequestMatcher pathRequestMatcher,
                                    AuthenticationManager authenticationManager,
                                    AuthenticationSuccessHandler authenticationSuccessHandler,
-                                   AuthenticationFailureHandler authenticationFailureHandler) {
+                                   AuthenticationFailureHandler authenticationFailureHandler,
+                                   ObjectMapper objectMapper) {
         super(pathRequestMatcher);
         setAuthenticationManager(authenticationManager);
         setAuthenticationSuccessHandler(authenticationSuccessHandler);
         setAuthenticationFailureHandler(authenticationFailureHandler);
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -33,7 +37,6 @@ public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFil
         log.debug("user SmsCodeAuthenticationFilter");
 
         // 提取请求数据
-        ObjectMapper objectMapper = new ObjectMapper();
         SmsLoginRequest smsLoginRequest = objectMapper.readValue(request.getInputStream(), SmsLoginRequest.class);
 
         SmsAuthentication authentication = new SmsAuthentication(smsLoginRequest.phone(), smsLoginRequest.captcha(), false);

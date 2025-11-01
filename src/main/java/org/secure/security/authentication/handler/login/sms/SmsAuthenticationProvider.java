@@ -20,6 +20,8 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
 
     private final UserService userService;
 
+    private final ObjectMapper objectMapper;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // 用户提交的手机号 + 验证码：
@@ -39,7 +41,6 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("${verify.sms.code.fail:验证码不正确！}");
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);
         SmsAuthentication token = new SmsAuthentication(currentUser, true, List.of());
         // 认证通过，一定要设成true

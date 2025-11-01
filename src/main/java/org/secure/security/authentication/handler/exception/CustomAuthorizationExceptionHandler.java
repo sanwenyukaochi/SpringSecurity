@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+import lombok.RequiredArgsConstructor;
 import org.secure.security.common.web.model.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,14 +20,16 @@ import org.springframework.stereotype.Component;
  * 或者SpringSecurity框架捕捉到  AccessDeniedException时，会转出
  */
 @Component
+@RequiredArgsConstructor
 public class CustomAuthorizationExceptionHandler implements AccessDeniedHandler {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.writeValue(response.getOutputStream(), Result.error("${low.power:无权访问}"));
     }
 }

@@ -26,6 +26,8 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final ObjectMapper objectMapper;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // 用户提交的用户名 + 密码：
@@ -46,7 +48,6 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("${invalid.username.or.pwd:用户名或密码不正确}");
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);
         UsernameAuthentication token = new UsernameAuthentication(currentUser, true, List.of());
         // 认证通过，这里一定要设成true
