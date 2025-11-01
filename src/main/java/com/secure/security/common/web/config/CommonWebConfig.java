@@ -36,6 +36,8 @@ public class CommonWebConfig {
     public RestTemplate restTemplate(ObjectMapper objectMapper, ProxyProperties proxyProperties) {
 
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);
+        factory.setReadTimeout(8000);
 
         Optional.of(proxyProperties)
                 .filter(ProxyProperties::enabled)

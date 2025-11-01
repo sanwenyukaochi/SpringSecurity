@@ -28,7 +28,7 @@ public class WebGlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     public Result<?> exceptionHandler(HttpServletResponse response, Exception e) {
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        log.info("服务器异常", e);
+        log.error("服务器异常", e);
         return Result.error("服务器异常");
     }
 
