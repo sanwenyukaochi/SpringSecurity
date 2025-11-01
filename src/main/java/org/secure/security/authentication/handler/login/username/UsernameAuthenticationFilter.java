@@ -41,10 +41,10 @@ public class UsernameAuthenticationFilter extends AbstractAuthenticationProcessi
 
         // 提取请求数据
         ObjectMapper objectMapper = new ObjectMapper();
-        LoginRequest loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
+        UsernameLoginRequest usernameLoginRequest = objectMapper.readValue(request.getInputStream(), UsernameLoginRequest.class);
 
         // 封装成Spring Security需要的对象
-        UsernameAuthentication authentication = new UsernameAuthentication(loginRequest.username(), loginRequest.password(), false);
+        UsernameAuthentication authentication = new UsernameAuthentication(usernameLoginRequest.username(), usernameLoginRequest.password(), false);
         // 开始登录认证。SpringSecurity会利用 Authentication对象去寻找 AuthenticationProvider进行登录认证
         return getAuthenticationManager().authenticate(authentication);
     }
