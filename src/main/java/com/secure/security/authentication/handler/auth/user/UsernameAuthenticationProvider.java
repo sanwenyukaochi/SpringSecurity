@@ -1,10 +1,14 @@
 package com.secure.security.authentication.handler.auth.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.secure.security.common.web.constant.ResponseCodeConstants;
+import com.secure.security.common.web.exception.BaseException;
+import com.secure.security.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import com.secure.security.authentication.service.UserService;
 import com.secure.security.domain.model.entity.User;
 import com.secure.security.authentication.handler.auth.UserLoginInfo;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -22,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsernameAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -34,18 +38,12 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
         String username = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
 
-        User user = userService.getUserFromDB(username);
-        if (user == null) {
-            // 根据SpringSecurity框架的代码逻辑，认证失败时，应该抛这个异常：org.springframework.security.core.AuthenticationException
-            // UsernameNotFoundException就是这个异常的子类
-            // 抛出异常后后，AuthenticationFailureHandler的实现类会处理这个异常。
-            throw new UsernameNotFoundException("找不到用户");
-        }
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_NOT_FOUND, "用户不存在", HttpStatus.UNAUTHORIZED));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             // 密码错误，直接抛异常。
-            // BadCredentialsException就是这个异常的子类
-            throw new BadCredentialsException("用户名或密码不正确");
+            throw new BaseException(ResponseCodeConstants.PASSWORD_ERROR, "密码错误", HttpStatus.UNAUTHORIZED);
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限

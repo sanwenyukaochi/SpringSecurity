@@ -1,10 +1,14 @@
 package com.secure.security.authentication.handler.auth.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.secure.security.common.web.constant.ResponseCodeConstants;
+import com.secure.security.common.web.exception.BaseException;
+import com.secure.security.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import com.secure.security.authentication.service.UserService;
 import com.secure.security.domain.model.entity.User;
 import com.secure.security.authentication.handler.auth.UserLoginInfo;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -18,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SmsAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     private final ObjectMapper objectMapper;
 
@@ -28,17 +32,12 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         String phoneNumber = (String) authentication.getPrincipal();
         String smsCode = (String) authentication.getCredentials();
 
-        User user = userService.getUserByPhone(phoneNumber);
-        if (user == null) {
-            // 密码错误，直接抛异常。
-            // 根据SpringSecurity框架的代码逻辑，认证失败时，应该抛这个异常：org.springframework.security.core.AuthenticationException
-            // BadCredentialsException就是这个异常的子类
-            throw new UsernameNotFoundException("找不到用户");
-        }
+        User user = userRepository.findByPhone(phoneNumber)
+                .orElseThrow(() -> new BaseException(ResponseCodeConstants.PHONE_NOT_FOUND, "手机号不存在", HttpStatus.UNAUTHORIZED));
 
         // 验证验证码是否正确
         if (!validateSmsCode(smsCode)) {
-            throw new BadCredentialsException("验证码不正确");
+            throw new BaseException(ResponseCodeConstants.SMS_CODE_ERROR, "验证码错误", HttpStatus.UNAUTHORIZED);
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限

@@ -2,6 +2,7 @@ package com.secure.security.authentication.handler.auth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.secure.security.common.web.constant.ResponseCodeConstants;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,7 +57,7 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
                                         Authentication authentication) throws IOException {
         Object principal = authentication.getPrincipal();
         if (!(principal instanceof UserLoginInfo currentUser)) {
-            throw new BaseException("登陆认证成功后，authentication.getPrincipal()返回的Object对象必须是：UserLoginInfo！", HttpStatus.BAD_REQUEST);
+            throw new BaseException(ResponseCodeConstants.TYPE_ERROR,"登陆认证成功后，authentication.getPrincipal()返回的Object对象必须是：UserLoginInfo！", HttpStatus.BAD_REQUEST);
         }
         currentUser.setSessionId(UUID.randomUUID().toString());
 
