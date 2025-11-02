@@ -33,7 +33,7 @@ public class CommonWebConfig {
     }
 
     @Bean
-    public RestTemplate restTemplate(ObjectMapper objectMapper, ProxyProperties proxyProperties) {
+    public RestTemplate restTemplate(ProxyProperties proxyProperties) {
 
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5000);
@@ -45,14 +45,7 @@ public class CommonWebConfig {
                         new Proxy(Proxy.Type.HTTP, new InetSocketAddress(p.host(), p.port()))
                 ));
 
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setObjectMapper(objectMapper);
-
-        RestTemplate restTemplate = new RestTemplate(factory);
-        restTemplate.getMessageConverters().removeIf(c -> c instanceof MappingJackson2HttpMessageConverter);
-        restTemplate.getMessageConverters().add(converter);
-
-        return restTemplate;
+        return new RestTemplate(factory);
     }
 
     @ConfigurationProperties(prefix = "spring.proxy")
