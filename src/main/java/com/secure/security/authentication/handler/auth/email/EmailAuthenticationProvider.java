@@ -1,15 +1,16 @@
 package com.secure.security.authentication.handler.auth.email;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.secure.security.common.web.constant.ResponseCodeConstants;
+import com.secure.security.common.web.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import com.secure.security.authentication.handler.auth.UserLoginInfo;
-import com.secure.security.authentication.service.UserService;
 import com.secure.security.domain.model.entity.User;
+import com.secure.security.domain.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EmailAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
 
@@ -28,13 +29,11 @@ public class EmailAuthenticationProvider implements AuthenticationProvider {
         String email = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
 
-        User user = userService.getUserByEmail(email);
-        if (user == null) {
-            throw new UsernameNotFoundException("邮箱不存在");
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BaseException(ResponseCodeConstants.EMAIL_NOT_FOUND, "邮箱不存在", HttpStatus.UNAUTHORIZED));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BadCredentialsException("邮箱或密码不正确");
+            throw new BaseException(ResponseCodeConstants.PASSWORD_ERROR, "密码错误", HttpStatus.UNAUTHORIZED);
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限

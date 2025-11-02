@@ -1,6 +1,7 @@
 package com.secure.security.authentication.handler.auth.github.controller;
 
 import com.secure.security.authentication.handler.auth.github.dto.GitHubOAuthConfigResponse;
+import com.secure.security.common.web.constant.ResponseCodeConstants;
 import com.secure.security.domain.model.dto.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -20,6 +21,6 @@ public class GitHubLoginConfigController {
     public Result<GitHubOAuthConfigResponse> config() {
         ClientRegistration registration = registrationRepository.findByRegistrationId("github");
         GitHubOAuthConfigResponse data = new GitHubOAuthConfigResponse(registration.getClientId(), registration.getRedirectUri());
-        return Result.success(Result.SUCCESS_CODE, data);
+        return Result.success(ResponseCodeConstants.SUCCESS, data);
     }
 }

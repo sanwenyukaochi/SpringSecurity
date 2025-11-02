@@ -6,15 +6,22 @@ public final class ResponseCodeConstants {
     public static final String SUCCESS = "success";
     public static final String ERROR = "error";
     public static final String SYSTEM_ERROR = "system.error";
+    public static final String TYPE_ERROR = "type.error";
     public static final String API_NOT_FOUND = "api.not_found";
 
     // 用户模块
     public static final String USER_NOT_FOUND = "user.not_found";
+    public static final String PHONE_NOT_FOUND = "phone.not_found";
+    public static final String PASSWORD_ERROR = "password_error";
+    public static final String SMS_CODE_ERROR = "sms.code_error";
+
     public static final String USER_DISABLED = "user.disabled";
+    public static final String EMAIL_NOT_FOUND = "email.not_found";
 
     // 登录模块
     public static final String LOGIN_SUCCESS = "login.success";
     public static final String LOGIN_FAIL = "login.fail";
+    public static final String ACCESS_DENIED = "access.denied";
     public static final String INVALID_CREDENTIALS = "auth.invalid_credentials";
 
     // 资源模块
