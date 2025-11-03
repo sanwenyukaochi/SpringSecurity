@@ -14,9 +14,11 @@ public final class ResponseCodeConstants {
     public static final String PHONE_NOT_FOUND = "phone.not_found";
     public static final String PASSWORD_ERROR = "password_error";
     public static final String SMS_CODE_ERROR = "sms.code_error";
+    public static final String USER_ALREADY_EXISTS = "user.already_exists";
 
     public static final String USER_DISABLED = "user.disabled";
     public static final String EMAIL_NOT_FOUND = "email.not_found";
+    public static final String EMAIL_ALREADY_EXISTS = "email.already_exists";
 
     // 登录模块
     public static final String LOGIN_SUCCESS = "login.success";
