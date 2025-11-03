@@ -70,4 +70,8 @@ public class User extends BaseEntity {
     @Comment("是否启用双因素认证（true=启用，false=未启用）")
     private Boolean twoFactorEnabled = false;
 
+    //@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    //@ToString.Exclude
+    //private List<UserRole> roles = new ArrayList<>();
+
 }
