@@ -1,4 +1,4 @@
-package com.secure.security.authentication.handler.auth.message;
+package com.secure.security.authentication.handler.auth.email;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,21 +10,21 @@ import java.util.Collection;
 
 @Setter
 @Getter
-public class SmsAuthentication extends AbstractAuthenticationToken {
+public class EmailAuthenticationToken extends AbstractAuthenticationToken {
 
-    private String phone;
-    private String smsCode;
+    private String email;
+    private String password;
     private UserLoginInfo currentUser;
 
-    public SmsAuthentication(String phone, String smsCode, Boolean authenticated) {
-        this.phone = phone;
-        this.smsCode = smsCode;
+    public EmailAuthenticationToken(String email, String password, Boolean authenticated) {
+        this.email = email;
+        this.password = password;
         super(null); // 权限，用不上，直接null
         super.setAuthenticated(authenticated);
     }
 
-    public SmsAuthentication(UserLoginInfo currentUser, Boolean authenticated,
-                             Collection<? extends GrantedAuthority> authorities) {
+    public EmailAuthenticationToken(UserLoginInfo currentUser, Boolean authenticated,
+                                    Collection<? extends GrantedAuthority> authorities) {
         this.currentUser = currentUser;
         super(authorities);
         super.setAuthenticated(authenticated);
@@ -32,12 +32,11 @@ public class SmsAuthentication extends AbstractAuthenticationToken {
 
     @Override
     public Object getCredentials() {
-        return isAuthenticated() ? null : smsCode;
+        return isAuthenticated() ? null : password;
     }
 
     @Override
     public Object getPrincipal() {
-        return isAuthenticated() ? currentUser : phone;
+        return isAuthenticated() ? currentUser : email;
     }
-
 }

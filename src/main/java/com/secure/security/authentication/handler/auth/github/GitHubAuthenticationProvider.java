@@ -37,8 +37,8 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        GitHubAuthentication gitHubAuthentication = (GitHubAuthentication) authentication;
-        String code = gitHubAuthentication.getCode();
+        GitHubAuthenticationToken gitHubAuthenticationToken = (GitHubAuthenticationToken) authentication;
+        String code = gitHubAuthenticationToken.getCode();
         OAuth2User oAuth2User = githubOAuth2Service.authenticateByCode(code);
         Long providerUserId = Optional.ofNullable(oAuth2User.getAttribute("id"))
                 .filter(Number.class::isInstance)
@@ -50,7 +50,7 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
         User user = userRepository.findById(userIdentity.getUserId()).orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_NOT_FOUND, "用户不存在", HttpStatus.UNAUTHORIZED));
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限
-        GitHubAuthentication token = new GitHubAuthentication(currentUser, true, List.of());
+        GitHubAuthenticationToken token = new GitHubAuthenticationToken(currentUser, true, List.of());
         // 构造认证对象
         log.debug("GitHub认证成功，用户: {}", currentUser.getUsername());
         return token;
@@ -58,6 +58,6 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return GitHubAuthentication.class.isAssignableFrom(authentication);
+        return GitHubAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

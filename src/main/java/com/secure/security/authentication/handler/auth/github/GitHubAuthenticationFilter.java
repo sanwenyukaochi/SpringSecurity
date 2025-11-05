@@ -38,7 +38,7 @@ public class GitHubAuthenticationFilter extends AbstractAuthenticationProcessing
 
         GitHubLoginRequest githubLoginRequest = objectMapper.readValue(request.getInputStream(), GitHubLoginRequest.class);
 
-        GitHubAuthentication authentication = new GitHubAuthentication(githubLoginRequest.code(), false);
+        GitHubAuthenticationToken authentication = new GitHubAuthenticationToken(githubLoginRequest.code(), false);
         return getAuthenticationManager().authenticate(authentication);
     }
 }

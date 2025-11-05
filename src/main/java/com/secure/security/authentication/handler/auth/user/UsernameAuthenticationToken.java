@@ -17,21 +17,21 @@ import java.util.Collection;
  */
 @Setter
 @Getter
-public class UsernameAuthentication extends AbstractAuthenticationToken {
+public class UsernameAuthenticationToken extends AbstractAuthenticationToken {
 
     private String username; // 前端传过来
     private String password; // 前端传过来
     private UserLoginInfo currentUser; // 认证成功后，后台从数据库获取信息
 
-    public UsernameAuthentication(String username, String password, Boolean authenticated) {
+    public UsernameAuthenticationToken(String username, String password, Boolean authenticated) {
         this.username = username;
         this.password = password;
         super(null); // 权限，用不上，直接null
         super.setAuthenticated(authenticated);
     }
 
-    public UsernameAuthentication(UserLoginInfo currentUser, Boolean authenticated,
-                             Collection<? extends GrantedAuthority> authorities) {
+    public UsernameAuthenticationToken(UserLoginInfo currentUser, Boolean authenticated,
+                                       Collection<? extends GrantedAuthority> authorities) {
         this.currentUser = currentUser;
         super(authorities);
         super.setAuthenticated(authenticated);

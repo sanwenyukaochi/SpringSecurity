@@ -37,7 +37,7 @@ public class EmailAuthenticationFilter extends AbstractAuthenticationProcessingF
         log.debug("use EmailAuthenticationFilter");
 
         EmailLoginRequest emailLoginRequest = objectMapper.readValue(request.getInputStream(), EmailLoginRequest.class);
-        EmailAuthentication authentication = new EmailAuthentication(emailLoginRequest.email(), emailLoginRequest.password(), false);
+        EmailAuthenticationToken authentication = new EmailAuthenticationToken(emailLoginRequest.email(), emailLoginRequest.password(), false);
         return getAuthenticationManager().authenticate(authentication);
     }
 }

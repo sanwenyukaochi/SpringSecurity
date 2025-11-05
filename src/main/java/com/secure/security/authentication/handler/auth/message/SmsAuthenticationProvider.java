@@ -28,9 +28,9 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // 用户提交的手机号 + 验证码：
-        SmsAuthentication smsAuthentication = (SmsAuthentication) authentication;
-        String phone =  smsAuthentication.getPhone();
-        String smsCode = smsAuthentication.getSmsCode();
+        SmsAuthenticationToken smsAuthenticationToken = (SmsAuthenticationToken) authentication;
+        String phone =  smsAuthenticationToken.getPhone();
+        String smsCode = smsAuthenticationToken.getSmsCode();
 
         User user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> new BaseException(ResponseCodeConstants.PHONE_NOT_FOUND, "手机号不存在", HttpStatus.UNAUTHORIZED));
@@ -41,7 +41,7 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限
-        SmsAuthentication token = new SmsAuthentication(currentUser, true, List.of());
+        SmsAuthenticationToken token = new SmsAuthenticationToken(currentUser, true, List.of());
         // 认证通过，一定要设成true
         log.debug("手机号认证成功，用户: {}", currentUser.getUsername());
         return token;
@@ -49,7 +49,7 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return SmsAuthentication.class.isAssignableFrom(authentication);
+        return SmsAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
     private boolean validateSmsCode(String smsCode) {

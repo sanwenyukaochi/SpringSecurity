@@ -39,7 +39,7 @@ public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFil
         // 提取请求数据
         SmsLoginRequest smsLoginRequest = objectMapper.readValue(request.getInputStream(), SmsLoginRequest.class);
 
-        SmsAuthentication authentication = new SmsAuthentication(smsLoginRequest.phone(), smsLoginRequest.captcha(), false);
+        SmsAuthenticationToken authentication = new SmsAuthenticationToken(smsLoginRequest.phone(), smsLoginRequest.captcha(), false);
         // 提取参数阶段，authenticated一定是false
         return getAuthenticationManager().authenticate(authentication);
     }
