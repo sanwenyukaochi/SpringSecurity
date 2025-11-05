@@ -10,19 +10,19 @@ import java.util.Collection;
 
 @Setter
 @Getter
-public class JwtTokenAuthentication extends AbstractAuthenticationToken {
+public class JwtTokenAuthenticationToken extends AbstractAuthenticationToken {
 
     private String jwtToken; // 前端传过来
     private UserLoginInfo currentUser; // 认证成功后，后台从数据库获取信息
 
-    public JwtTokenAuthentication(String jwtToken, Boolean authenticated) {
+    public JwtTokenAuthenticationToken(String jwtToken, Boolean authenticated) {
         this.jwtToken = jwtToken;
         super(null); // 权限，用不上，直接null
         super.setAuthenticated(authenticated);
     }
 
-    public JwtTokenAuthentication(UserLoginInfo currentUser, Boolean authenticated,
-                                  Collection<? extends GrantedAuthority> authorities) {
+    public JwtTokenAuthenticationToken(UserLoginInfo currentUser, Boolean authenticated,
+                                       Collection<? extends GrantedAuthority> authorities) {
         this.currentUser = currentUser;
         super(authorities);
         super.setAuthenticated(authenticated);

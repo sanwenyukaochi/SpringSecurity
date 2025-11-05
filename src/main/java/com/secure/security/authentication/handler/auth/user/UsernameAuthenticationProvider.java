@@ -34,9 +34,9 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // 用户提交的用户名 + 密码：
-        UsernameAuthentication usernameAuthentication = (UsernameAuthentication) authentication;
-        String username = usernameAuthentication.getUsername();
-        String password = usernameAuthentication.getPassword();
+        UsernameAuthenticationToken usernameAuthenticationToken = (UsernameAuthenticationToken) authentication;
+        String username = usernameAuthenticationToken.getUsername();
+        String password = usernameAuthenticationToken.getPassword();
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_NOT_FOUND, "用户不存在", HttpStatus.UNAUTHORIZED));
@@ -47,7 +47,7 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限
-        UsernameAuthentication token = new UsernameAuthentication(currentUser, true, List.of());
+        UsernameAuthenticationToken token = new UsernameAuthenticationToken(currentUser, true, List.of());
         // 认证通过，这里一定要设成true
         log.debug("用户名认证成功，用户: {}", currentUser.getUsername());
         return token;
@@ -55,6 +55,6 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return UsernameAuthentication.class.isAssignableFrom(authentication);
+        return UsernameAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

@@ -26,12 +26,12 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
     @SneakyThrows
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // JWT：
-        JwtTokenAuthentication jwtAuth = (JwtTokenAuthentication) authentication;
+        JwtTokenAuthenticationToken jwtAuth = (JwtTokenAuthenticationToken) authentication;
         String jwtToken = jwtAuth.getJwtToken();
 
         // 验证JWT并提取用户信息
         UserLoginInfo currentUser = jwtService.validateJwtToken(jwtToken, UserLoginInfo.class);
-        JwtTokenAuthentication authenticatedToken = new JwtTokenAuthentication(currentUser, true, List.of());
+        JwtTokenAuthenticationToken authenticatedToken = new JwtTokenAuthenticationToken(currentUser, true, List.of());
         // 认证通过，这里一定要设成true
         log.debug("JWT认证成功，用户: {}", currentUser.getUsername());
         return authenticatedToken;
@@ -40,6 +40,6 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return JwtTokenAuthentication.class.isAssignableFrom(authentication);
+        return JwtTokenAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

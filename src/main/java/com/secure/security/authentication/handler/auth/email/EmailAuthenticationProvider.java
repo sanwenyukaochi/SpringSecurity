@@ -28,9 +28,9 @@ public class EmailAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        EmailAuthentication emailAuthentication = (EmailAuthentication) authentication;
-        String email = emailAuthentication.getEmail();
-        String password = emailAuthentication.getPassword();
+        EmailAuthenticationToken emailAuthenticationToken = (EmailAuthenticationToken) authentication;
+        String email = emailAuthenticationToken.getEmail();
+        String password = emailAuthenticationToken.getPassword();
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BaseException(ResponseCodeConstants.EMAIL_NOT_FOUND, "邮箱不存在", HttpStatus.UNAUTHORIZED));
@@ -40,7 +40,7 @@ public class EmailAuthenticationProvider implements AuthenticationProvider {
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限
-        EmailAuthentication token = new EmailAuthentication(currentUser, true, List.of());
+        EmailAuthenticationToken token = new EmailAuthenticationToken(currentUser, true, List.of());
         // 认证通过，这里一定要设成true
         log.debug("Email认证成功，用户: {}", currentUser.getUsername());
         return token;
@@ -48,6 +48,6 @@ public class EmailAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return EmailAuthentication.class.isAssignableFrom(authentication);
+        return EmailAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }
