@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,6 +17,7 @@ import java.net.Proxy;
 import java.util.Optional;
 
 @Configuration
+@EnableJpaAuditing
 @EnableConfigurationProperties(CommonWebConfig.ProxyProperties.class)
 public class CommonWebConfig {
 
