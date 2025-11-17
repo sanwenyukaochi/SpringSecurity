@@ -1,4 +1,4 @@
-package com.secure.security.authentication.handler.resourceapi.openapi2;
+package com.secure.security.authentication.handler.auth.openApi;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,13 +6,13 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 @Setter
 @Getter
-public class OpenApi2Authentication extends AbstractAuthenticationToken {
+public class OpenApiAuthentication extends AbstractAuthenticationToken {
 
     private String appId; // 前端传过来
     private String appSecurity; // 前端传过来
-    private OpenApi2LoginInfo currentUser; // 认证成功后，后台从数据库获取信息
+    private OpenApiLoginInfo currentUser; // 认证成功后，后台从数据库获取信息
 
-    public OpenApi2Authentication() {
+    public OpenApiAuthentication() {
         // 权限，用不上，直接null
         super(null);
     }

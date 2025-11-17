@@ -1,12 +1,9 @@
-package com.secure.security.authentication.handler.resourceapi.openapi2;
+package com.secure.security.authentication.handler.auth.openApi;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-
 import lombok.extern.slf4j.Slf4j;
 import com.secure.security.common.web.exception.BaseException;
 import org.springframework.http.HttpStatus;
@@ -14,10 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Slf4j
-public class OpenApi2AuthenticationFilter extends OncePerRequestFilter {
+import java.io.IOException;
 
-    public OpenApi2AuthenticationFilter() {
+@Slf4j
+public class OpenApiAuthenticationFilter extends OncePerRequestFilter {
+
+    public OpenApiAuthenticationFilter() {
     }
 
     @Override
@@ -31,11 +30,11 @@ public class OpenApi2AuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 认证开始前，按SpringSecurity设计，要将Authentication设置到SecurityContext里面去。
-        System.out.println("appId认证通过...");
+        log.info("appId认证通过...");
 
-        OpenApi2Authentication authentication = new OpenApi2Authentication();
+        OpenApiAuthentication authentication = new OpenApiAuthentication();
 
-        OpenApi2LoginInfo userLoginInfo = new OpenApi2LoginInfo();
+        OpenApiLoginInfo userLoginInfo = new OpenApiLoginInfo();
         userLoginInfo.setAppId(appId);
         userLoginInfo.setMerchantName("三方系统商户名称");
 

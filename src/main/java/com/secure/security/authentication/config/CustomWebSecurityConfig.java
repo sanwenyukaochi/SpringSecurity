@@ -27,7 +27,7 @@ import com.secure.security.authentication.handler.auth.email.EmailAuthentication
 import com.secure.security.authentication.handler.exception.CustomAuthenticationExceptionHandler;
 import com.secure.security.authentication.handler.exception.CustomAuthorizationExceptionHandler;
 import com.secure.security.authentication.handler.exception.CustomSecurityExceptionHandler;
-import com.secure.security.authentication.handler.resourceapi.openapi2.OpenApi2AuthenticationFilter;
+import com.secure.security.authentication.handler.auth.openApi.OpenApiAuthenticationFilter;
 import com.secure.security.authentication.handler.auth.jwt.JwtTokenAuthenticationFilter;
 import com.secure.security.authentication.handler.auth.jwt.JwtTokenAuthenticationProvider;
 import com.secure.security.authentication.handler.auth.jwt.service.JwtService;
@@ -108,19 +108,41 @@ public class CustomWebSecurityConfig {
         // 加一个登录方式。用户名、密码登录
         UsernameAuthenticationFilter usernameAuthenticationFilter = new UsernameAuthenticationFilter(new ProviderManager(List.of(applicationContext.getBean(UsernameAuthenticationProvider.class))), loginSuccessHandler, loginFailHandler);
         http.addFilterBefore(usernameAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         // 加一个登录方式。短信验证码 登录
         SmsAuthenticationFilter smsAuthenticationFilter = new SmsAuthenticationFilter(new ProviderManager(List.of(applicationContext.getBean(SmsAuthenticationProvider.class))), loginSuccessHandler, loginFailHandler);
         http.addFilterBefore(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         // 加一个登录方式。邮箱密码 登录
         EmailAuthenticationFilter emailAuthenticationFilter = new EmailAuthenticationFilter(new ProviderManager(List.of(applicationContext.getBean(EmailAuthenticationProvider.class))), loginSuccessHandler, loginFailHandler);
         http.addFilterBefore(emailAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         // 加一个登录方式。GitHub OAuth2 登录
         GitHubAuthenticationFilter githubAuthenticationFilter = new GitHubAuthenticationFilter(new ProviderManager(List.of(applicationContext.getBean(GitHubAuthenticationProvider.class))), loginSuccessHandler, loginFailHandler);
         http.addFilterBefore(githubAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
+    /**
+     * Open自定义api
+     */
+    @Bean
+    public SecurityFilterChain openApiFilterChain(HttpSecurity http) throws Exception {
+        commonHttpSetting(http);
+        // 不使用securityMatcher限定当前配置作用的路径。所有没有匹配上指定SecurityFilterChain的请求，都走这里鉴权
+        http.securityMatcher("/api/open-api/**")
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
 
+        OpenApiAuthenticationFilter openApiFilter = new OpenApiAuthenticationFilter();
+        // 加一个登录方式。用户名、密码登录
+        http.addFilterBefore(openApiFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    /**
+     * 需要认证api
+     */
     @Bean
     public SecurityFilterChain JwtTokenApiFilterChain(HttpSecurity http) throws Exception {
         commonHttpSetting(http);
@@ -132,19 +154,6 @@ public class CustomWebSecurityConfig {
         JwtTokenAuthenticationFilter jwtFilter = new JwtTokenAuthenticationFilter(applicationContext.getBean(JwtService.class), new ProviderManager(List.of(applicationContext.getBean(JwtTokenAuthenticationProvider.class))));
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
-
-    @Bean
-    public SecurityFilterChain thirdApiFilterChain(HttpSecurity http) throws Exception {
-        // 不使用securityMatcher限定当前配置作用的路径。所有没有匹配上指定SecurityFilterChain的请求，都走这里鉴权
-        http.securityMatcher("/open-api/business-2")
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
-        commonHttpSetting(http);
-
-        OpenApi2AuthenticationFilter openApiFilter = new OpenApi2AuthenticationFilter();
-        // 加一个登录方式。用户名、密码登录
-        http.addFilterBefore(openApiFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -160,14 +169,19 @@ public class CustomWebSecurityConfig {
         return http.build();
     }
 
-//  /** 其余路径，走这个默认过滤链 */
-//  @Bean
-//  @Order(Integer.MAX_VALUE) // 这个过滤链最后加载
-//  public SecurityFilterChain defaultApiFilterChain(HttpSecurity http) throws Exception {
-//    commonHttpSetting(http);
-//    http // 不用securityMatcher表示缺省值，匹配不上其他过滤链时，都走这个过滤链
-//        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
-//    http.addFilterBefore(new OpenApi3AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-//    return http.build();
-//  }
+    /**
+     * 其余路径，走这个默认过滤链
+     */
+    /*
+    @Bean
+    @Order(Integer.MAX_VALUE) // 这个过滤链最后加载
+    public SecurityFilterChain defaultApiFilterChain(HttpSecurity http) throws Exception {
+        commonHttpSetting(http);
+        // 不用securityMatcher表示缺省值，匹配不上其他过滤链时，都走这个过滤链
+        http.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
+        http.addFilterBefore(new DefaultApiAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+    */
+
 }
