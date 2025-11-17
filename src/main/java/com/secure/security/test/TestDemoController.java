@@ -20,18 +20,6 @@ public class TestDemoController {
 
     private final ObjectMapper objectMapper;
 
-    @GetMapping("/business-1")
-    public Result<?> getA(Authentication authentication) throws JsonProcessingException {
-        UserLoginInfo userLoginInfo = (UserLoginInfo) authentication
-                .getPrincipal();
-        System.out.println("自家用户登录信息：" + objectMapper.writeValueAsString(userLoginInfo));
-        return Result.builder()
-                .code(ResponseCodeConstants.ERROR)
-                .data(userLoginInfo)
-                .message("测试国际化消息 A")
-                .build();
-    }
-
     @GetMapping("/business-2")
     public Result<?> getB() throws JsonProcessingException {
         OpenApi2LoginInfo userLoginInfo = (OpenApi2LoginInfo) SecurityContextHolder
