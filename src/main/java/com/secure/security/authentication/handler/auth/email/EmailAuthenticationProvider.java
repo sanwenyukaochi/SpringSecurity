@@ -33,10 +33,9 @@ public class EmailAuthenticationProvider implements AuthenticationProvider {
         String password = emailAuthenticationToken.getPassword();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BaseException(ResponseCodeConstants.EMAIL_NOT_FOUND, "邮箱不存在", HttpStatus.UNAUTHORIZED));
-
+                .orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_EMAIL_NOT_FOUND, "邮箱不存在", HttpStatus.UNAUTHORIZED));
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BaseException(ResponseCodeConstants.PASSWORD_ERROR, "密码错误", HttpStatus.UNAUTHORIZED);
+            throw new BaseException(ResponseCodeConstants.AUTH_PASSWORD_ERROR, "密码错误", HttpStatus.UNAUTHORIZED);
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限
