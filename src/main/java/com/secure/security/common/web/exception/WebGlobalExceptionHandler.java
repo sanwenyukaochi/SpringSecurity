@@ -34,8 +34,8 @@ public class WebGlobalExceptionHandler {
     @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
     public Result<?> exceptionHandler(HttpServletResponse response, HttpRequestMethodNotSupportedException e) {
         response.setStatus(HttpStatus.METHOD_NOT_ALLOWED.value());
-        log.warn("请求方法异常：code={}, msg={}", ResponseCodeConstants.METHOD_NOT_ALLOWED, e.getMessage());
-        return Result.builder().code(ResponseCodeConstants.METHOD_NOT_ALLOWED).message("请求方法不支持:" + e.getMethod()).build();
+        log.warn("请求方法异常：code={}, msg={}", ResponseCodeConstants.HTTP_METHOD_NOT_ALLOWED, e.getMessage());
+        return Result.builder().code(ResponseCodeConstants.HTTP_METHOD_NOT_ALLOWED).message("请求方法不支持:" + e.getMethod()).build();
     }
 
     @ExceptionHandler(value = NoResourceFoundException.class)

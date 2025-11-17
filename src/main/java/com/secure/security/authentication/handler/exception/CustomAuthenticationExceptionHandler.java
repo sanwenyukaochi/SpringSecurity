@@ -34,6 +34,6 @@ public class CustomAuthenticationExceptionHandler implements AuthenticationEntry
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         log.warn("登录异常：msg={}", e.getMessage(), e);
-        objectMapper.writeValue(response.getOutputStream(), Result.builder().code(ResponseCodeConstants.LOGIN_FAIL).message("认证失败").build());
+        objectMapper.writeValue(response.getOutputStream(), Result.builder().code(ResponseCodeConstants.AUTH_INVALID_CREDENTIALS).message("认证失败").build());
     }
 }

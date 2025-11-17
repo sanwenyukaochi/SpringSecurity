@@ -43,7 +43,7 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             // 密码错误，直接抛异常。
-            throw new BaseException(ResponseCodeConstants.PASSWORD_ERROR, "密码错误", HttpStatus.UNAUTHORIZED);
+            throw new BaseException(ResponseCodeConstants.AUTH_PASSWORD_ERROR, "密码错误", HttpStatus.UNAUTHORIZED);
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限

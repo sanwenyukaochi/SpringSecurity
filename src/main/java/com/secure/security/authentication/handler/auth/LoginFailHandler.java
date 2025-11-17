@@ -35,7 +35,7 @@ public class LoginFailHandler implements AuthenticationFailureHandler {
         log.warn("登录异常：msg={}", e.getMessage(), e);
         objectMapper.writeValue(response.getOutputStream(), Result.builder()
                 .data(null)
-                .code(ResponseCodeConstants.LOGIN_FAIL)
+                .code(ResponseCodeConstants.AUTH_LOGIN_FAILED)
                 .message(e.getMessage())
                 .build());
 

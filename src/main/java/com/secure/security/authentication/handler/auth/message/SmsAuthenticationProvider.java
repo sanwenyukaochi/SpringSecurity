@@ -33,11 +33,11 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         String smsCode = smsAuthenticationToken.getSmsCode();
 
         User user = userRepository.findByPhone(phone)
-                .orElseThrow(() -> new BaseException(ResponseCodeConstants.PHONE_NOT_FOUND, "手机号不存在", HttpStatus.UNAUTHORIZED));
+                .orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_PHONE_NOT_FOUND, "手机号不存在", HttpStatus.UNAUTHORIZED));
 
         // 验证验证码是否正确
         if (!validateSmsCode(smsCode)) {
-            throw new BaseException(ResponseCodeConstants.SMS_CODE_ERROR, "验证码错误", HttpStatus.UNAUTHORIZED);
+            throw new BaseException(ResponseCodeConstants.AUTH_SMS_CODE_ERROR, "验证码错误", HttpStatus.UNAUTHORIZED);
         }
 
         UserLoginInfo currentUser = objectMapper.convertValue(user, UserLoginInfo.class);//TODO 权限
