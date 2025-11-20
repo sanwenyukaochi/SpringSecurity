@@ -3,6 +3,7 @@ package com.secure.security.authentication.config;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -49,39 +50,39 @@ public class CustomWebSecurityConfig {
     /**
      * 禁用不必要的默认filter，处理异常响应内容
      */
-    private void commonHttpSetting(HttpSecurity http) throws Exception {
+    private void commonHttpSetting(HttpSecurity httpSecurity) throws Exception {
         // 禁用SpringSecurity默认filter。这些filter都是非前后端分离项目的产物，用不上.
         // properties配置文件将日志设置DEBUG模式，就能看到加载了哪些filter
         // logging.level.org.springframework.security=DEBUG
         // 不disable。会默认创建默认filter
 
         // 前端段分离不需要---禁用默认登录页
-        http.formLogin(AbstractHttpConfigurer::disable);
+        httpSecurity.formLogin(AbstractHttpConfigurer::disable);
         // 前端段分离不需要---禁用明文验证
-        http.httpBasic(AbstractHttpConfigurer::disable);
+        httpSecurity.httpBasic(AbstractHttpConfigurer::disable);
         // 前端段分离不需要---禁用退出页
-        http.logout(AbstractHttpConfigurer::disable);
+        httpSecurity.logout(AbstractHttpConfigurer::disable);
         // 前后端分离不需要---因为是无状态的
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         // 前端段分离不需要---csrf攻击
-        http.csrf(AbstractHttpConfigurer::disable);
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
         // 跨域访问权限，如果需要可以关闭后自己配置跨域访问
-        http.cors(AbstractHttpConfigurer::disable);
+        httpSecurity.cors(AbstractHttpConfigurer::disable);
         // requestCache用于重定向，前后端分析项目无需重定向，requestCache也用不上
-        http.requestCache(cache -> cache.requestCache(new NullRequestCache()));
+        httpSecurity.requestCache(cache -> cache.requestCache(new NullRequestCache()));
         // 前后端分离不需要---记住我
-        http.rememberMe(AbstractHttpConfigurer::disable);
+        httpSecurity.rememberMe(AbstractHttpConfigurer::disable);
         // 无需给用户一个匿名身份
-        http.anonymous(AbstractHttpConfigurer::disable);
+        httpSecurity.anonymous(AbstractHttpConfigurer::disable);
         // 处理 SpringSecurity 异常响应结果。响应数据的结构，改成业务统一的JSON结构。不要框架默认的响应结构
-        http.exceptionHandling(exceptionHandling -> {
+        httpSecurity.exceptionHandling(exceptionHandling -> {
             // 认证失败异常
             exceptionHandling.authenticationEntryPoint(authenticationExceptionHandler);
             // 鉴权失败异常
             exceptionHandling.accessDeniedHandler(authorizationExceptionHandler);
         });
         // 其他未知异常. 尽量提前加载。
-        http.addFilterBefore(globalSpringSecurityExceptionHandler, SecurityContextHolderFilter.class);
+        httpSecurity.addFilterBefore(globalSpringSecurityExceptionHandler, SecurityContextHolderFilter.class);
     }
 
     /**
@@ -96,10 +97,12 @@ public class CustomWebSecurityConfig {
      * 登录api
      */
     @Bean
-    public SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
-        commonHttpSetting(http);
+    @Order(1)
+    public SecurityFilterChain loginFilterChain(HttpSecurity httpSecurity) throws Exception {
+        commonHttpSetting(httpSecurity);
         // 使用securityMatcher限定当前配置作用的路径
-        http.securityMatcher("/api/login/**")
+        httpSecurity
+                .securityMatcher("/api/login/**")
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
 
         LoginSuccessHandler loginSuccessHandler = applicationContext.getBean(LoginSuccessHandler.class);
@@ -107,43 +110,61 @@ public class CustomWebSecurityConfig {
 
         // 加一个登录方式。用户名、密码登录
         UsernameAuthenticationFilter usernameAuthenticationFilter = new UsernameAuthenticationFilter(new ProviderManager(List.of(applicationContext.getBean(UsernameAuthenticationProvider.class))), loginSuccessHandler, loginFailHandler);
-        http.addFilterBefore(usernameAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(usernameAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 加一个登录方式。短信验证码 登录
         SmsAuthenticationFilter smsAuthenticationFilter = new SmsAuthenticationFilter(new ProviderManager(List.of(applicationContext.getBean(SmsAuthenticationProvider.class))), loginSuccessHandler, loginFailHandler);
-        http.addFilterBefore(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 加一个登录方式。邮箱密码 登录
         EmailAuthenticationFilter emailAuthenticationFilter = new EmailAuthenticationFilter(new ProviderManager(List.of(applicationContext.getBean(EmailAuthenticationProvider.class))), loginSuccessHandler, loginFailHandler);
-        http.addFilterBefore(emailAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(emailAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 加一个登录方式。GitHub OAuth2 登录
         GitHubAuthenticationFilter githubAuthenticationFilter = new GitHubAuthenticationFilter(new ProviderManager(List.of(applicationContext.getBean(GitHubAuthenticationProvider.class))), loginSuccessHandler, loginFailHandler);
-        http.addFilterBefore(githubAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(githubAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
+        return httpSecurity.build();
     }
 
     /**
      * Open自定义api
      */
     @Bean
-    public SecurityFilterChain openApiFilterChain(HttpSecurity http) throws Exception {
-        commonHttpSetting(http);
+    @Order(2)
+    public SecurityFilterChain openApiFilterChain(HttpSecurity httpSecurity) throws Exception {
+        commonHttpSetting(httpSecurity);
         // 不使用securityMatcher限定当前配置作用的路径。所有没有匹配上指定SecurityFilterChain的请求，都走这里鉴权
-        http.securityMatcher("/api/open-api/**")
+        httpSecurity
+                .securityMatcher("/api/open-api/**")
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
 
         OpenApiAuthenticationFilter openApiFilter = new OpenApiAuthenticationFilter();
         // 加一个登录方式。用户名、密码登录
-        http.addFilterBefore(openApiFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
+        httpSecurity.addFilterBefore(openApiFilter, UsernamePasswordAuthenticationFilter.class);
+        return httpSecurity.build();
+    }
+
+    /**
+     * 不鉴权的api
+     */
+    @Bean
+    @Order(3)
+    public SecurityFilterChain publicApiFilterChain(HttpSecurity httpSecurity) throws Exception {
+        commonHttpSetting(httpSecurity);
+        // 使用securityMatcher限定当前配置作用的路径
+        httpSecurity
+                .securityMatcher("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**")
+                .securityMatcher("/api/public-api/**")
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+        return httpSecurity.build();
     }
 
     /**
      * 需要认证api
      */
     @Bean
+    @Order(4)
     public SecurityFilterChain JwtTokenApiFilterChain(HttpSecurity http) throws Exception {
         commonHttpSetting(http);
         // 使用securityMatcher限定当前配置作用的路径
@@ -154,18 +175,6 @@ public class CustomWebSecurityConfig {
         JwtTokenAuthenticationFilter jwtFilter = new JwtTokenAuthenticationFilter(applicationContext.getBean(JwtService.class), new ProviderManager(List.of(applicationContext.getBean(JwtTokenAuthenticationProvider.class))));
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
-
-    /**
-     * 不鉴权的api
-     */
-    @Bean
-    public SecurityFilterChain publicApiFilterChain(HttpSecurity http) throws Exception {
-        commonHttpSetting(http);
-        // 使用securityMatcher限定当前配置作用的路径
-        http.securityMatcher("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**")
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
         return http.build();
     }
 
