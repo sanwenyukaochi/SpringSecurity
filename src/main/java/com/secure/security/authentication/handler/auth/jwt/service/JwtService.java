@@ -10,7 +10,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpHeaders;
+import org.springframework.http.HttpHeaders;
 import com.secure.security.authentication.handler.auth.UserLoginInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -30,9 +30,10 @@ public class JwtService {
 
     private final ObjectMapper objectMapper;
 
+    private static final String BEARER_PREFIX = "Bearer ";
+
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String BEARER_PREFIX = "Bearer ";
         if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(BEARER_PREFIX.length());
         }

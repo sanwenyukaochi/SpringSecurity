@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import com.secure.security.common.web.exception.BaseException;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,12 +21,12 @@ public class OpenApiAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         log.debug("Use OpenApi2AuthenticationFilter...");
 
         String appId = request.getHeader("x-app-id");
-        if (StringUtils.isEmpty(appId)) {
+        if (!StringUtils.hasText(appId)) {
             throw new BaseException("miss.appId", "x-app-id token is missing!", HttpStatus.BAD_REQUEST);
         }
 

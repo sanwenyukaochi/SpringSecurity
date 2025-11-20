@@ -4,9 +4,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import org.springframework.lang.NonNull;
 import java.io.IOException;
-
 import lombok.extern.slf4j.Slf4j;
 import com.secure.security.authentication.handler.auth.jwt.service.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,8 +40,8 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         log.debug("开始JWT认证过滤器处理");
 
         // 1. 从请求中提取JWT令牌

@@ -1,6 +1,7 @@
 package com.secure.security.authentication.handler.auth.def;
 
 import jakarta.servlet.FilterChain;
+import org.springframework.lang.NonNull;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,11 +21,8 @@ public class DefaultApiAuthenticationFilter extends OncePerRequestFilter {
     @Value("${spring.security.user.password}")
     private String password;
 
-    public DefaultApiAuthenticationFilter() {
-    }
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         System.out.println("这里是默认过滤链...");
         // 随便给个默认身份

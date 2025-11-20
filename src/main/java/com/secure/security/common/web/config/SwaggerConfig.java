@@ -1,5 +1,4 @@
 package com.secure.security.common.web.config;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
