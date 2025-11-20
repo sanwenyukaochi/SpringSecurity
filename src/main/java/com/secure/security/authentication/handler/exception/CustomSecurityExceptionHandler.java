@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.secure.security.common.web.exception.BaseException;
 import com.secure.security.domain.model.dto.Result;
-
+import org.springframework.lang.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -32,8 +32,8 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                 FilterChain filterChain) throws ServletException, IOException {
+    public void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                                 @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
         } catch (BaseException e) {

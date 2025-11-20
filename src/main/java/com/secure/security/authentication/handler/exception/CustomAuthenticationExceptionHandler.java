@@ -11,7 +11,6 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import com.secure.security.domain.model.dto.Result;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;

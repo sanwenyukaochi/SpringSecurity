@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserIdentityRepository extends JpaRepository<UserIdentity, Long> {
+
     List<UserIdentity> findByProviderUserId(Long providerUserId);
 
     Optional<UserIdentity> findOptionalByProviderUserIdAndProvider(Long id, UserIdentity.AuthProvider authProvider);
