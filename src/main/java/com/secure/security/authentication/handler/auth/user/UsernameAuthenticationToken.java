@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * SpringSecurity传输登录认证的数据的载体，相当一个Dto
@@ -26,7 +27,7 @@ public class UsernameAuthenticationToken extends AbstractAuthenticationToken {
     public UsernameAuthenticationToken(String username, String password, Boolean authenticated) {
         this.username = username;
         this.password = password;
-        super(null); // 权限，用不上，直接null
+        super(List.of());
         super.setAuthenticated(authenticated);
     }
 

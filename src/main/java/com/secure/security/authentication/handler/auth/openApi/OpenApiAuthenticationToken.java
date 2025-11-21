@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
+import java.util.List;
+
 @Setter
 @Getter
 public class OpenApiAuthenticationToken extends AbstractAuthenticationToken {
@@ -13,8 +15,7 @@ public class OpenApiAuthenticationToken extends AbstractAuthenticationToken {
     private OpenApiLoginInfo currentUser; // 认证成功后，后台从数据库获取信息
 
     public OpenApiAuthenticationToken() {
-        // 权限，用不上，直接null
-        super(null);
+        super(List.of());
     }
 
     @Override
