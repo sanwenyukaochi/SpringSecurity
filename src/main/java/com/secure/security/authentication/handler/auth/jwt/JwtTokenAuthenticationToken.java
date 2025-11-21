@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
+import java.util.List;
 
 @Setter
 @Getter
@@ -17,7 +18,7 @@ public class JwtTokenAuthenticationToken extends AbstractAuthenticationToken {
 
     public JwtTokenAuthenticationToken(String jwtToken, Boolean authenticated) {
         this.jwtToken = jwtToken;
-        super(null); // 权限，用不上，直接null
+        super(List.of());
         super.setAuthenticated(authenticated);
     }
 

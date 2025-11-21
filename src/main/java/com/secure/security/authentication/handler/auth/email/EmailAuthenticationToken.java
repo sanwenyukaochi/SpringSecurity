@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
+import java.util.List;
 
 @Setter
 @Getter
@@ -19,7 +20,7 @@ public class EmailAuthenticationToken extends AbstractAuthenticationToken {
     public EmailAuthenticationToken(String email, String password, Boolean authenticated) {
         this.email = email;
         this.password = password;
-        super(null); // 权限，用不上，直接null
+        super(List.of());
         super.setAuthenticated(authenticated);
     }
 
