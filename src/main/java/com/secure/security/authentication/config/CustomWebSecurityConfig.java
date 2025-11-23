@@ -1,5 +1,6 @@
 package com.secure.security.authentication.config;
 
+import com.secure.security.authentication.handler.auth.cloudflare.service.TurnstileFilter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -155,8 +156,10 @@ public class CustomWebSecurityConfig {
         // 使用securityMatcher限定当前配置作用的路径
         httpSecurity
                 .securityMatcher("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**")
-                .securityMatcher("/api/public-api/**")
+                .securityMatcher("/api/public-api/**", "/login")
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+
+        httpSecurity.addFilterBefore(applicationContext.getBean(TurnstileFilter.class), UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 

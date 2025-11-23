@@ -15,6 +15,7 @@ java {
 
 repositories {
     mavenCentral()
+    flatDir { dirs 'libs' }
 }
 
 ext {
@@ -42,6 +43,7 @@ dependencies {
     runtimeOnly "org.postgresql:postgresql:${postgresqlVersion}"
     implementation "cn.hutool:hutool-core:${hutoolVersion}"
     //implementation "com.warrenstrange:googleauth:${googleauthVersion}"
+    implementation name: 'sanwenyukaochi-cloudflare-turnstile-1.0.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     compileOnly 'org.projectlombok:lombok'
