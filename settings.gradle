@@ -1,2 +1,3 @@
 rootProject.name = 'security'
 include "project-authentication"
+include "project-gateway"
