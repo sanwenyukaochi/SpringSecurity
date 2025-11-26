@@ -1,3 +1,4 @@
 rootProject.name = 'security'
 include "project-security"
 include "project-gateway"
+include "project-common"
