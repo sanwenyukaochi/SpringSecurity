@@ -1,7 +1,7 @@
 package com.common.authentication.handler.auth.jwt.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.common.authentication.handler.auth.jwt.constant.JWTConstants;
+import com.common.authentication.handler.auth.jwt.dto.JwtTokenUserLoginInfo;
 import com.common.common.web.constant.ResponseCodeConstants;
 import com.common.common.web.exception.BaseException;
 import io.jsonwebtoken.*;
@@ -11,10 +11,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import com.common.authentication.handler.auth.UserLoginInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -30,49 +30,42 @@ public class JwtService {
 
     private final ObjectMapper objectMapper;
 
-    private static final String BEARER_PREFIX = "Bearer ";
-
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(BEARER_PREFIX.length());
+        if (bearerToken != null && bearerToken.startsWith(JWTConstants.BEARER_PREFIX)) {
+            return bearerToken.substring(JWTConstants.BEARER_PREFIX.length());
         }
         return null;
     }
 
-    public String generateTokenFromUsername(String username, UserLoginInfo userInfo, long expiredTime) {
-        try {
-            String json = objectMapper.writeValueAsString(userInfo);
-            return Jwts.builder()
-                    .subject(username)
-                    .claim("user", json)
-                    .issuedAt(new Date())
-                    .expiration(new Date((new Date()).getTime() + expiredTime))
-                    .signWith(key())
-                    .compact();
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize UserLoginInfo to JSON for JWT", e);
-        }
-        return null;
-    }
-
-    public String getUserNameFromJwtToken(String token) {
+    public String getUserNameFromJwtToken(String authToken) {
         return Jwts.parser()
                 .verifyWith((SecretKey) key())
-                .build().parseSignedClaims(token)
+                .build().parseSignedClaims(authToken)
                 .getPayload().getSubject();
+    }
+
+    public String generateTokenFromUsername(String username, JwtTokenUserLoginInfo jwtTokenUserLoginInfo, long expiredTime) {
+        String json = objectMapper.writeValueAsString(jwtTokenUserLoginInfo);
+        return Jwts.builder()
+                .subject(username)
+                .claim(JWTConstants.USER_INFO, json)
+                .issuedAt(new Date())
+                .expiration(new Date((new Date()).getTime() + expiredTime))
+                .signWith(key())
+                .compact();
     }
 
     private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    public UserLoginInfo validateJwtToken(String authToken, Class<UserLoginInfo> userLoginInfoClass) {
+    public JwtTokenUserLoginInfo validateJwtToken(String authToken) {
         try {
             Jws<Claims> claimsJws = Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(authToken);
             Claims claims = claimsJws.getPayload();
-            String json = claims.get("user", String.class);
-            return objectMapper.readValue(json, userLoginInfoClass);
+            String json = claims.get(JWTConstants.USER_INFO, String.class);
+            return objectMapper.readValue(json, JwtTokenUserLoginInfo.class);
         } catch (MalformedJwtException e) {
             log.error("JWT Token 无效: {}", e.getMessage());
             throw new BaseException(ResponseCodeConstants.TOKEN_MALFORMED, "JWT Token 无效", HttpStatus.UNAUTHORIZED);
@@ -85,9 +78,6 @@ public class JwtService {
         } catch (IllegalArgumentException e) {
             log.error("JWT 内容为空: {}", e.getMessage());
             throw new BaseException(ResponseCodeConstants.TOKEN_EMPTY, "JWT 内容为空", HttpStatus.UNAUTHORIZED);
-        } catch (JsonProcessingException e) {
-            log.error("JWT 用户信息解析失败: {}", e.getMessage());
-            throw new BaseException(ResponseCodeConstants.TOKEN_PARSE_ERROR, "JWT 用户信息解析失败", HttpStatus.UNAUTHORIZED);
         }
     }
 }

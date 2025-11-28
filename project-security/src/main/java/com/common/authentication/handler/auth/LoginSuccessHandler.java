@@ -1,5 +1,7 @@
 package com.common.authentication.handler.auth;
 
+import com.common.authentication.handler.auth.jwt.constant.JWTConstants;
+import com.common.authentication.handler.auth.jwt.dto.JwtTokenUserLoginInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.common.common.web.constant.ResponseCodeConstants;
 import jakarta.annotation.PostConstruct;
@@ -17,7 +19,6 @@ import com.common.authentication.handler.auth.jwt.service.JwtService;
 import com.common.common.web.exception.BaseException;
 import com.common.domain.model.dto.Result;
 import org.jspecify.annotations.NonNull;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -31,8 +32,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler implements AuthenticationSuccessHandler {
-
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     private final JwtService jwtService;
 
@@ -54,10 +53,10 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
             throw new BaseException(ResponseCodeConstants.TYPE_ERROR,"登陆认证成功后，authentication.getPrincipal()返回的Object对象必须是：UserLoginInfo！", HttpStatus.BAD_REQUEST);
         }
         currentUser.setSessionId(UUID.randomUUID().toString());
-
+        JwtTokenUserLoginInfo jwtTokenUserLoginInfo = new JwtTokenUserLoginInfo(currentUser.getSessionId(), currentUser.getUsername());
         // 生成token和refreshToken
-        String token = generateToken(currentUser);
-        String refreshToken = generateRefreshToken(currentUser);
+        String token = generateToken(currentUser.getUsername(), jwtTokenUserLoginInfo);
+        String refreshToken = generateRefreshToken(currentUser.getUsername(), jwtTokenUserLoginInfo);
 
         // 一些特殊的登录参数。比如三方登录，需要额外返回一个字段是否需要跳转的绑定已有账号页面
         @SuppressWarnings("unchecked")
@@ -71,15 +70,14 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
         objectMapper.writeValue(response.getOutputStream(), Result.success("登录成功", loginResponse));
     }
 
-    public String generateToken(UserLoginInfo userLoginInfo) {
-        long expiredTime = TimeUnit.MINUTES.toMillis(10); // 10分钟后过期
-        userLoginInfo.setExpiredTime(expiredTime);
-        return jwtService.generateTokenFromUsername(userLoginInfo.getUsername(), userLoginInfo, expiredTime);
+    public String generateToken(String username, JwtTokenUserLoginInfo jwtTokenUserLoginInfo) {
+        jwtTokenUserLoginInfo.setExpiredTime(JWTConstants.tokenExpiredTime);
+        return jwtService.generateTokenFromUsername(username, jwtTokenUserLoginInfo, JWTConstants.tokenExpiredTime);
     }
 
-    private String generateRefreshToken(UserLoginInfo userLoginInfo) {
-        long expiredTime = TimeUnit.DAYS.toMillis(30);
-        return jwtService.generateTokenFromUsername(userLoginInfo.getUsername(), userLoginInfo, expiredTime);
+    private String generateRefreshToken(String username, JwtTokenUserLoginInfo jwtTokenUserLoginInfo) {
+        jwtTokenUserLoginInfo.setExpiredTime(JWTConstants.refreshTokenExpiredTime);
+        return jwtService.generateTokenFromUsername(username, jwtTokenUserLoginInfo, JWTConstants.refreshTokenExpiredTime);
     }
 
 }
