@@ -1,5 +1,4 @@
 plugins {
-    id 'org.springframework.boot' version '4.0.0'
     id 'java'
 }
 
@@ -18,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework:spring-web'
+    implementation 'org.springframework:spring-web:7.0.1'
     compileOnly 'org.projectlombok:lombok:1.18.42'
     annotationProcessor 'org.projectlombok:lombok:1.18.42'
 }
