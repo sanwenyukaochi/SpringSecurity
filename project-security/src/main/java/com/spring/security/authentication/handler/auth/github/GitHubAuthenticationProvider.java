@@ -50,7 +50,7 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
         UserLoginInfo currentUser = userIdentityOptional.isEmpty() ? UserLoginInfo.builder().username(oAuth2User.getAttribute("login")).build() :
                 objectMapper.convertValue(userRepository.findById(userIdentityOptional.get().getUserId()).orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_NOT_FOUND, "用户不存在", HttpStatus.UNAUTHORIZED)), UserLoginInfo.class);//TODO 权限
         GitHubAuthenticationToken token = new GitHubAuthenticationToken(currentUser, true, List.of());
-        token.setDetails(userIdentityOptional.isEmpty() ? new GitHubOAuthMeta(true, providerUserId) : null);
+        token.setDetails(new GitHubOAuthMeta(userIdentityOptional.isEmpty(), providerUserId));
         // 构造认证对象
         log.debug("GitHub认证成功，用户: {}", currentUser.getUsername());
         return token;
