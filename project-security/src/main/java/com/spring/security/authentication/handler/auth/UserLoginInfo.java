@@ -1,6 +1,7 @@
 package com.spring.security.authentication.handler.auth;
 
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +22,7 @@ public class UserLoginInfo implements UserDetails {
     private String sessionId; // 会话id，全局唯一
     private Long id;
     private String username;
-    private String password;
+    @JsonIgnore private String password;
     private String phone;
     private String email;
     private Boolean accountNonLocked;
