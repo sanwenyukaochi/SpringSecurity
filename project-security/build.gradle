@@ -27,6 +27,7 @@ ext {
     set('googleauthVersion', "1.5.0")
     set('hutoolVersion', "5.8.41")
     set('jspecifyVersion', "1.0.0")
+    set('flywayVersion', "11.18.0")
 }
 
 dependencies {
@@ -39,6 +40,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation "org.springframework.boot:spring-boot-starter-flyway"
+    runtimeOnly "org.flywaydb:flyway-database-postgresql:${flywayVersion}"
     implementation "org.springframework.boot:spring-boot-starter-data-redis"
     implementation "org.springframework.boot:spring-boot-starter-cache"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
