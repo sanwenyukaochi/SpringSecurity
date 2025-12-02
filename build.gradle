@@ -1,0 +1,59 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.0' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+allprojects {
+
+    repositories {
+        mavenCentral()
+        maven { url 'https://repo.spring.io/milestone' }
+    }
+
+}
+
+ext {
+    set('springCloudVersion', "2025.1.0-RC1")
+    set('springdocVersion', "3.0.0")
+    set('commonsLangVersion', "3.20.0")
+    set('jjwtVersion', "0.13.0")
+    set('postgresqlVersion', "42.7.8")
+    set('googleauthVersion', "1.5.0")
+    set('hutoolVersion', "5.8.41")
+    set('jspecifyVersion', "1.0.0")
+    set('flywayVersion', "11.18.0")
+    set('lombokVersion', "1.18.42")
+}
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencies {
+        runtimeOnly "org.flywaydb:flyway-database-postgresql:${flywayVersion}"
+        implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+        implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+        implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+        runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+        runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+        runtimeOnly "org.postgresql:postgresql:${postgresqlVersion}"
+        implementation "cn.hutool:hutool-core:${hutoolVersion}"
+        implementation "com.warrenstrange:googleauth:${googleauthVersion}"
+        implementation "org.jspecify:jspecify:${jspecifyVersion}"
+        compileOnly "org.projectlombok:lombok${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok${lombokVersion}"
+    }
+
+}
