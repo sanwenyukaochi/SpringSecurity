@@ -1,6 +1,5 @@
 package com.spring.security.authentication.handler.auth.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import com.spring.security.common.web.exception.BaseException;
 import com.spring.security.domain.repository.UserRepository;
@@ -44,7 +43,8 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
             throw new BaseException(ResponseCodeConstants.AUTH_PASSWORD_ERROR, "密码错误", HttpStatus.UNAUTHORIZED);
         }
 
-        UserLoginInfo currentUser = new UserLoginInfo(null, user.getId(), user.getUsername(), user.getPassword(), user.getPhone(), user.getEmail(), user.getAccountNonLocked(), user.getAccountNonExpired(), user.getCredentialsNonExpired(), user.getEnabled(), user.getTwoFactorSecret(), user.getTwoFactorEnabled(), null);//TODO 权限
+        UserLoginInfo currentUser = new UserLoginInfo();
+        currentUser.setUsername(user.getUsername());
         UsernameAuthenticationToken token = new UsernameAuthenticationToken(currentUser, true, List.of());
         // 认证通过，这里一定要设成true
         log.debug("用户名认证成功，用户: {}", currentUser.getUsername());

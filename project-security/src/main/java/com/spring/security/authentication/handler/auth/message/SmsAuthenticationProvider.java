@@ -1,6 +1,5 @@
 package com.spring.security.authentication.handler.auth.message;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import com.spring.security.common.web.exception.BaseException;
 import com.spring.security.domain.repository.UserRepository;
@@ -39,7 +38,8 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
             throw new BaseException(ResponseCodeConstants.AUTH_SMS_CODE_ERROR, "验证码错误", HttpStatus.UNAUTHORIZED);
         }
 
-        UserLoginInfo currentUser = new UserLoginInfo(null, user.getId(), user.getUsername(), user.getPassword(), user.getPhone(), user.getEmail(), user.getAccountNonLocked(), user.getAccountNonExpired(), user.getCredentialsNonExpired(), user.getEnabled(), user.getTwoFactorSecret(), user.getTwoFactorEnabled(), null);//TODO 权限
+        UserLoginInfo currentUser = new UserLoginInfo();
+        currentUser.setUsername(user.getUsername());
         SmsAuthenticationToken token = new SmsAuthenticationToken(currentUser, true, List.of());
         // 认证通过，一定要设成true
         log.debug("手机号认证成功，用户: {}", currentUser.getUsername());
