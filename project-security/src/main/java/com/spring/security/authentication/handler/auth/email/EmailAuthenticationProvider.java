@@ -1,6 +1,5 @@
 package com.spring.security.authentication.handler.auth.email;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import com.spring.security.common.web.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,8 @@ public class EmailAuthenticationProvider implements AuthenticationProvider {
             throw new BaseException(ResponseCodeConstants.AUTH_PASSWORD_ERROR, "密码错误", HttpStatus.UNAUTHORIZED);
         }
 
-        UserLoginInfo currentUser = new UserLoginInfo(null, user.getId(), user.getUsername(), user.getPassword(), user.getPhone(), user.getEmail(), user.getAccountNonLocked(), user.getAccountNonExpired(), user.getCredentialsNonExpired(), user.getEnabled(), user.getTwoFactorSecret(), user.getTwoFactorEnabled(), null);//TODO 权限
+        UserLoginInfo currentUser = new UserLoginInfo();
+        currentUser.setUsername(user.getUsername());
         EmailAuthenticationToken token = new EmailAuthenticationToken(currentUser, true, List.of());
         // 认证通过，这里一定要设成true
         log.debug("Email认证成功，用户: {}", currentUser.getUsername());
