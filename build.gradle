@@ -28,6 +28,7 @@ ext {
     set('jspecifyVersion', "1.0.0")
     set('flywayVersion', "11.18.0")
     set('lombokVersion', "1.18.42")
+    set('cosidVersion', "2.15.1")
 }
 
 subprojects {
@@ -54,6 +55,10 @@ subprojects {
         implementation "cn.hutool:hutool-core:${hutoolVersion}"
         implementation "com.warrenstrange:googleauth:${googleauthVersion}"
         implementation "org.jspecify:jspecify:${jspecifyVersion}"
+
+        implementation "me.ahoo.cosid:cosid-spring-boot-starter:3.0.0"
+        implementation "me.ahoo.cosid:cosid-spring-redis:$cosidVersion"
+
         compileOnly "org.projectlombok:lombok"
         annotationProcessor "org.projectlombok:lombok"
     }
