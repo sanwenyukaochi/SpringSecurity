@@ -1,6 +1,6 @@
 package com.spring.security.authentication.handler.exception;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CustomAuthenticationExceptionHandler implements AuthenticationEntryPoint {
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     @Override
     public void commence(@NonNull HttpServletRequest request, HttpServletResponse response,
@@ -34,6 +34,6 @@ public class CustomAuthenticationExceptionHandler implements AuthenticationEntry
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         log.warn("登录异常：msg={}", authenticationException.getMessage(), authenticationException);
-        objectMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.AUTH_INVALID_CREDENTIALS, "认证失败"));
+        jsonMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.AUTH_INVALID_CREDENTIALS, "认证失败"));
     }
 }

@@ -1,6 +1,6 @@
 package com.spring.security.authentication.handler.auth.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,7 +31,7 @@ public class UsernameAuthenticationFilter extends AbstractAuthenticationProcessi
     private static final RequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
             .matcher(HttpMethod.POST, "/api/login/application/username");
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
 
     public UsernameAuthenticationFilter(AuthenticationManager authenticationManager,
                                         AuthenticationSuccessHandler authenticationSuccessHandler,
@@ -47,7 +47,7 @@ public class UsernameAuthenticationFilter extends AbstractAuthenticationProcessi
         log.debug("use UsernameAuthenticationFilter");
 
         // 提取请求数据
-        UsernameLoginRequest usernameLoginRequest = objectMapper.readValue(request.getInputStream(), UsernameLoginRequest.class);
+        UsernameLoginRequest usernameLoginRequest = jsonMapper.readValue(request.getInputStream(), UsernameLoginRequest.class);
 
         // 封装成Spring Security需要的对象
         UsernameAuthenticationToken authentication = new UsernameAuthenticationToken(usernameLoginRequest.username(), usernameLoginRequest.password(), false);

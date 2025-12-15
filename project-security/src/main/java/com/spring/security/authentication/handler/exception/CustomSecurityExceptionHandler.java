@@ -1,6 +1,6 @@
 package com.spring.security.authentication.handler.exception;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,7 +29,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     @Override
     public void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
@@ -40,18 +40,18 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
             log.warn("认证异常：code={}, msg={}, status={}", e.getCode(), e.getMessage(), e.getHttpStatus(), e);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(e.getHttpStatus().value());
-            objectMapper.writeValue(response.getOutputStream(), Result.error(e.getCode(), e.getMessage()));
+            jsonMapper.writeValue(response.getOutputStream(), Result.error(e.getCode(), e.getMessage()));
         } catch (AuthenticationException | AccessDeniedException e) {
             log.warn("Spring Security异常：msg={}", e.getMessage(), e);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpStatus.FORBIDDEN.value());
-            objectMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.SYSTEM_ERROR, e.getMessage()));
+            jsonMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.SYSTEM_ERROR, e.getMessage()));
         } catch (Exception e) {
             log.warn("未知异常：msg={}",e.getMessage(), e);
             // 未知异常
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            objectMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.SYSTEM_ERROR, "未知异常"));
+            jsonMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.SYSTEM_ERROR, "未知异常"));
         }
     }
 }

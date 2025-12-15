@@ -1,6 +1,6 @@
 package com.spring.security.authentication.handler.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import com.spring.security.domain.model.dto.Result;
 import jakarta.servlet.ServletException;
@@ -25,7 +25,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class LoginFailHandler implements AuthenticationFailureHandler {
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper = new JsonMapper();
 
     @Override
     public void onAuthenticationFailure(@NonNull HttpServletRequest request, HttpServletResponse response,
@@ -34,6 +34,6 @@ public class LoginFailHandler implements AuthenticationFailureHandler {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
         log.warn("登录异常：msg={}", authenticationException.getMessage(), authenticationException);
-        objectMapper.writeValue(response.getOutputStream(), Result.success(ResponseCodeConstants.AUTH_LOGIN_FAILED, authenticationException.getMessage(), null));
+        jsonMapper.writeValue(response.getOutputStream(), Result.success(ResponseCodeConstants.AUTH_LOGIN_FAILED, authenticationException.getMessage(), null));
     }
 }

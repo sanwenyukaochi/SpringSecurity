@@ -1,6 +1,6 @@
 package com.spring.security.authentication.handler.auth.email;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +23,7 @@ public class EmailAuthenticationFilter extends AbstractAuthenticationProcessingF
     private static final RequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
             .matcher(HttpMethod.POST, "/api/login/application/email");
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
 
     public EmailAuthenticationFilter(AuthenticationManager authenticationManager,
                                      AuthenticationSuccessHandler authenticationSuccessHandler,
@@ -38,7 +38,7 @@ public class EmailAuthenticationFilter extends AbstractAuthenticationProcessingF
                                                 @NonNull HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         log.debug("use EmailAuthenticationFilter");
 
-        EmailLoginRequest emailLoginRequest = objectMapper.readValue(request.getInputStream(), EmailLoginRequest.class);
+        EmailLoginRequest emailLoginRequest = jsonMapper.readValue(request.getInputStream(), EmailLoginRequest.class);
         EmailAuthenticationToken authentication = new EmailAuthenticationToken(emailLoginRequest.email(), emailLoginRequest.password(), false);
         return getAuthenticationManager().authenticate(authentication);
     }

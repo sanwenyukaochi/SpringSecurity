@@ -1,6 +1,6 @@
 package com.spring.security.authentication.handler.auth.github;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +23,7 @@ public class GitHubAuthenticationFilter extends AbstractAuthenticationProcessing
     private static final RequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
             .matcher(HttpMethod.POST, "/api/login/oauth/github");
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
 
     public GitHubAuthenticationFilter(AuthenticationManager authenticationManager,
                                       AuthenticationSuccessHandler authenticationSuccessHandler,
@@ -38,7 +38,7 @@ public class GitHubAuthenticationFilter extends AbstractAuthenticationProcessing
                                                 @NonNull HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         log.debug("use GithubAuthenticationFilter");
 
-        GitHubLoginRequest githubLoginRequest = objectMapper.readValue(request.getInputStream(), GitHubLoginRequest.class);
+        GitHubLoginRequest githubLoginRequest = jsonMapper.readValue(request.getInputStream(), GitHubLoginRequest.class);
 
         GitHubAuthenticationToken authentication = new GitHubAuthenticationToken(githubLoginRequest.code(), false);
         return getAuthenticationManager().authenticate(authentication);

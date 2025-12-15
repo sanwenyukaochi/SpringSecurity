@@ -1,6 +1,6 @@
 package com.spring.security.authentication.handler.auth.github;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.spring.security.authentication.handler.auth.github.dto.GitHubOAuthMeta;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import com.spring.security.common.web.exception.BaseException;
@@ -33,7 +33,7 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
 
     private final UserIdentityRepository userIdentityRepository;
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper = new JsonMapper();
 
     @Override
     public Authentication authenticate(@NonNull Authentication authentication) throws AuthenticationException {
@@ -48,7 +48,7 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
 
         Optional<UserIdentity> userIdentityOptional = userIdentityRepository.findOptionalByProviderUserIdAndProvider(providerUserId, UserIdentity.AuthProvider.GITHUB);
         UserLoginInfo currentUser = userIdentityOptional.isEmpty() ? UserLoginInfo.builder().username(oAuth2User.getAttribute("login")).build() :
-                objectMapper.convertValue(userRepository.findById(userIdentityOptional.get().getUser().getId()).orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_NOT_FOUND, "用户不存在", HttpStatus.UNAUTHORIZED)), UserLoginInfo.class);//TODO 权限
+                jsonMapper.convertValue(userRepository.findById(userIdentityOptional.get().getUser().getId()).orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_NOT_FOUND, "用户不存在", HttpStatus.UNAUTHORIZED)), UserLoginInfo.class);
         GitHubAuthenticationToken token = new GitHubAuthenticationToken(currentUser, true, List.of());
         token.setDetails(new GitHubOAuthMeta(userIdentityOptional.isEmpty(), providerUserId));
         // 构造认证对象

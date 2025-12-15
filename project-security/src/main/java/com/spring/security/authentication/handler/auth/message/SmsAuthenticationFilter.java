@@ -1,6 +1,6 @@
 package com.spring.security.authentication.handler.auth.message;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +23,8 @@ public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFil
     private static final RequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
             .matcher(HttpMethod.POST, "/api/login/application/sms");
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
+
 
     public SmsAuthenticationFilter(AuthenticationManager authenticationManager,
                                    AuthenticationSuccessHandler authenticationSuccessHandler,
@@ -39,7 +40,7 @@ public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFil
         log.debug("user SmsCodeAuthenticationFilter");
 
         // 提取请求数据
-        SmsLoginRequest smsLoginRequest = objectMapper.readValue(request.getInputStream(), SmsLoginRequest.class);
+        SmsLoginRequest smsLoginRequest = jsonMapper.readValue(request.getInputStream(), SmsLoginRequest.class);
 
         SmsAuthenticationToken authentication = new SmsAuthenticationToken(smsLoginRequest.phone(), smsLoginRequest.captcha(), false);
         // 提取参数阶段，authenticated一定是false

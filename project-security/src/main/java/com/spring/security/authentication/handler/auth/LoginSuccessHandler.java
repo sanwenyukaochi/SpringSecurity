@@ -2,7 +2,7 @@ package com.spring.security.authentication.handler.auth;
 
 import com.spring.security.authentication.handler.auth.jwt.constant.JWTConstants;
 import com.spring.security.authentication.handler.auth.jwt.dto.JwtTokenUserLoginInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.spring.security.common.cache.UserCache;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import jakarta.annotation.PostConstruct;
@@ -35,7 +35,7 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
 
     private final JwtService jwtService;
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper = new JsonMapper();
 
     private final UserCache userCache;
 
@@ -73,7 +73,7 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
         LoginResponse loginResponse = new LoginResponse(token, refreshToken, additionalInfo);
         // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), Result.success("登录成功", loginResponse));
+        jsonMapper.writeValue(response.getOutputStream(), Result.success("登录成功", loginResponse));
     }
 
     public String generateToken(String username, JwtTokenUserLoginInfo jwtTokenUserLoginInfo) {

@@ -63,4 +63,11 @@ subprojects {
         annotationProcessor "org.projectlombok:lombok"
     }
 
+//    configurations.all {
+//        exclude group: "com.fasterxml.jackson.core"
+//        exclude group: "com.fasterxml.jackson.databind"
+//        exclude group: "com.fasterxml.jackson.dataformat"
+//        exclude group: "com.fasterxml.jackson.module"
+//    }
+
 }
