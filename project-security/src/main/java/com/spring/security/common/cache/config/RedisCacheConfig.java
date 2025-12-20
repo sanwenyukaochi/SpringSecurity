@@ -2,6 +2,8 @@ package com.spring.security.common.cache.config;
 
 import com.spring.security.authentication.handler.auth.jwt.constant.JWTConstants;
 import com.spring.security.common.cache.constant.RedisCache;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.codec.JsonJacksonCodec;
@@ -93,7 +95,8 @@ public class RedisCacheConfig {
         RedisCacheConfiguration defaultCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(genericJacksonJsonRedisSerializer()))
-                .disableCachingNullValues();
+                .disableCachingNullValues()
+                .entryTtl(Duration.ofMinutes(RedisCache.DEFAULT_TTL));
         return RedisCacheManager.builder(cacheWriter)
                 .cacheDefaults(defaultCacheConfiguration)
                 .transactionAware()
