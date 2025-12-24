@@ -10,10 +10,4 @@ import lombok.NoArgsConstructor;
 public class JwtTokenUserLoginInfo{
     private String sessionId;
     private String username;
-    private Long expiredTime;
-
-    public JwtTokenUserLoginInfo(String sessionId, String username) {
-        this.sessionId = sessionId;
-        this.username = username;
-    }
 }

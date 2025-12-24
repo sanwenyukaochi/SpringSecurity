@@ -31,7 +31,6 @@ public class UserLoginInfo implements UserDetails {
     private Boolean enabled;
     private String twoFactorSecret;
     private Boolean twoFactorEnabled;
-    private Long expiredTime; // JWT过期时间
 
     @Override
     public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {

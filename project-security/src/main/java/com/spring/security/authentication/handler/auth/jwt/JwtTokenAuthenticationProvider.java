@@ -35,7 +35,7 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         // 验证JWT并提取用户信息
         JwtTokenUserLoginInfo jwtTokenUserLoginInfo = jwtService.validateJwtToken(jwtToken);
         // 获取用户信息
-        UserLoginInfo userDetails = userCache.getUserLoginInfo(jwtTokenUserLoginInfo.getUsername(), jwtTokenUserLoginInfo.getSessionId(), jwtTokenUserLoginInfo.getExpiredTime());
+        UserLoginInfo userDetails = userCache.getUserLoginInfo(jwtTokenUserLoginInfo.getUsername(), jwtTokenUserLoginInfo.getSessionId());
 
         JwtTokenAuthenticationToken authenticatedToken = new JwtTokenAuthenticationToken(userDetails, true, List.of());
         // 认证通过，这里一定要设成true

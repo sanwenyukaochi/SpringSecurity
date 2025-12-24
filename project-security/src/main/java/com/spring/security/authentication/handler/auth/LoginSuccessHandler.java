@@ -58,8 +58,8 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
         currentUser.setSessionId(UUID.randomUUID().toString());
         JwtTokenUserLoginInfo jwtTokenUserLoginInfo = new JwtTokenUserLoginInfo(currentUser.getSessionId(), currentUser.getUsername());
         // 生成token和refreshToken
-        String token = generateToken(currentUser.getUsername(), jwtTokenUserLoginInfo);
-        String refreshToken = generateRefreshToken(currentUser.getUsername(), jwtTokenUserLoginInfo);
+        String token = jwtService.generateTokenFromUsername(currentUser.getUsername(), jwtTokenUserLoginInfo, JWTConstants.tokenExpiredTime);
+        String refreshToken = jwtService.generateTokenFromUsername(currentUser.getUsername(), jwtTokenUserLoginInfo, JWTConstants.refreshTokenExpiredTime);
 
         // 一些特殊的登录参数。比如三方登录，需要额外返回一个字段是否需要跳转的绑定已有账号页面
         @SuppressWarnings("unchecked")
@@ -69,7 +69,7 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
                 .orElse(Map.of());
 
         boolean hasAccount = authentication.getDetails() == null || Boolean.FALSE.equals(additionalInfo.get("isNewUser"));
-        if (hasAccount) userCache.getUserLoginInfo(jwtTokenUserLoginInfo.getUsername(), jwtTokenUserLoginInfo.getSessionId(), jwtTokenUserLoginInfo.getExpiredTime());
+        if (hasAccount) userCache.getUserLoginInfo(jwtTokenUserLoginInfo.getUsername(), jwtTokenUserLoginInfo.getSessionId());
 
         LoginResponse loginResponse = new LoginResponse(token, refreshToken, additionalInfo);
         // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
@@ -77,16 +77,6 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.OK.value());
         jsonMapper.writeValue(response.getOutputStream(), Result.success("登录成功", loginResponse));
-    }
-
-    public String generateToken(String username, JwtTokenUserLoginInfo jwtTokenUserLoginInfo) {
-        jwtTokenUserLoginInfo.setExpiredTime(JWTConstants.tokenExpiredTime);
-        return jwtService.generateTokenFromUsername(username, jwtTokenUserLoginInfo, JWTConstants.tokenExpiredTime);
-    }
-
-    private String generateRefreshToken(String username, JwtTokenUserLoginInfo jwtTokenUserLoginInfo) {
-        jwtTokenUserLoginInfo.setExpiredTime(JWTConstants.refreshTokenExpiredTime);
-        return jwtService.generateTokenFromUsername(username, jwtTokenUserLoginInfo, JWTConstants.refreshTokenExpiredTime);
     }
 
 }

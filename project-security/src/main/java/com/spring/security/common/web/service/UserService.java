@@ -22,7 +22,7 @@ public class UserService implements UserDetailsService {
     @NonNull
     public UserLoginInfo loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
         User user = getUserByUsername(username);
-        return new UserLoginInfo(null, user.getId(), user.getUsername(), user.getPassword(), user.getPhone(), user.getEmail(), user.getAccountNonLocked(), user.getAccountNonExpired(), user.getCredentialsNonExpired(), user.getEnabled(), user.getTwoFactorSecret(), user.getTwoFactorEnabled(), null);
+        return new UserLoginInfo(null, user.getId(), user.getUsername(), user.getPassword(), user.getPhone(), user.getEmail(), user.getAccountNonLocked(), user.getAccountNonExpired(), user.getCredentialsNonExpired(), user.getEnabled(), user.getTwoFactorSecret(), user.getTwoFactorEnabled());
     }
 
     public User getUserByUsername(String username) {

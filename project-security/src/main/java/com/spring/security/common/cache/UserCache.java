@@ -15,10 +15,9 @@ public class UserCache  {
     private final UserService userService;
 
     @Cacheable(value = RedisCache.USER_INFO, key = "#username")
-    public UserLoginInfo getUserLoginInfo(String username, String sessionId, Long expiredTime){
+    public UserLoginInfo getUserLoginInfo(String username, String sessionId){
         UserLoginInfo userLoginInfo = userService.loadUserByUsername(username);
         userLoginInfo.setSessionId(sessionId);
-        userLoginInfo.setExpiredTime(expiredTime);
         return userLoginInfo;
     }
 
