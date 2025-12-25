@@ -33,11 +33,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler implements AuthenticationSuccessHandler {
-
-    private final JwtService jwtService;
-
     private final JsonMapper jsonMapper = new JsonMapper();
-
+    private final JwtService jwtService;
     private final UserCache userCache;
 
     @PostConstruct
@@ -55,7 +52,7 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
         if (!(principal instanceof UserLoginInfo currentUser)) {
             throw new BaseException(ResponseCodeConstants.TYPE_ERROR, "登陆认证成功后，authentication.getPrincipal()返回的Object对象必须是：UserLoginInfo！", HttpStatus.BAD_REQUEST);
         }
-        currentUser.setSessionId(UUID.randomUUID().toString());
+
         JwtTokenUserLoginInfo jwtTokenUserLoginInfo = new JwtTokenUserLoginInfo(currentUser.getSessionId(), currentUser.getUsername());
         // 生成token和refreshToken
         String token = jwtService.generateTokenFromUsername(currentUser.getUsername(), jwtTokenUserLoginInfo, JWTConstants.tokenExpiredTime);

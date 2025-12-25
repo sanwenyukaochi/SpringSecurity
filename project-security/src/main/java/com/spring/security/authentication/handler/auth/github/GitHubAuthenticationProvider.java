@@ -31,10 +31,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GitHubAuthenticationProvider implements AuthenticationProvider {
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+    private final JsonMapper jsonMapper = new JsonMapper();
+    private final UserIdentityRepository userIdentityRepository;
     private final GitHubOAuth2Service githubOAuth2Service;
     private final UserRepository userRepository;
-    private final UserIdentityRepository userIdentityRepository;
-    private final JsonMapper jsonMapper = new JsonMapper();
 
     @Override
     public Authentication authenticate(@NonNull Authentication authentication) throws AuthenticationException {

@@ -11,45 +11,42 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
+import java.util.UUID;
 
+/**
+ * 手机号验证码登录认证
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SmsAuthenticationProvider implements AuthenticationProvider {
-    private final UserRepository userRepository;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+    private final JsonMapper jsonMapper = new JsonMapper();
+    private final UserRepository userRepository;
 
     @Override
     public Authentication authenticate(@NonNull Authentication authentication) throws AuthenticationException {
         Assert.isInstanceOf(SmsAuthenticationToken.class, authentication,
                 () -> this.messages.getMessage("SmsAuthenticationProvider.onlySupports",
                         "Only SmsAuthenticationToken is supported"));
-        // 用户提交的手机号 + 验证码：
         SmsAuthenticationToken smsAuthenticationToken = (SmsAuthenticationToken) authentication;
+        // 获取用户提交的手机号
         String phone = (smsAuthenticationToken.getPhone() == null ? "NONE_PROVIDED" : smsAuthenticationToken.getPhone());
-        String smsCode = (smsAuthenticationToken.getSmsCode() == null ? "NONE_PROVIDED" : smsAuthenticationToken.getSmsCode());
-
-        User user = userRepository.findByPhone(phone)
-                .orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_PHONE_NOT_FOUND, "手机号不存在", HttpStatus.UNAUTHORIZED));
-
-        // 验证验证码是否正确
-        if (!validateSmsCode(smsCode)) {
-            throw new BaseException(ResponseCodeConstants.AUTH_SMS_CODE_ERROR, "验证码错误", HttpStatus.UNAUTHORIZED);
-        }
-
-        UserLoginInfo currentUser = new UserLoginInfo();
-        currentUser.setUsername(user.getUsername());
-        SmsAuthenticationToken token = new SmsAuthenticationToken(currentUser, List.of());
-        // 认证通过，一定要设成true
-        log.debug("手机号认证成功，用户: {}", currentUser.getUsername());
-        return token;
+        // 查询用户信息
+        User user = retrieveUser(phone, smsAuthenticationToken);
+        // 验证用户信息
+        additionalAuthenticationChecks(user, (SmsAuthenticationToken) authentication);
+        // 构造成功结果
+        return createSuccessAuthentication(smsAuthenticationToken, user);
     }
 
     @Override
@@ -57,8 +54,29 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         return SmsAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    private boolean validateSmsCode(String smsCode) {
-        // todo
-        return smsCode.equals("000000");
+    protected Authentication createSuccessAuthentication(Authentication authentication,
+                                                         User user) {
+        UserLoginInfo userLoginInfo = jsonMapper.convertValue(user, UserLoginInfo.class);
+        userLoginInfo.setSessionId(UUID.randomUUID().toString());
+        SmsAuthenticationToken result = new SmsAuthenticationToken(userLoginInfo, List.of());
+        // 认证通过，这里一定要设成true
+        log.debug("手机号认证成功，用户: {}", userLoginInfo.getUsername());
+        return result;
+    }
+
+    protected User retrieveUser(String phone, SmsAuthenticationToken authentication) throws AuthenticationException {
+        User loadedUser = userRepository.findByPhone(phone).orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_PHONE_NOT_FOUND, "手机号不存在", HttpStatus.NOT_FOUND));
+        log.debug("用户信息查询成功，用户: {}", loadedUser.getUsername());
+        return loadedUser;
+    }
+
+    protected void additionalAuthenticationChecks(User user,
+                                                  SmsAuthenticationToken authentication) throws AuthenticationException {
+        String presentedSmsCode = authentication.getSmsCode();
+        if (!presentedSmsCode.equals("000000")) {
+            log.debug("Failed to authenticate since sms code does not match stored value");
+            throw new BadCredentialsException(this.messages
+                    .getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+        }
     }
 }

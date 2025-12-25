@@ -11,14 +11,17 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 帐号密码登录认证
@@ -27,38 +30,55 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class UsernameAuthenticationProvider implements AuthenticationProvider {
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+    private final JsonMapper jsonMapper = new JsonMapper();
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     @Override
     public Authentication authenticate(@NonNull Authentication authentication) throws AuthenticationException {
         Assert.isInstanceOf(UsernameAuthenticationToken.class, authentication,
                 () -> this.messages.getMessage("UsernameAuthenticationProvider.onlySupports",
                         "Only UsernameAuthenticationToken is supported"));
-        // 用户提交的用户名 + 密码：
         UsernameAuthenticationToken usernameAuthenticationToken = (UsernameAuthenticationToken) authentication;
+        // 获取用户提交的用户名
         String username = (usernameAuthenticationToken.getUsername() == null ? "NONE_PROVIDED" : usernameAuthenticationToken.getUsername());
-        String password = (usernameAuthenticationToken.getPassword() == null ? "NONE_PROVIDED" : usernameAuthenticationToken.getPassword());
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_NOT_FOUND, "用户不存在", HttpStatus.UNAUTHORIZED));
-
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            // 密码错误，直接抛异常。
-            throw new BaseException(ResponseCodeConstants.AUTH_PASSWORD_ERROR, "密码错误", HttpStatus.UNAUTHORIZED);
-        }
-
-        UserLoginInfo currentUser = new UserLoginInfo();
-        currentUser.setUsername(user.getUsername());
-        UsernameAuthenticationToken token = new UsernameAuthenticationToken(currentUser, List.of());
-        // 认证通过，这里一定要设成true
-        log.debug("用户名认证成功，用户: {}", currentUser.getUsername());
-        return token;
+        // 查询用户信息
+        User user = retrieveUser(username, usernameAuthenticationToken);
+        // 验证用户信息
+        additionalAuthenticationChecks(user, (UsernameAuthenticationToken) authentication);
+        // 构造成功结果
+        return createSuccessAuthentication(usernameAuthenticationToken, user);
     }
 
     @Override
     public boolean supports(@NonNull Class<?> authentication) {
         return UsernameAuthenticationToken.class.isAssignableFrom(authentication);
+    }
+
+    protected Authentication createSuccessAuthentication(Authentication authentication,
+                                                         User user) {
+        UserLoginInfo userLoginInfo = jsonMapper.convertValue(user, UserLoginInfo.class);
+        userLoginInfo.setSessionId(UUID.randomUUID().toString());
+        UsernameAuthenticationToken result = new UsernameAuthenticationToken(userLoginInfo, List.of());
+        // 认证通过，这里一定要设成true
+        log.debug("用户名认证成功，用户: {}", userLoginInfo.getUsername());
+        return result;
+    }
+
+    protected User retrieveUser(String username, UsernameAuthenticationToken authentication) throws AuthenticationException {
+        User loadedUser = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(ResponseCodeConstants.USER_NOT_FOUND, "用户不存在", HttpStatus.NOT_FOUND));
+        log.debug("用户信息查询成功，用户: {}", loadedUser.getUsername());
+        return loadedUser;
+    }
+
+    protected void additionalAuthenticationChecks(User user,
+                                                  UsernameAuthenticationToken authentication) throws AuthenticationException {
+        String presentedPassword = authentication.getPassword();
+        if (!this.passwordEncoder.matches(presentedPassword, user.getPassword())) {
+            log.debug("Failed to authenticate since password does not match stored value");
+            throw new BadCredentialsException(this.messages
+                    .getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+        }
     }
 }

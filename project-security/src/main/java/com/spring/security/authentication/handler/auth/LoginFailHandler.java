@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 @Component
 @RequiredArgsConstructor
 public class LoginFailHandler implements AuthenticationFailureHandler {
-
     private final JsonMapper jsonMapper = new JsonMapper();
 
     @Override
