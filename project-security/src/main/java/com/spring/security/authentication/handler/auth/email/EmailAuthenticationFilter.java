@@ -1,5 +1,6 @@
 package com.spring.security.authentication.handler.auth.email;
 
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import tools.jackson.databind.json.JsonMapper;
@@ -20,6 +21,7 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Slf4j
+@Setter
 public class EmailAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     private static final RequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
