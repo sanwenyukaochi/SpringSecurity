@@ -48,8 +48,11 @@ public class GitHubAuthenticationFilter extends AbstractAuthenticationProcessing
         GitHubLoginRequest gitHubLoginRequest = JsonMapper.shared().readValue(request.getInputStream(), GitHubLoginRequest.class);
         String code = obtainCode(gitHubLoginRequest);
         code = (code != null) ? code.trim() : "";
+
+        // 封装成Spring Security需要的对象
         GitHubAuthenticationToken authRequest = new GitHubAuthenticationToken(code);
-        return this.getAuthenticationManager().authenticate(authRequest);
+        // 开始登录认证。SpringSecurity会利用 Authentication对象去寻找 AuthenticationProvider进行登录认证
+        return getAuthenticationManager().authenticate(authRequest);
     }
 
     @Nullable
