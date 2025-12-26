@@ -3,7 +3,6 @@ package com.spring.security.authentication.handler.exception;
 import tools.jackson.databind.json.JsonMapper;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -30,11 +29,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
 
-    private final JsonMapper jsonMapper;
-
     @Override
     public void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-                                 @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                 @NonNull FilterChain filterChain) throws IOException {
         try {
             filterChain.doFilter(request, response);
         } catch (BaseException e) {
@@ -42,19 +39,19 @@ public class CustomSecurityExceptionHandler extends OncePerRequestFilter {
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(e.getHttpStatus().value());
-            jsonMapper.writeValue(response.getOutputStream(), Result.error(e.getCode(), e.getMessage(), null));
+            JsonMapper.shared().writeValue(response.getOutputStream(), Result.error(e.getCode(), e.getMessage(), null));
         } catch (AuthenticationException | AccessDeniedException e) {
             log.warn("Spring Security异常：msg={}", e.getMessage(), e);
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpStatus.FORBIDDEN.value());
-            jsonMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.SYSTEM_ERROR, e.getMessage(), null));
+            JsonMapper.shared().writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.SYSTEM_ERROR, e.getMessage(), null));
         } catch (Exception e) {
             log.warn("未知异常：msg={}",e.getMessage(), e);
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            jsonMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.SYSTEM_ERROR, "未知异常", null));
+            JsonMapper.shared().writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.SYSTEM_ERROR, "未知异常", null));
         }
     }
 }

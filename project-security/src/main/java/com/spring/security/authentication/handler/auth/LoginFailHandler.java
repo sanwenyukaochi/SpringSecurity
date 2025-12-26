@@ -3,7 +3,6 @@ package com.spring.security.authentication.handler.auth;
 import tools.jackson.databind.json.JsonMapper;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
 import com.spring.security.domain.model.dto.Result;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +24,14 @@ import java.nio.charset.StandardCharsets;
 @Component
 @RequiredArgsConstructor
 public class LoginFailHandler implements AuthenticationFailureHandler {
-    private final JsonMapper jsonMapper = new JsonMapper();
 
     @Override
     public void onAuthenticationFailure(@NonNull HttpServletRequest request, HttpServletResponse response,
-                                        @NonNull AuthenticationException authenticationException) throws IOException, ServletException {
+                                        @NonNull AuthenticationException authenticationException) throws IOException {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         log.warn("登录异常：msg={}", authenticationException.getMessage(), authenticationException);
-        jsonMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.AUTH_LOGIN_FAILED, authenticationException.getMessage(), null));
+        JsonMapper.shared().writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.AUTH_LOGIN_FAILED, authenticationException.getMessage(), null));
     }
 }

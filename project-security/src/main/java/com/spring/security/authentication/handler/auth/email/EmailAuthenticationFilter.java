@@ -4,7 +4,6 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import tools.jackson.databind.json.JsonMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -39,7 +38,7 @@ public class EmailAuthenticationFilter extends AbstractAuthenticationProcessingF
 
     @Override
     public Authentication attemptAuthentication(@NonNull HttpServletRequest request,
-                                                @NonNull HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+                                                @NonNull HttpServletResponse response) throws AuthenticationException, IOException {
         log.debug("use EmailAuthenticationFilter");
         if (this.postOnly && !request.getMethod().equals(HttpMethod.POST.name())) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());

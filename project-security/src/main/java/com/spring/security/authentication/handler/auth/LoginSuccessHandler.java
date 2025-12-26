@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import com.spring.security.authentication.handler.auth.jwt.service.JwtService;
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler implements AuthenticationSuccessHandler {
-    private final JsonMapper jsonMapper = new JsonMapper();
     private final JwtService jwtService;
     private final UserCache userCache;
 
@@ -55,8 +53,8 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
 
         JwtTokenUserLoginInfo jwtTokenUserLoginInfo = new JwtTokenUserLoginInfo(currentUser.getSessionId(), currentUser.getUsername());
         // 生成token和refreshToken
-        String token = jwtService.generateTokenFromUsername(currentUser.getUsername(), jwtTokenUserLoginInfo, JWTConstants.tokenExpiredTime);
-        String refreshToken = jwtService.generateTokenFromUsername(currentUser.getUsername(), jwtTokenUserLoginInfo, JWTConstants.refreshTokenExpiredTime);
+        String token = jwtService.generateTokenFromUsername(currentUser.getUsername(), jwtTokenUserLoginInfo, JWTConstants.TOKEN_EXPIRED_TIME);
+        String refreshToken = jwtService.generateTokenFromUsername(currentUser.getUsername(), jwtTokenUserLoginInfo, JWTConstants.REFRESH_TOKEN_EXPIRED_TIME);
 
         // 一些特殊的登录参数。比如三方登录，需要额外返回一个字段是否需要跳转的绑定已有账号页面
         @SuppressWarnings("unchecked")
@@ -69,11 +67,11 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
         if (hasAccount) userCache.putUserLoginInfo(jwtTokenUserLoginInfo.username(), currentUser);
 
         LoginResponse loginResponse = new LoginResponse(token, refreshToken, additionalInfo);
-        // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
+        // UTF_8编码 APPLICATION_JSON_VALUE防止出现乱码
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.OK.value());
-        jsonMapper.writeValue(response.getOutputStream(), Result.success("登录成功", loginResponse));
+        JsonMapper.shared().writeValue(response.getOutputStream(), Result.success("登录成功", loginResponse));
     }
 
 }

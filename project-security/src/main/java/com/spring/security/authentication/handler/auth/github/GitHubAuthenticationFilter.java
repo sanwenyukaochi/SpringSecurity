@@ -3,7 +3,6 @@ package com.spring.security.authentication.handler.auth.github;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -41,7 +40,7 @@ public class GitHubAuthenticationFilter extends AbstractAuthenticationProcessing
 
     @Override
     public Authentication attemptAuthentication(@NonNull HttpServletRequest request,
-                                                @NonNull HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+                                                @NonNull HttpServletResponse response) throws AuthenticationException, IOException {
         log.debug("use GithubAuthenticationFilter");
         if (this.postOnly && !request.getMethod().equals(HttpMethod.POST.name())) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
@@ -54,7 +53,7 @@ public class GitHubAuthenticationFilter extends AbstractAuthenticationProcessing
     }
 
     @Nullable
-    protected String obtainCode(GitHubLoginRequest gitHubLoginRequest) throws IOException {
+    protected String obtainCode(GitHubLoginRequest gitHubLoginRequest) {
         return gitHubLoginRequest.code();
     }
 }

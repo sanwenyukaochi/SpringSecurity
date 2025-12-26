@@ -2,7 +2,6 @@ package com.spring.security.authentication.handler.exception;
 
 import tools.jackson.databind.json.JsonMapper;
 import com.spring.security.common.web.constant.ResponseCodeConstants;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -28,15 +27,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CustomAuthorizationExceptionHandler implements AccessDeniedHandler {
 
-    private final JsonMapper jsonMapper;
-
     @Override
     public void handle(@NonNull HttpServletRequest request, HttpServletResponse response,
-                       @NonNull AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                       @NonNull AccessDeniedException accessDeniedException) throws IOException {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.FORBIDDEN.value());
         log.warn("访问异常：msg={}", accessDeniedException.getMessage(), accessDeniedException);
-        jsonMapper.writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.AUTH_ACCESS_DENIED, "授权失败", null));
+        JsonMapper.shared().writeValue(response.getOutputStream(), Result.error(ResponseCodeConstants.AUTH_ACCESS_DENIED, "授权失败", null));
     }
 }

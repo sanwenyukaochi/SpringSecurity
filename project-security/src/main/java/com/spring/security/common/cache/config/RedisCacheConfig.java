@@ -57,7 +57,7 @@ public class RedisCacheConfig {
                 .cacheDefaults(defaultCacheConfiguration)
                 .transactionAware()
                 .withInitialCacheConfigurations(Collections.singletonMap(
-                        RedisCache.USER_INFO, defaultCacheConfiguration.entryTtl(Duration.ofMillis(JWTConstants.tokenExpiredTime))))
+                        RedisCache.USER_INFO, defaultCacheConfiguration.entryTtl(Duration.ofMillis(JWTConstants.TOKEN_EXPIRED_TIME))))
                 .build();
     }
 
