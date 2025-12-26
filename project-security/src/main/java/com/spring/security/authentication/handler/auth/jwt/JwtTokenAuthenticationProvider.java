@@ -39,10 +39,10 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         JwtTokenAuthenticationToken jwtTokenAuthenticationToken = (JwtTokenAuthenticationToken) authentication;
         // 获取用户提交的JWT
         String jwtToken = (jwtTokenAuthenticationToken.getJwtToken() == null ? "NONE_PROVIDED" : jwtTokenAuthenticationToken.getJwtToken());
-        // 验证用户信息
-        JwtTokenUserLoginInfo jwtTokenUserLoginInfo = additionalAuthenticationChecks((JwtTokenAuthenticationToken) authentication);
         // 查询用户信息
-        UserLoginInfo userLoginInfo = retrieveUser(jwtTokenUserLoginInfo.username(), jwtTokenUserLoginInfo.sessionId(), jwtTokenAuthenticationToken);
+        UserLoginInfo userLoginInfo = retrieveUser(jwtToken, jwtTokenAuthenticationToken);
+        // 验证用户信息
+        additionalAuthenticationChecks(userLoginInfo, (JwtTokenAuthenticationToken) authentication);
         // 构造成功结果
         return createSuccessAuthentication(jwtTokenAuthenticationToken, userLoginInfo);
     }
@@ -60,20 +60,19 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         return result;
     }
 
-    protected UserLoginInfo retrieveUser(String username, String sessionId, JwtTokenAuthenticationToken authentication) throws AuthenticationException {
-        UserLoginInfo loadedUser = userCache.getUserLoginInfo(username, sessionId);
-        log.debug("用户信息查询成功，用户: {}", loadedUser.getUsername());
+    protected UserLoginInfo retrieveUser(String jwtToken, JwtTokenAuthenticationToken authentication) throws AuthenticationException {
+        JwtTokenUserLoginInfo jwtTokenUserLoginInfo = jwtService.validateJwtToken(jwtToken);
+        UserLoginInfo loadedUser = userCache.getUserLoginInfo(jwtTokenUserLoginInfo.username());
+        log.error("用户信息查询{}，用户: {}", loadedUser != null ? "成功" : "失败", jwtTokenUserLoginInfo.username());
         return loadedUser;
     }
 
-    protected JwtTokenUserLoginInfo additionalAuthenticationChecks(JwtTokenAuthenticationToken authentication) throws AuthenticationException {
+    protected void additionalAuthenticationChecks(UserLoginInfo userLoginInfo, JwtTokenAuthenticationToken authentication) throws AuthenticationException {
         String presentedJwtToken = authentication.getJwtToken();
-        JwtTokenUserLoginInfo jwtTokenUserLoginInfo = jwtService.validateJwtToken(presentedJwtToken);
-        if (jwtTokenUserLoginInfo.username().isEmpty() || jwtTokenUserLoginInfo.sessionId().isEmpty()) {
-            log.debug("JWT验证失败，因为用户名或sessionId的值为空");
+        if (userLoginInfo == null) {
+            log.debug("身份验证失败，因为身份与Redis存储的值不匹配");
             throw new BadCredentialsException(this.messages
-                    .getMessage("jwtTokenAuthenticationProvider.badCredentials", "错误的凭证"));
+                    .getMessage("jwtTokenAuthenticationProvider.sessionExpired", "错误的凭证"));
         }
-        return jwtTokenUserLoginInfo;
     }
 }

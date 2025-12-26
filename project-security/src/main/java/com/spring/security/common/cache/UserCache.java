@@ -5,6 +5,7 @@ import com.spring.security.common.cache.constant.RedisCache;
 import com.spring.security.common.web.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -14,14 +15,26 @@ public class UserCache  {
 
     private final UserService userService;
 
-    @Cacheable(value = RedisCache.USER_INFO, key = "#username")
-    public UserLoginInfo getUserLoginInfo(String username, String sessionId){
-        UserLoginInfo userLoginInfo = userService.loadUserByUsername(username);
-        userLoginInfo.setSessionId(sessionId);
-        return userLoginInfo;
-    }
+//    @Cacheable(value = RedisCache.USER_INFO, key = "#username")
+//    public UserLoginInfo getUserLoginInfo(String username, String sessionId){
+//        UserLoginInfo userLoginInfo = userService.loadUserByUsername(username);
+//        userLoginInfo.setSessionId(sessionId);
+//        return userLoginInfo;
+//    }
 
     @CacheEvict(value = RedisCache.USER_INFO, key = "#username")
     public void evictUserLoginInfo(String username) {
     }
+
+    @Cacheable(value = RedisCache.USER_INFO, key = "#username", unless = "#result == null")
+    public UserLoginInfo getUserLoginInfo(String username) {
+        return null;
+    }
+
+
+    @CachePut(value = RedisCache.USER_INFO, key = "#username")
+    public UserLoginInfo putUserLoginInfo(String username, UserLoginInfo userLoginInfo) {
+        return userLoginInfo;
+    }
+
 }

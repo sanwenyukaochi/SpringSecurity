@@ -66,7 +66,7 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
                 .orElse(Map.of());
 
         boolean hasAccount = authentication.getDetails() == null || Boolean.FALSE.equals(additionalInfo.get("isNewUser"));
-        if (hasAccount) userCache.getUserLoginInfo(jwtTokenUserLoginInfo.username(), jwtTokenUserLoginInfo.sessionId());
+        if (hasAccount) userCache.putUserLoginInfo(jwtTokenUserLoginInfo.username(), currentUser);
 
         LoginResponse loginResponse = new LoginResponse(token, refreshToken, additionalInfo);
         // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
