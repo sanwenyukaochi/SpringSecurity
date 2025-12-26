@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserIdentityService {
+
     private final UserIdentityRepository userIdentityRepository;
 
     public UserIdentity getUserIdentityByProviderUserId(Long providerUserId, UserIdentity.AuthProvider provider) {

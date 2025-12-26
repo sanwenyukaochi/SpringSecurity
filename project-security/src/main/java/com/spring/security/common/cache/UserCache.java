@@ -2,7 +2,6 @@ package com.spring.security.common.cache;
 
 import com.spring.security.authentication.handler.auth.UserLoginInfo;
 import com.spring.security.common.cache.constant.RedisCache;
-import com.spring.security.common.web.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -13,15 +12,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserCache  {
 
-    private final UserService userService;
-
-//    @Cacheable(value = RedisCache.USER_INFO, key = "#username")
-//    public UserLoginInfo getUserLoginInfo(String username, String sessionId){
-//        UserLoginInfo userLoginInfo = userService.loadUserByUsername(username);
-//        userLoginInfo.setSessionId(sessionId);
-//        return userLoginInfo;
-//    }
-
     @CacheEvict(value = RedisCache.USER_INFO, key = "#username")
     public void evictUserLoginInfo(String username) {
     }
@@ -30,7 +20,6 @@ public class UserCache  {
     public UserLoginInfo getUserLoginInfo(String username) {
         return null;
     }
-
 
     @CachePut(value = RedisCache.USER_INFO, key = "#username")
     public UserLoginInfo putUserLoginInfo(String username, UserLoginInfo userLoginInfo) {

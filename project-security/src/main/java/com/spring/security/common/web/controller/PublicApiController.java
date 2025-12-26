@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/public-api")
 @RequiredArgsConstructor
 public class PublicApiController {
+
     private final PasswordEncoder passwordEncoder;
+
     @GetMapping
     public void test() {
         String encode = passwordEncoder.encode("admin");
-        System.out.println(encode);
+        IO.println(encode);
     }
 }
