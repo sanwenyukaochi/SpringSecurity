@@ -9,18 +9,13 @@ group = "com.spring.security"
 version = "0.0.1-SNAPSHOT"
 description = "project-security"
 
-val springCloudVersion by extra("2025.1.0")
 val springdocVersion by extra("3.0.2")
 val commonsLangVersion by extra("3.20.0")
 val jjwtVersion by extra("0.13.0")
 val postgresqlVersion by extra("42.7.10")
-val hutoolVersion by extra("5.8.41")
 val jspecifyVersion by extra("1.0.0")
 val flywayVersion by extra("12.0.3")
-val lombokVersion by extra("1.18.42")
-val cosidVersion by extra("3.0.3")
 val redissonVersion by extra("4.3.0")
-val jooqVersion by extra("3.20.10")
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -35,8 +30,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.redisson:redisson:$redissonVersion")
-    implementation("me.ahoo.cosid:cosid-spring-boot-starter:$cosidVersion")
-    implementation("me.ahoo.cosid:cosid-spring-redis:$cosidVersion")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
     implementation("org.apache.commons:commons-lang3:$commonsLangVersion")
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
