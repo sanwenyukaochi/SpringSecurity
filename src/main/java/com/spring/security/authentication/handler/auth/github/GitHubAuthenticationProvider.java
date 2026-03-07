@@ -89,8 +89,8 @@ public class GitHubAuthenticationProvider implements AuthenticationProvider {
                 .map(Number::longValue)
                 .orElseThrow(() -> new BaseException(BaseCode.USER_NOT_FOUND));
         User loadedUser = userIdentityRepository
-                .findByProviderUserIdAndProvider(providerUserId, UserIdentity.AuthProvider.GITHUB)
-                .flatMap(identity -> userRepository.findById(identity.getUser().getId()))
+                .findByProviderUserIdAndProvider(providerUserId, UserIdentity.Provider.GITHUB)
+                .flatMap(identity -> userRepository.findById(identity.getUserId()))
                 .orElseGet(() -> {
                     User user = new User();
                     user.setUsername(oAuth2User.getAttribute("login"));

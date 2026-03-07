@@ -16,7 +16,7 @@ public class UserIdentityService {
     private final UserIdentityRepository userIdentityRepository;
 
     public UserIdentity getUserIdentityByProviderUserIdAndProvider(
-            Long providerUserId, UserIdentity.AuthProvider provider) {
+            Long providerUserId, UserIdentity.Provider provider) {
         return userIdentityRepository
                 .findByProviderUserIdAndProvider(providerUserId, provider)
                 .orElseThrow(() -> new BaseException(BaseCode.USER_NOT_FOUND));
