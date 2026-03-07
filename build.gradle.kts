@@ -85,9 +85,7 @@ gitProperties {
 spotless {
     encoding("UTF-8")
     java {
-        target("src/**/*.java")
-        targetExclude("**/build/**", "**/build-*/**")
-        palantirJavaFormat("2.89.0")
+        palantirJavaFormat()
         importOrder()
         removeUnusedImports()
         formatAnnotations()
@@ -97,15 +95,10 @@ spotless {
     }
 
     kotlin {
-        target("src/**/*.kt")
-        targetExclude("**/build/**")
         ktlint()
-        trimTrailingWhitespace()
-        endWithNewline()
     }
 
     kotlinGradle {
-        target("*.gradle.kts", "*.gradle")
         ktlint()
     }
 
@@ -115,9 +108,7 @@ spotless {
             "**/*.properties",
             "**/*.yml",
             "**/*.yaml",
-            "**/*.xml",
             "**/*.sh",
-            "**/*.bat",
             "**/.gitignore",
         )
         targetExclude("**/build/**", "**/build-*/**")
