@@ -1,5 +1,6 @@
 package com.spring.security.authentication.handler.auth.github;
 
+import com.spring.security.authentication.handler.auth.github.repository.GitHubHttpSessionOAuth2AuthorizationRequestRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +22,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-public class GitHubAuthorizationRedirectFilter extends OncePerRequestFilter {
+public class GitHubOAuth2AuthorizationRedirectFilter extends OncePerRequestFilter {
 
     public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/api/login/oauth";
     private static final RequestMatcher AUTHORIZATION_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
@@ -33,16 +34,16 @@ public class GitHubAuthorizationRedirectFilter extends OncePerRequestFilter {
 
     private final AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
-    public GitHubAuthorizationRedirectFilter(
+    public GitHubOAuth2AuthorizationRedirectFilter(
             ClientRegistrationRepository clientRegistrationRepository,
-            HttpCookieGitHubAuthorizationRequestRepository authorizationRequestRepository) {
+            GitHubHttpSessionOAuth2AuthorizationRequestRepository authorizationRequestRepository) {
         this(
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository, DEFAULT_AUTHORIZATION_REQUEST_BASE_URI),
                 authorizationRequestRepository);
     }
 
-    public GitHubAuthorizationRedirectFilter(
+    public GitHubOAuth2AuthorizationRedirectFilter(
             OAuth2AuthorizationRequestResolver authorizationRequestResolver,
             AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
         Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");

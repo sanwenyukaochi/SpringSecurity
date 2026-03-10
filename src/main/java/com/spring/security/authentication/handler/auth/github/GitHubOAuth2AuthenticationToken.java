@@ -12,18 +12,18 @@ import org.springframework.util.Assert;
 @Setter
 @Getter
 // 对应 OAuth2AuthenticationToken
-public class GitHubAuthenticationToken extends AbstractAuthenticationToken {
+public class GitHubOAuth2AuthenticationToken extends AbstractAuthenticationToken {
 
     private String authorizedClientRegistrationId;
     private UserLoginInfo currentUser;
 
-    public GitHubAuthenticationToken(String authorizedClientRegistrationId) {
+    public GitHubOAuth2AuthenticationToken(String authorizedClientRegistrationId) {
         this.authorizedClientRegistrationId = authorizedClientRegistrationId;
         super(List.of());
         super.setAuthenticated(false);
     }
 
-    public GitHubAuthenticationToken(
+    public GitHubOAuth2AuthenticationToken(
             UserLoginInfo currentUser,
             Collection<? extends GrantedAuthority> authorities,
             String authorizedClientRegistrationId) {

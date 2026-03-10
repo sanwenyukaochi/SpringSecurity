@@ -1,4 +1,4 @@
-package com.spring.security.authentication.handler.auth.github;
+package com.spring.security.authentication.handler.auth.github.repository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-public class HttpCookieGitHubAuthorizationRequestRepository
+public class GitHubHttpSessionOAuth2AuthorizationRequestRepository
         implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME =

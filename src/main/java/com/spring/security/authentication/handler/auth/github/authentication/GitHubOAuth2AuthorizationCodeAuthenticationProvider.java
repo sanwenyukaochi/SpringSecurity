@@ -22,12 +22,12 @@ import org.springframework.util.Assert;
 @Component
 // @RequiredArgsConstructor
 // OAuth2AuthorizationCodeAuthenticationProvider
-public class GitHubAuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
+public class GitHubOAuth2AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
     private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 
     private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
-    public GitHubAuthorizationCodeAuthenticationProvider(
+    public GitHubOAuth2AuthorizationCodeAuthenticationProvider(
             OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
         Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
         this.accessTokenResponseClient = accessTokenResponseClient;
@@ -35,8 +35,8 @@ public class GitHubAuthorizationCodeAuthenticationProvider implements Authentica
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        GitHubAuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
-                (GitHubAuthorizationCodeAuthenticationToken) authentication;
+        GitHubOAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
+                (GitHubOAuth2AuthorizationCodeAuthenticationToken) authentication;
         OAuth2AuthorizationResponse authorizationResponse =
                 authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationResponse();
         if (authorizationResponse.statusError()) {
@@ -52,8 +52,8 @@ public class GitHubAuthorizationCodeAuthenticationProvider implements Authentica
                 this.accessTokenResponseClient.getTokenResponse(new OAuth2AuthorizationCodeGrantRequest(
                         authorizationCodeAuthentication.getClientRegistration(),
                         authorizationCodeAuthentication.getAuthorizationExchange()));
-        GitHubAuthorizationCodeAuthenticationToken authenticationResult =
-                new GitHubAuthorizationCodeAuthenticationToken(
+        GitHubOAuth2AuthorizationCodeAuthenticationToken authenticationResult =
+                new GitHubOAuth2AuthorizationCodeAuthenticationToken(
                         authorizationCodeAuthentication.getClientRegistration(),
                         authorizationCodeAuthentication.getAuthorizationExchange(),
                         accessTokenResponse.getAccessToken(),
@@ -65,6 +65,6 @@ public class GitHubAuthorizationCodeAuthenticationProvider implements Authentica
 
     @Override
     public boolean supports(@NonNull Class<?> authentication) {
-        return GitHubAuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
+        return GitHubOAuth2AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

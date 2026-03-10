@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
 @Setter
 @Getter
 // 对应 OAuth2AuthorizationCodeAuthenticationToken
-public class GitHubAuthorizationCodeAuthenticationToken extends AbstractAuthenticationToken {
+public class GitHubOAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenticationToken {
 
     private Map<String, Object> additionalParameters = new HashMap<>();
     private ClientRegistration clientRegistration;
@@ -23,7 +23,7 @@ public class GitHubAuthorizationCodeAuthenticationToken extends AbstractAuthenti
     private OAuth2AccessToken accessToken;
     private OAuth2RefreshToken refreshToken;
 
-    public GitHubAuthorizationCodeAuthenticationToken(
+    public GitHubOAuth2AuthorizationCodeAuthenticationToken(
             ClientRegistration clientRegistration, OAuth2AuthorizationExchange authorizationExchange) {
         super(Collections.emptyList());
         Assert.notNull(clientRegistration, "clientRegistration cannot be null");
@@ -33,7 +33,7 @@ public class GitHubAuthorizationCodeAuthenticationToken extends AbstractAuthenti
         this.setAuthenticated(false);
     }
 
-    public GitHubAuthorizationCodeAuthenticationToken(
+    public GitHubOAuth2AuthorizationCodeAuthenticationToken(
             ClientRegistration clientRegistration,
             OAuth2AuthorizationExchange authorizationExchange,
             OAuth2AccessToken accessToken,
