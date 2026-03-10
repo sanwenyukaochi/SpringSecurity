@@ -1,6 +1,6 @@
 package com.spring.security.authentication.handler.auth.github.login;
 
-import com.spring.security.authentication.handler.auth.github.GitHubAuthenticationToken;
+import com.spring.security.authentication.handler.auth.github.GitHubOAuth2AuthenticationToken;
 import com.spring.security.authentication.handler.auth.utils.OAuth2AuthorizationResponseUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Setter
-public class GitHubLoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class GitHubOAuth2LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     public static final String DEFAULT_FILTER_PROCESSES_URI = "/api/login/oauth2/github/callback";
 
@@ -40,10 +40,10 @@ public class GitHubLoginAuthenticationFilter extends AbstractAuthenticationProce
     private final ClientRegistrationRepository clientRegistrationRepository;
 
     private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
-    private Function<GitHubLoginAuthenticationToken, GitHubAuthenticationToken> authenticationResultConverter =
+    private Function<GitHubOAuth2LoginAuthenticationToken, GitHubOAuth2AuthenticationToken> authenticationResultConverter =
             this::createAuthenticationResult;
 
-    public GitHubLoginAuthenticationFilter(
+    public GitHubOAuth2LoginAuthenticationFilter(
             ClientRegistrationRepository clientRegistrationRepository,
             AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository,
             AuthenticationManager authenticationManager,
@@ -96,18 +96,18 @@ public class GitHubLoginAuthenticationFilter extends AbstractAuthenticationProce
 
         Object authenticationDetails = this.authenticationDetailsSource.buildDetails(request);
 
-        GitHubLoginAuthenticationToken authenticationRequest = new GitHubLoginAuthenticationToken(
+        GitHubOAuth2LoginAuthenticationToken authenticationRequest = new GitHubOAuth2LoginAuthenticationToken(
                 clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
         authenticationRequest.setDetails(authenticationDetails);
 
         log.debug("GitHub callback 认证开始, registrationId={}", registrationId);
 
-        GitHubLoginAuthenticationToken authenticationResult =
-                (GitHubLoginAuthenticationToken) this.getAuthenticationManager().authenticate(authenticationRequest);
-        GitHubAuthenticationToken gitHubAuthenticationToken =
+        GitHubOAuth2LoginAuthenticationToken authenticationResult =
+                (GitHubOAuth2LoginAuthenticationToken) this.getAuthenticationManager().authenticate(authenticationRequest);
+        GitHubOAuth2AuthenticationToken gitHubOAuth2AuthenticationToken =
                 this.authenticationResultConverter.apply(authenticationResult);
-        gitHubAuthenticationToken.setDetails(authenticationResult.getDetails());
-        return gitHubAuthenticationToken;
+        gitHubOAuth2AuthenticationToken.setDetails(authenticationResult.getDetails());
+        return gitHubOAuth2AuthenticationToken;
     }
 
     public final void setAuthorizationRequestRepository(
@@ -117,13 +117,13 @@ public class GitHubLoginAuthenticationFilter extends AbstractAuthenticationProce
     }
 
     public final void setAuthenticationResultConverter(
-            Function<GitHubLoginAuthenticationToken, GitHubAuthenticationToken> authenticationResultConverter) {
+            Function<GitHubOAuth2LoginAuthenticationToken, GitHubOAuth2AuthenticationToken> authenticationResultConverter) {
         Assert.notNull(authenticationResultConverter, "authenticationResultConverter cannot be null");
         this.authenticationResultConverter = authenticationResultConverter;
     }
 
-    private GitHubAuthenticationToken createAuthenticationResult(GitHubLoginAuthenticationToken authenticationResult) {
-        return new GitHubAuthenticationToken(
+    private GitHubOAuth2AuthenticationToken createAuthenticationResult(GitHubOAuth2LoginAuthenticationToken authenticationResult) {
+        return new GitHubOAuth2AuthenticationToken(
                 authenticationResult.getCurrentUser(),
                 authenticationResult.getAuthorities(),
                 authenticationResult.getClientRegistration().getRegistrationId());

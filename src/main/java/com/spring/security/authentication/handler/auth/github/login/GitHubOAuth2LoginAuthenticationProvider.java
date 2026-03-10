@@ -1,9 +1,9 @@
 package com.spring.security.authentication.handler.auth.github.login;
 
 import com.spring.security.authentication.handler.auth.UserLoginInfo;
-import com.spring.security.authentication.handler.auth.github.authentication.GitHubAuthorizationCodeAuthenticationProvider;
-import com.spring.security.authentication.handler.auth.github.authentication.GitHubAuthorizationCodeAuthenticationToken;
-import com.spring.security.authentication.handler.auth.github.service.GitHubUserService;
+import com.spring.security.authentication.handler.auth.github.authentication.GitHubOAuth2AuthorizationCodeAuthenticationProvider;
+import com.spring.security.authentication.handler.auth.github.authentication.GitHubOAuth2AuthorizationCodeAuthenticationToken;
+import com.spring.security.authentication.handler.auth.github.service.GitHubOAuth2UserService;
 import com.spring.security.domain.model.entity.User;
 import com.spring.security.domain.model.entity.UserIdentity;
 import com.spring.security.domain.repository.UserIdentityRepository;
@@ -32,11 +32,11 @@ import org.springframework.util.Assert;
 @Setter
 @Getter
 @Component
-public class GitHubLoginAuthenticationProvider implements AuthenticationProvider {
+public class GitHubOAuth2LoginAuthenticationProvider implements AuthenticationProvider {
 
-    private final GitHubAuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider;
+    private final GitHubOAuth2AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider;
 
-    private final GitHubUserService gitHubUserService;
+    private final GitHubOAuth2UserService gitHubOAuth2UserService;
 
     private final UserIdentityRepository userIdentityRepository;
 
@@ -44,34 +44,34 @@ public class GitHubLoginAuthenticationProvider implements AuthenticationProvider
 
     private GrantedAuthoritiesMapper authoritiesMapper = (authorities) -> authorities;
 
-    public GitHubLoginAuthenticationProvider(
-            GitHubAuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider,
-            GitHubUserService gitHubUserService,
+    public GitHubOAuth2LoginAuthenticationProvider(
+            GitHubOAuth2AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider,
+            GitHubOAuth2UserService gitHubOAuth2UserService,
             UserIdentityRepository userIdentityRepository,
             UserRepository userRepository) {
         Assert.notNull(
                 authorizationCodeAuthenticationProvider, "authorizationCodeAuthenticationProvider cannot be null");
-        Assert.notNull(gitHubUserService, "userService cannot be null");
+        Assert.notNull(gitHubOAuth2UserService, "userService cannot be null");
         Assert.notNull(userIdentityRepository, "userIdentityRepository cannot be null");
         Assert.notNull(userRepository, "userRepository cannot be null");
         this.authorizationCodeAuthenticationProvider = authorizationCodeAuthenticationProvider;
-        this.gitHubUserService = gitHubUserService;
+        this.gitHubOAuth2UserService = gitHubOAuth2UserService;
         this.userIdentityRepository = userIdentityRepository;
         this.userRepository = userRepository;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        GitHubLoginAuthenticationToken loginAuthenticationToken = (GitHubLoginAuthenticationToken) authentication;
+        GitHubOAuth2LoginAuthenticationToken loginAuthenticationToken = (GitHubOAuth2LoginAuthenticationToken) authentication;
 
-        GitHubAuthorizationCodeAuthenticationToken authorizationCodeAuthenticationToken =
-                new GitHubAuthorizationCodeAuthenticationToken(
+        GitHubOAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthenticationToken =
+                new GitHubOAuth2AuthorizationCodeAuthenticationToken(
                         loginAuthenticationToken.getClientRegistration(),
                         loginAuthenticationToken.getAuthorizationExchange());
         authorizationCodeAuthenticationToken.setDetails(loginAuthenticationToken.getDetails());
 
-        GitHubAuthorizationCodeAuthenticationToken authorizationCodeAuthenticationResult =
-                (GitHubAuthorizationCodeAuthenticationToken)
+        GitHubOAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthenticationResult =
+                (GitHubOAuth2AuthorizationCodeAuthenticationToken)
                         this.authorizationCodeAuthenticationProvider.authenticate(authorizationCodeAuthenticationToken);
 
         OAuth2AccessToken accessToken = authorizationCodeAuthenticationResult.getAccessToken();
@@ -79,7 +79,7 @@ public class GitHubLoginAuthenticationProvider implements AuthenticationProvider
         Map<String, Object> additionalParameters = authorizationCodeAuthenticationResult.getAdditionalParameters();
 
         // 2. 再用 access_token 拉取 GitHub 用户信息
-        OAuth2User oauth2User = this.gitHubUserService.loadUser(new OAuth2UserRequest(
+        OAuth2User oauth2User = this.gitHubOAuth2UserService.loadUser(new OAuth2UserRequest(
                 loginAuthenticationToken.getClientRegistration(), accessToken, additionalParameters));
 
         Collection<GrantedAuthority> authorities = new HashSet<>(oauth2User.getAuthorities());
@@ -102,7 +102,7 @@ public class GitHubLoginAuthenticationProvider implements AuthenticationProvider
         additionalInfo.put("email", oauth2User.getAttribute("email"));
         additionalInfo.put("isNewUser", userIdentity.isEmpty());
 
-        GitHubLoginAuthenticationToken authenticationResult = new GitHubLoginAuthenticationToken(
+        GitHubOAuth2LoginAuthenticationToken authenticationResult = new GitHubOAuth2LoginAuthenticationToken(
                 loginAuthenticationToken.getClientRegistration(),
                 loginAuthenticationToken.getAuthorizationExchange(),
                 currentUser,
@@ -164,6 +164,6 @@ public class GitHubLoginAuthenticationProvider implements AuthenticationProvider
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return GitHubLoginAuthenticationToken.class.isAssignableFrom(authentication);
+        return GitHubOAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

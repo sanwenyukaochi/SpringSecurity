@@ -46,7 +46,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.UnknownContentTypeException;
 
 @Component
-public class GitHubUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class GitHubOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private static final String MISSING_USER_INFO_URI_ERROR_CODE = "missing_user_info_uri";
 
@@ -65,7 +65,7 @@ public class GitHubUserService implements OAuth2UserService<OAuth2UserRequest, O
 
     private RestOperations restOperations;
 
-    public GitHubUserService() {
+    public GitHubOAuth2UserService() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
         this.restOperations = restTemplate;
