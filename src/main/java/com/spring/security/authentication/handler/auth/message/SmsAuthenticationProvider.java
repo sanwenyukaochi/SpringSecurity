@@ -43,11 +43,11 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         String phone =
                 (smsAuthenticationToken.getPhone() == null ? "NONE_PROVIDED" : smsAuthenticationToken.getPhone());
         // 查询用户信息
-        User user = retrieveUser(phone, smsAuthenticationToken);
+        UserLoginInfo userLoginInfo = retrieveUser(phone, smsAuthenticationToken);
         // 验证用户信息
-        additionalAuthenticationChecks(user, (SmsAuthenticationToken) authentication);
+        additionalAuthenticationChecks(userLoginInfo, (SmsAuthenticationToken) authentication);
         // 构造成功结果
-        return createSuccessAuthentication(smsAuthenticationToken, user);
+        return createSuccessAuthentication(smsAuthenticationToken, userLoginInfo);
     }
 
     @Override
@@ -55,20 +55,7 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         return SmsAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    protected Authentication createSuccessAuthentication(Authentication authentication, User user) {
-        UserLoginInfo userLoginInfo = new UserLoginInfo(
-                UUID.randomUUID().toString(),
-                user.getId(),
-                user.getUsername(),
-                user.getPassword(),
-                user.getPhone(),
-                user.getEmail(),
-                user.getAccountNonLocked(),
-                user.getAccountNonLocked(),
-                user.getCredentialsNonExpired(),
-                user.getEnabled(),
-                user.getTwoFactorSecret(),
-                user.getTwoFactorEnabled());
+    protected Authentication createSuccessAuthentication(Authentication authentication, UserLoginInfo userLoginInfo) {
         // 认证通过，使用 Authenticated 为 true 的构造函数
         SmsAuthenticationToken result = SmsAuthenticationToken.authenticated(userLoginInfo, List.of());
         // 必须转化成Map
@@ -77,18 +64,30 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         return result;
     }
 
-    protected User retrieveUser(String phone, SmsAuthenticationToken authentication) throws AuthenticationException {
+    protected UserLoginInfo retrieveUser(String phone, SmsAuthenticationToken authentication)
+            throws AuthenticationException {
         User loadedUser =
                 userRepository.findByPhone(phone).orElseThrow(() -> new BaseException(BaseCode.USER_PHONE_NOT_FOUND));
-        authentication.setDetails(null);
         log.debug("用户信息查询成功，用户: {}", loadedUser.getUsername());
-        return loadedUser;
+        return new UserLoginInfo(
+                UUID.randomUUID().toString(),
+                loadedUser.getId(),
+                loadedUser.getUsername(),
+                loadedUser.getPassword(),
+                loadedUser.getPhone(),
+                loadedUser.getEmail(),
+                loadedUser.getAccountNonLocked(),
+                loadedUser.getAccountNonLocked(),
+                loadedUser.getCredentialsNonExpired(),
+                loadedUser.getEnabled(),
+                loadedUser.getTwoFactorSecret(),
+                loadedUser.getTwoFactorEnabled());
     }
 
-    protected void additionalAuthenticationChecks(User user, SmsAuthenticationToken authentication)
+    protected void additionalAuthenticationChecks(UserLoginInfo userLoginInfo, SmsAuthenticationToken authentication)
             throws AuthenticationException {
         String presentedSmsCode = authentication.getSmsCode();
-        if (!presentedSmsCode.equals("000000") || user == null) {
+        if (!presentedSmsCode.equals("000000") || userLoginInfo == null) {
             log.debug("身份验证失败，因为验证码与存储的值不匹配");
             throw new BadCredentialsException(
                     this.messages.getMessage("smsAuthenticationProvider.badCredentials", "Bad credentials"));
