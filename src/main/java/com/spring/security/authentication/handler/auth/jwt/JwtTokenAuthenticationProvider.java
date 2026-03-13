@@ -5,7 +5,6 @@ import com.spring.security.authentication.handler.auth.jwt.dto.JwtTokenUserLogin
 import com.spring.security.authentication.handler.auth.jwt.service.JwtService;
 import com.spring.security.common.cache.constant.RedisCache;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -21,7 +20,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import tools.jackson.databind.json.JsonMapper;
 
 /**
  * JWT认证提供者
@@ -33,7 +31,6 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private final JwtService jwtService;
     private final RedissonClient redissonClient;
-    private final JsonMapper jsonMapper;
 
     @Override
     @SneakyThrows
@@ -66,7 +63,7 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         // 认证通过，使用 Authenticated 为 true 的构造函数
         JwtTokenAuthenticationToken result = JwtTokenAuthenticationToken.authenticated(userLoginInfo, List.of());
         // 必须转化成Map
-        result.setDetails(jsonMapper.convertValue(authentication.getDetails(), Map.class));
+        result.setDetails(authentication.getDetails());
         log.debug("JWT认证成功，用户: {}", userLoginInfo.getUsername());
         return result;
     }

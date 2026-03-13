@@ -6,7 +6,6 @@ import com.spring.security.common.web.exception.BaseException;
 import com.spring.security.domain.model.entity.User;
 import com.spring.security.domain.repository.UserRepository;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import tools.jackson.databind.json.JsonMapper;
 
 /**
  * 手机号验证码登录认证
@@ -30,7 +28,6 @@ import tools.jackson.databind.json.JsonMapper;
 public class SmsAuthenticationProvider implements AuthenticationProvider {
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private final UserRepository userRepository;
-    private final JsonMapper jsonMapper;
 
     @Override
     public Authentication authenticate(@NonNull Authentication authentication) throws AuthenticationException {
@@ -59,7 +56,7 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         // 认证通过，使用 Authenticated 为 true 的构造函数
         SmsAuthenticationToken result = SmsAuthenticationToken.authenticated(userLoginInfo, List.of());
         // 必须转化成Map
-        result.setDetails(jsonMapper.convertValue(authentication.getDetails(), Map.class));
+        result.setDetails(authentication);
         log.debug("手机号认证成功，用户: {}", userLoginInfo.getUsername());
         return result;
     }
