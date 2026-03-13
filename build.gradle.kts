@@ -15,7 +15,6 @@ val commonsLangVersion by extra("3.20.0")
 val jjwtVersion by extra("0.13.0")
 val postgresqlVersion by extra("42.7.10")
 val jspecifyVersion by extra("1.0.0")
-val flywayVersion by extra("12.1.0")
 val redissonVersion by extra("4.3.0")
 
 dependencies {
@@ -27,7 +26,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.redisson:redisson:$redissonVersion")
@@ -127,7 +126,7 @@ checkstyle {
         mapOf(
             "baseDir" to rootDir,
         )
-    isIgnoreFailures = true // 注意：Groovy中是 ignoreFailures，Kotlin中需要 isIgnoreFailures
+    isIgnoreFailures = true
 }
 
 tasks.withType<Checkstyle>().configureEach {
