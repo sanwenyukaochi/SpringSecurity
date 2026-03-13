@@ -46,11 +46,11 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
                 ? "NONE_PROVIDED"
                 : usernameAuthenticationToken.getUsername());
         // 查询用户信息
-        User user = retrieveUser(username, usernameAuthenticationToken);
+        UserLoginInfo userLoginInfo = retrieveUser(username, usernameAuthenticationToken);
         // 验证用户信息
-        additionalAuthenticationChecks(user, (UsernameAuthenticationToken) authentication);
+        additionalAuthenticationChecks(userLoginInfo, (UsernameAuthenticationToken) authentication);
         // 构造成功结果
-        return createSuccessAuthentication(usernameAuthenticationToken, user);
+        return createSuccessAuthentication(usernameAuthenticationToken, userLoginInfo);
     }
 
     @Override
@@ -58,20 +58,7 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
         return UsernameAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    protected Authentication createSuccessAuthentication(Authentication authentication, User user) {
-        UserLoginInfo userLoginInfo = new UserLoginInfo(
-                UUID.randomUUID().toString(),
-                user.getId(),
-                user.getUsername(),
-                user.getPassword(),
-                user.getPhone(),
-                user.getEmail(),
-                user.getAccountNonLocked(),
-                user.getAccountNonLocked(),
-                user.getCredentialsNonExpired(),
-                user.getEnabled(),
-                user.getTwoFactorSecret(),
-                user.getTwoFactorEnabled());
+    protected Authentication createSuccessAuthentication(Authentication authentication, UserLoginInfo userLoginInfo) {
         // 认证通过，使用 Authenticated 为 true 的构造函数
         UsernameAuthenticationToken result = UsernameAuthenticationToken.authenticated(userLoginInfo, List.of());
         // 必须转化成Map
@@ -80,19 +67,30 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
         return result;
     }
 
-    protected User retrieveUser(String username, UsernameAuthenticationToken authentication)
+    protected UserLoginInfo retrieveUser(String username, UsernameAuthenticationToken authentication)
             throws AuthenticationException {
         User loadedUser =
                 userRepository.findByUsername(username).orElseThrow(() -> new BaseException(BaseCode.USER_NOT_FOUND));
-        authentication.setDetails(null);
         log.debug("用户信息查询成功，用户: {}", loadedUser.getUsername());
-        return loadedUser;
+        return new UserLoginInfo(
+                UUID.randomUUID().toString(),
+                loadedUser.getId(),
+                loadedUser.getUsername(),
+                loadedUser.getPassword(),
+                loadedUser.getPhone(),
+                loadedUser.getEmail(),
+                loadedUser.getAccountNonLocked(),
+                loadedUser.getAccountNonLocked(),
+                loadedUser.getCredentialsNonExpired(),
+                loadedUser.getEnabled(),
+                loadedUser.getTwoFactorSecret(),
+                loadedUser.getTwoFactorEnabled());
     }
 
-    protected void additionalAuthenticationChecks(User user, UsernameAuthenticationToken authentication)
-            throws AuthenticationException {
+    protected void additionalAuthenticationChecks(
+            UserLoginInfo userLoginInfo, UsernameAuthenticationToken authentication) throws AuthenticationException {
         String presentedPassword = authentication.getPassword();
-        if (!this.passwordEncoder.matches(presentedPassword, user.getPassword())) {
+        if (!this.passwordEncoder.matches(presentedPassword, userLoginInfo.getPassword())) {
             log.debug("身份验证失败，因为密码与存储的值不匹配");
             throw new BadCredentialsException(
                     this.messages.getMessage("usernameAuthenticationProvider.badCredentials", "错误的凭证"));

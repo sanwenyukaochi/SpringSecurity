@@ -6,7 +6,6 @@ import com.spring.security.authentication.handler.auth.jwt.service.JwtService;
 import com.spring.security.common.cache.constant.RedisCache;
 import com.spring.security.common.web.enums.BaseCode;
 import com.spring.security.common.web.exception.BaseException;
-import com.spring.security.domain.model.entity.User;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,11 +50,11 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
                 ? "NONE_PROVIDED"
                 : jwtTokenAuthenticationToken.getJwtToken());
         // 查询用户信息
-        User user = retrieveUser(jwtToken, jwtTokenAuthenticationToken);
+        UserLoginInfo userLoginInfo = retrieveUser(jwtToken, jwtTokenAuthenticationToken);
         // 验证用户信息
-        additionalAuthenticationChecks(user, (JwtTokenAuthenticationToken) authentication);
+        additionalAuthenticationChecks(userLoginInfo, (JwtTokenAuthenticationToken) authentication);
         // 构造成功结果
-        return createSuccessAuthentication(jwtTokenAuthenticationToken, user);
+        return createSuccessAuthentication(jwtTokenAuthenticationToken, userLoginInfo);
     }
 
     @Override
@@ -63,38 +62,31 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         return JwtTokenAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    protected Authentication createSuccessAuthentication(Authentication authentication, User user) {
-        UserLoginInfo userLoginInfo = (UserLoginInfo) redissonClient
-                .getBucket(
-                        RedisCache.USER_INFO.formatted(user.getUsername()),
-                        new TypedJsonJacksonCodec(UserLoginInfo.class))
-                .get();
+    protected Authentication createSuccessAuthentication(Authentication authentication, UserLoginInfo userLoginInfo) {
         // 认证通过，使用 Authenticated 为 true 的构造函数
-        JwtTokenAuthenticationToken result = new JwtTokenAuthenticationToken(userLoginInfo, List.of());
+        JwtTokenAuthenticationToken result = JwtTokenAuthenticationToken.authenticated(userLoginInfo, List.of());
         // 必须转化成Map
         result.setDetails(jsonMapper.convertValue(authentication.getDetails(), Map.class));
         log.debug("JWT认证成功，用户: {}", userLoginInfo.getUsername());
         return result;
     }
 
-    protected User retrieveUser(String jwtToken, JwtTokenAuthenticationToken authentication)
+    protected UserLoginInfo retrieveUser(String jwtToken, JwtTokenAuthenticationToken authentication)
             throws AuthenticationException {
         JwtTokenUserLoginInfo jwtTokenUserLoginInfo = jwtService.validateJwtToken(jwtToken);
-        User loadedUser = new User();
-        loadedUser.setUsername(jwtTokenUserLoginInfo.username());
+        UserLoginInfo loadedUser = (UserLoginInfo) redissonClient
+                .getBucket(
+                        RedisCache.USER_INFO.formatted(jwtTokenUserLoginInfo.username()),
+                        new TypedJsonJacksonCodec(UserLoginInfo.class))
+                .get();
         authentication.setDetails(null);
         log.debug("用户信息解析成功，用户: {}", jwtTokenUserLoginInfo.username());
         return loadedUser;
     }
 
-    protected void additionalAuthenticationChecks(User user, JwtTokenAuthenticationToken authentication)
-            throws AuthenticationException {
+    protected void additionalAuthenticationChecks(
+            UserLoginInfo userLoginInfo, JwtTokenAuthenticationToken authentication) throws AuthenticationException {
         String presentedJwtToken = authentication.getJwtToken();
-        UserLoginInfo userLoginInfo = (UserLoginInfo) redissonClient
-                .getBucket(
-                        RedisCache.USER_INFO.formatted(user.getUsername()),
-                        new TypedJsonJacksonCodec(UserLoginInfo.class))
-                .get();
         Optional.ofNullable(presentedJwtToken)
                 .orElseThrow(() -> new BadCredentialsException(
                         this.messages.getMessage("jwtTokenAuthenticationProvider.sessionExpired", "错误的凭证")));
