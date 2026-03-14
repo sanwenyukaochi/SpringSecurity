@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -59,10 +60,8 @@ public class LoginSuccessHandler extends AbstractAuthenticationTargetUrlRequestH
         JwtTokenUserLoginInfo jwtTokenUserLoginInfo =
                 new JwtTokenUserLoginInfo(currentUser.getSessionId(), currentUser.getUsername());
         // 一些特殊的登录参数。比如三方登录，需要额外返回一个字段是否需要跳转的绑定已有账号页面
-        @SuppressWarnings("unchecked")
         Map<String, Object> additionalInfo = Optional.ofNullable(authentication.getDetails())
-                .filter(Map.class::isInstance)
-                .map(Map.class::cast)
+                .map(details -> jsonMapper.convertValue(details, new TypeReference<Map<String, Object>>() {}))
                 .orElse(Map.of());
         boolean hasAccount =
                 authentication.getDetails() == null || Boolean.FALSE.equals(additionalInfo.get("isNewUser"));
